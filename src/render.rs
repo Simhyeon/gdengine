@@ -59,6 +59,37 @@ impl<'a> Renderer<'a> {
     }
 
     fn m4_preprocess(&self) -> Result<(), GdeError> {
+        self.m4_sanitize()?;
+        self.m4_remove_comments()?;
+        self.m4_commands()?;
+        self.m4_purge_unused()?;
+        Ok(())
+    }
+
+    // TODO
+    // Regex to sanitize inputs
+    // , -> \.
+    // ` -> \~
+    // ' -> \;
+    fn m4_sanitize(&self) -> Result<(), GdeError> {
+        unimplemented!();
+        Ok(())
+    }
+
+    // TODO
+    // Regex to remove comments (//)
+    fn m4_remove_comments(&self) -> Result<(), GdeError> {
+        unimplemented!();
+        Ok(())
+    }
+    // TODO
+    // Purge unused macros
+    fn m4_purge_unused(&self) -> Result<(), GdeError> {
+        unimplemented!();
+        Ok(())
+    }
+
+    fn m4_commands(&self) -> Result<(), GdeError> {
         let args = self.m4_arguments()?;
 
         let mut frag_a_file = std::env::current_dir()?;
@@ -87,7 +118,6 @@ impl<'a> Renderer<'a> {
             String::from_utf8_lossy(&output.stdout).to_string()
         )?;
         println!("{}", String::from_utf8_lossy(&output.stderr));
-
         Ok(())
     }
 
