@@ -1,5 +1,5 @@
 [package]
-name = "gde"
+name = "gdengine"
 version = "0.1.0"
 edition = "2018"
 
@@ -8,3 +8,8 @@ edition = "2018"
 [dependencies]
 clap = "3.0.0-beta.2"
 thiserror = "1.0.25"
+lazy_static = "1.4.0"
+
+[[bin]]
+name = "gde"
+path = "src/main.rs"

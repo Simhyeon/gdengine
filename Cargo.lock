@@ -58,10 +58,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "gde"
+name = "gdengine"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "lazy_static",
  "thiserror",
 ]
 
