@@ -48,7 +48,7 @@ impl Cli {
     // TODO Add stream or file type option for main usage
     fn args_builder() -> clap::ArgMatches {
         clap_app!(Gde =>
-            (version: "0.0.1")
+            (version: "0.1.0")
             (author: "Simon Creek <simoncreek@tutanota.com>")
             (about: "Gdengine is a document automation program.")
             (@setting ArgRequiredElseHelp)

@@ -1,4 +1,3 @@
-use std::fs;
 use std::path::{PathBuf, Path};
 use std::process::Command;
 use crate::error::GdeError;
@@ -63,33 +62,14 @@ impl<'a> Renderer<'a> {
 
     pub fn render(&self) -> Result<(), GdeError> {
 
-        self.macro_execution()?;
+        self.rad_process()?;
         self.render_main()?;
-        // self.postprocess()?;
+        self.postprocess()?;
 
         Ok(())
     }
 
-    fn render_main(&self) -> Result<(), GdeError> {
-        match self.target {
-            "marp" =>{
-                // Change name to out.md
-                let mut new_path = utils::middle_file_path()?;
-                new_path.set_extension("md");
-                std::fs::rename(utils::middle_file_path()?, &new_path)?;
-
-                marp::marp_render(
-                    new_path,
-                    self.options.format.clone(),
-                    &Path::new(&self.options.output)
-                )?;
-            }
-                _ => eprintln!("No appropriate renderer was given"),
-        }
-        Ok(())
-    }
-
-    fn macro_execution(&self) -> Result<(), GdeError> {
+    fn rad_process(&self) -> Result<(), GdeError> {
         let args = self.set_rad_arguments()?;
 
         let output = Command::new("rad")
@@ -112,24 +92,16 @@ impl<'a> Renderer<'a> {
             args.push("-p".to_owned());
         }
 
+        // Set out file, or middle file
         let out_file = utils::middle_file_path()?
             .to_str()
             .unwrap()
             .to_owned();
-
         args.push("-o".to_owned());
         args.push(out_file);
 
         // Return vec
         Ok(args)
-    }
-
-    // Copy output file to designated file
-    fn postprocess(&self) -> Result<(), GdeError> {
-        if let Some(path) = &self.options.copy {
-
-        }
-        Ok(())
     }
 
     fn set_rad_sources(&self) -> Result<Vec<String>, GdeError> {
@@ -146,5 +118,36 @@ impl<'a> Renderer<'a> {
         sources.push(self.options.input.clone());
 
         Ok(sources)
+    }
+
+    fn render_main(&self) -> Result<(), GdeError> {
+        match self.target {
+            "marp" =>{
+                // Change name to out.md
+                let mut new_path = utils::middle_file_path()?;
+                new_path.set_extension("md");
+                std::fs::rename(utils::middle_file_path()?, &new_path)?;
+
+                marp::marp_render(
+                    new_path,
+                    self.options.format.clone(),
+                    &Path::new(&self.options.output)
+                )?;
+            }
+                _ => eprintln!("No appropriate renderer was given"),
+        }
+        Ok(())
+    }
+
+    // Copy output file to designated file
+    // Remove cached file
+    fn postprocess(&self) -> Result<(), GdeError> {
+        if let Some(path) = &self.options.copy {
+
+        }
+        if self.options.preserve {
+
+        }
+        Ok(())
     }
 }
