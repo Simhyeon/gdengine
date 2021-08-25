@@ -2,6 +2,7 @@ mod cli;
 mod error;
 mod init;
 mod render;
+mod renderer;
 mod utils;
 
 use cli::Cli;

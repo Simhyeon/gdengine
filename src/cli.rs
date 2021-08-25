@@ -10,12 +10,38 @@ pub struct Cli{}
 impl Cli {
     pub fn parse() -> Result<(), GdeError>{
         let cli_args = Cli::args_builder();
-        Cli::parse_subcommands(&cli_args)?;
+        Cli::parse_options(&cli_args)?;
         Ok(())
     }
-    fn parse_subcommands(args: &clap::ArgMatches) -> Result<(), GdeError> {
-        Cli::subcommand_init(args)?;
-        Cli::subcommand_repr(args)?;
+
+    fn parse_options(args: &clap::ArgMatches) -> Result<(), GdeError> {
+        if let Some(action) = args.value_of("ACTION") {
+            match action {
+                "init" => {
+                    // Create new files and directories
+                    Init::new_gddt_file()?;
+                    Init::new_macro_file()?;
+                    Init::new_directories()?;
+                    // Git option
+                    if args.is_present("git") {
+                        Init::git_init()?;
+                    }
+                },
+                "render" => {
+                    if let Some(module) = args.value_of("module") {
+                        // Set module
+                        let render_option = Cli::parse_render_options(args)?;
+
+                        // Render 
+                        Renderer::new(
+                            module,
+                            render_option
+                        ).render()?;
+                    }
+                }
+                _ => (),
+            }
+        }
         Ok(())
     }
 
@@ -26,72 +52,26 @@ impl Cli {
             (author: "Simon Creek <simoncreek@tutanota.com>")
             (about: "Gdengine is a document automation program.")
             (@setting ArgRequiredElseHelp)
+            (@arg ACTION: "An action to take")
             (@arg help: -h --help "Display help message")
             (@arg preserve: -p --preserve "Preserve temporary files")
+            (@arg purge: -P --purge "Purge unused macro invocations")
             (@arg input: -n --input +takes_value "Input file to process")
             (@arg output: -o --output +takes_value "Output file to yield")
             (@arg copy: -c --copy +takes_value "Copy to directory")
-            (@arg module: -m --module +takes_value "Copy to directory")
-            (@subcommand init =>
-                (about: "Initialize a directory")
-                (@arg git: -g --git "Initialize with git directory")
-            )
-            (@subcommand repr =>
-                (about: "Render representation format")
-                (@arg format: ... -f --format +takes_value "Representation format (html|pdf|pptx)")
-            )
+            (@arg module: -m --module +takes_value "Render module")
+            (@arg format: -f --format +takes_value "Render format")
         ).get_matches()
-    }
-
-    fn subcommand_init(matches: &clap::ArgMatches) -> Result<(), GdeError> {
-        if let Some(sub_match) = matches.subcommand_matches("init") {
-            // Create new files and directories
-            Init::new_gddt_file()?;
-            Init::new_macro_file()?;
-            Init::new_directories()?;
-            // Git option
-            if sub_match.is_present("git") {
-                Init::git_init()?;
-            }
-        } 
-        Ok(())
-    }
-
-    fn subcommand_repr(matches: &clap::ArgMatches) -> Result<(), GdeError> {
-        // Set module
-        let module = matches.value_of("module");
-        let render_option = Cli::parse_render_options(matches)?;
-
-        if let Some(sub_match) = matches.subcommand_matches("repr") {
-            // Set default module if not existent
-            let module = if let None = module { "marp" } else { module.unwrap() };
-
-            // Render specific option
-            // Set format
-            let mut format: Option<String> = None;
-            if let Some(value) = sub_match.value_of("format") {
-                format.replace(value.to_owned());
-            }
-
-            // Render 
-            Renderer::new(
-                "repr", 
-                module, 
-                render_option
-            ).render()?;
-
-        } 
-
-        Ok(())
     }
 
     fn parse_render_options(matches: &clap::ArgMatches) -> Result<RenderOptions, GdeError> {
         Ok(RenderOptions::new(
                 matches.is_present("preserve"),
-                matches.value_of("copy").map(|str| PathBuf::from(str)),
-                matches.value_of("format").map(|str| str.to_owned()),
-                matches.value_of("input").map(|str| PathBuf::from(str)),
-                matches.value_of("output").map(|str| PathBuf::from(str)),
+                matches.is_present("purge"),
+                matches.value_of("copy").map(|s| PathBuf::from(s)),
+                matches.value_of("format").map(|s| s.to_owned()),
+                matches.value_of("input").map(|s| PathBuf::from(s)),
+                matches.value_of("output").map(|s| PathBuf::from(s)),
         ))
     }
 }

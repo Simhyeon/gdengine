@@ -1,43 +1,67 @@
 use std::path::PathBuf;
 use crate::error::GdeError;
 
+// TODO 
+// Make this lazy_static rather tahn creating pathbuf everytime
+
 pub fn build_path() -> Result<PathBuf, GdeError> {
-    let mut pb = std::env::current_dir()?;
+    let mut pb;
+    if cfg!(debug_assertions) {
+        pb = std::env::current_dir()?;
+    } else {
+        pb = std::env::current_exe()?;
+    }
     pb.push("build");
     Ok(pb)
 }
 
+pub fn lib_path() -> Result<PathBuf, GdeError> {
+    let mut pb;
+    if cfg!(debug_assertions) {
+        pb = std::env::current_dir()?;
+    } else {
+        pb = std::env::current_exe()?;
+    }
+    pb.push("libs");
+    Ok(pb)
+}
+
 pub fn cache_path() -> Result<PathBuf, GdeError> {
-    let mut pb = std::env::current_dir()?;
+    let mut pb;
+    if cfg!(debug_assertions) {
+        pb = std::env::current_dir()?;
+    } else {
+        pb = std::env::current_exe()?;
+    }
     pb.push("cache");
     Ok(pb)
 }
 
-pub fn m4_gnu_path() -> Result<PathBuf, GdeError> {
-    let mut pb = std::env::current_exe()?;
-    pb.push("m4");
-    pb.push("GNU");
+pub fn std_path() -> Result<PathBuf, GdeError> {
+    let mut pb;
+    if cfg!(debug_assertions) {
+        pb = std::env::current_dir()?;
+    } else {
+        pb = std::env::current_exe()?;
+    }
+    pb.push("default.r4f");
     Ok(pb)
 }
 
-pub fn m4_std_path() -> Result<PathBuf, GdeError> {
-    let mut pb = std::env::current_exe()?;
-    pb.push("m4");
-    pb.push("default.m4");
+pub fn renderer_path() -> Result<PathBuf, GdeError> {
+    let mut pb;
+    if cfg!(debug_assertions) {
+        pb = std::env::current_dir()?;
+    } else {
+        pb = std::env::current_exe()?;
+    }
+    pb.push("renderers");
     Ok(pb)
 }
 
-pub fn module_path() -> Result<PathBuf, GdeError> {
-    let mut pb = std::env::current_exe()?;
-    pb.push("module");
+pub fn middle_file_path() -> Result<PathBuf, GdeError> {
+    let out_file = cache_path()?
+        .join("out.gddt");
 
-    Ok(pb)
-}
-
-pub fn script_path() -> Result<PathBuf, GdeError> {
-    let mut pb = std::env::current_exe()?;
-    pb.push("m4");
-    pb.push("scripts");
-
-    Ok(pb)
+    Ok(out_file)
 }
