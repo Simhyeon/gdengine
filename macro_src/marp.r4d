@@ -12,8 +12,7 @@ $define(m_class,a_class=<!-- _class: $a_class() -->)
 # Subsitue with markdown compatible image form 
 # Convert contents into single lined html
 # This was intended for multi line support in csv table
-$define(nl=\\n)
-$define(to_br,a_scell=$regex($a_scell(),$nl(),<br>))
+$define(m_to_br,a_scell=$regex($a_scell^(),$nl(),<br>))
 
 # ==========
 # User interface macros 
@@ -44,21 +43,21 @@ $define(ud,a_content=__$a_content()__)
 # Indentation
 # WARNING : Single spaces between if else bracket end and macro define bracket end
 # is necessary, do not erase it.
-$define(idt,a_count=$forloop(0,$a_count^(),  ))
+$define(idt,a_count=$forloop(1,$a_count^(),  ))
 
 # Lists
 # Unordered List
 # Emtpry ul is same with level 1 
-$define(ul,a_count=$forloop(0,$a_count^(),*))
+$define(ul,a_count=$forloop(1,$a_count^(),*))
 
 # Ordered list
-$define(ol,a_count=$forloop(0,$a_count^(),  )1.)
+$define(ol,a_count=$forloop(1,$a_count^(),  )1.)
 
 # Paragraph
 $define(p,a_content=<p>$a_content()</p>)
 
 # New page
-$define(new_page=
+$define(newpage=
 ---
 )
 
@@ -78,7 +77,7 @@ $define(ts=<table>)
 $define(tfont,a_header_size a_body_size=<style scoped>
 	thead > tr > td { 
 	    $ifelse(
-			$a_header_size() == 0,
+			$a_header_size^() == 0,
 			$pipe($v_thead_default()),
 			$pipe($a_header_size^())
 		) 
@@ -86,7 +85,7 @@ $define(tfont,a_header_size a_body_size=<style scoped>
 	}
 	:not(thead) > tr > td { 
 	    $ifelse(
-			$a_body_size() == 0,
+			$a_body_size^() == 0,
 			$pipe($v_tbody_default()),
 			$pipe($a_body_size^())
 		) 
@@ -95,10 +94,10 @@ $define(tfont,a_header_size a_body_size=<style scoped>
 </style>)
 # Set table header
 $define(th,a_content=
-$foreach($a_content*(),    <thead>$:</thead>))
+$foreach($a_content^*(),    <thead>$:</thead>))
 # Set table row
 $define(tr,a_content=
-$to_br($foreach($a_content*(),    <tr>$:</tr>)))
+$m_to_br($foreach($a_content^*(),    <tr>$:</tr>)))
 # end table
 $define(te=</table>)
 
@@ -118,7 +117,7 @@ $define(fimg,a_src a_width a_top a_left=<div style="position: fixed; top: $a_top
 # MACRO >>> Text macro that also sets font size for the text
 # Example :
 # text(26, yatti yatta)
-$define(text,a_font_size a_content=<div style="font-size : $ifelse($eval($a_font_size() != 0),$a_font_size(),$v_font_size())px;">
+$define(text,a_font_size a_content=<div style="font-size : $ifelse($eval($a_font_size^() != 0),$a_font_size^(),$a_font_size^())px;">
 $trim($a_content^())
 </div>)
 
@@ -138,13 +137,13 @@ $trim($a_content^())
 # Macro >>> set table of contents
 $define(toc,a_text a_goto=<ol><a href="#$a_goto()">$a_text()</a></ol>)
 # MACRO >>> Set title class into slide and type title, author text at the same time
-$define(title,a_title a_subtitle=m_class(title)
+$define(title,a_title a_subtitle=$m_class(title)
 # $a_title()
 ## $a_subtitle()
 )
 
 # MACRO >>> Set any class of given arguments
-$define(cls,a_class=m_class($a_class()))
+$define(cls,a_class=$m_class($a_class^()))
 
 # Split screen related macros
 # MACRO >>> Start left pane
