@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 use crate::error::GdeError;
+use lazy_static::lazy_static;
 
 // TODO 
 // Make this lazy_static rather tahn creating pathbuf everytime
