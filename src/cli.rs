@@ -72,6 +72,6 @@ impl Cli {
                 matches.value_of("format").map(|s| s.to_owned()),
                 matches.value_of("input").map(|s| PathBuf::from(s)),
                 matches.value_of("output").map(|s| PathBuf::from(s)),
-        ))
+        )?)
     }
 }
