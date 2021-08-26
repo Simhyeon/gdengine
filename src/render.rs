@@ -134,7 +134,10 @@ impl<'a> Renderer<'a> {
                     &Path::new(&self.options.output)
                 )?;
             }
-                _ => eprintln!("No appropriate renderer was given"),
+            "mw" => {
+
+            }
+            _ => eprintln!("No appropriate renderer was given"),
         }
         Ok(())
     }
