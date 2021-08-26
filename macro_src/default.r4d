@@ -1,0 +1,3 @@
+$define(nl=
+)
+$define(tp,a_row=$regex($a_row^*(),\*,*\,$nl()))

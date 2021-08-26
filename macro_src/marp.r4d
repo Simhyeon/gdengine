@@ -1,0 +1,165 @@
+# Environment variables 
+$define(v_basis_height=500)
+$define(v_font_default=24)
+$define(v_thead_default=18)
+$define(v_tbody_default=14)
+
+# Macros 
+
+# Substitue class name with marp compatible class form 
+# white space between _class: and $1 is necessary 
+$define(m_class,a_class=<!-- _class: $a_class() -->)
+# Subsitue with markdown compatible image form 
+# Convert contents into single lined html
+# This was intended for multi line support in csv table
+$define(nl=\\n)
+$define(to_br,a_scell=$regex($a_scell(),$nl(),<br>))
+
+# ==========
+# User interface macros 
+
+# Basic syntax macros
+# Headers
+$define(h1,a_content=# $a_content())
+$define(h2,a_content=## $a_content())
+$define(h3,a_content=### $a_content())
+$define(h4,a_content=#### $a_content())
+$define(h5,a_content=##### $a_content())
+
+# Bold 
+$define(b,a_content=**$a_content()**)
+
+# Italic 
+$define(i,a_content=*$a_content()*)
+
+# ItalicBold 
+$define(bi,a_content=***$a_content()***)
+
+# Strike through
+$define(st,a_content=~~$a_content()~~)
+
+# Underline
+$define(ud,a_content=__$a_content()__)
+
+# Indentation
+# WARNING : Single spaces between if else bracket end and macro define bracket end
+# is necessary, do not erase it.
+$define(idt,a_count=$forloop(0,$a_count^(),  ))
+
+# Lists
+# Unordered List
+# Emtpry ul is same with level 1 
+$define(ul,a_count=$forloop(0,$a_count^(),*))
+
+# Ordered list
+$define(ol,a_count=$forloop(0,$a_count^(),  )1.)
+
+# Paragraph
+$define(p,a_content=<p>$a_content()</p>)
+
+# New page
+$define(new_page=
+---
+)
+
+# MACRO >>> Get style files' name and paste the content
+# Usage :
+# _styles(image.css, layout.css)
+$define(styles,a_styles=<style>
+$foreach($a_styles^*(),$include($env(MODULE)/$:)
+)</style>)
+
+
+# Multiline support csv table related macros
+# Refer macro.md for general usage
+# Start table
+$define(ts=<table>)
+# Set table font size
+$define(tfont,a_header_size a_body_size=<style scoped>
+	thead > tr > td { 
+	    $ifelse(
+			$a_header_size() == 0,
+			$pipe($v_thead_default()),
+			$pipe($a_header_size^())
+		) 
+		$-() 
+	}
+	:not(thead) > tr > td { 
+	    $ifelse(
+			$a_body_size() == 0,
+			$pipe($v_tbody_default()),
+			$pipe($a_body_size^())
+		) 
+		$-() 
+	}
+</style>)
+# Set table header
+$define(th,a_content=
+$foreach($a_content*(),    <thead>$:</thead>))
+# Set table row
+$define(tr,a_content=
+$to_br($foreach($a_content*(),    <tr>$:</tr>)))
+# end table
+$define(te=</table>)
+
+# URL
+$define(url=a_src a_text=[$a_text()]($a_src())) # $2 is alternate text, $1 is image url
+
+# Image substitue macros
+$define(img,a_url=
+![Image not found]($a_url())
+)
+# Make Set img's max-width with given arguments 
+$define(simg,a_src a_max_width=<div style="text-align: inherit; flex: 1;"><img src="$a_src()" style="width: 100%; max-width: $a_max_width(); max-height: auto;"></img></div>)
+# Fixed position image
+$define(fimg,a_src a_width a_top a_left=<div style="position: fixed; top: $a_top(); left: $a_left();" alt="Image not found"><img style="width: $a_width();" src="$a_src()"></img></div>
+)
+
+# MACRO >>> Text macro that also sets font size for the text
+# Example :
+# text(26, yatti yatta)
+$define(text,a_font_size a_content=<div style="font-size : $ifelse($eval($a_font_size() != 0),$a_font_size(),$v_font_size())px;">
+$trim($a_content^())
+</div>)
+
+# MACRO >>> Flex box macro that makes div a flex display
+# Intended for usage with split screen
+$define(fbox,a_content=<div style="flex:1;">
+$trim($a_content^())
+</div>)
+
+# MACRO >>> Flex box with given font size
+$define(ffbox,a_font_size a_content=<div style="flex:1; font-size: $a_font_size()px;">
+$trim($a_content^())
+</div>)
+
+# Class related macros
+
+# Macro >>> set table of contents
+$define(toc,a_text a_goto=<ol><a href="#$a_goto()">$a_text()</a></ol>)
+# MACRO >>> Set title class into slide and type title, author text at the same time
+$define(title,a_title a_subtitle=m_class(title)
+# $a_title()
+## $a_subtitle()
+)
+
+# MACRO >>> Set any class of given arguments
+$define(cls,a_class=m_class($a_class()))
+
+# Split screen related macros
+# MACRO >>> Start left pane
+$define(left=<div class="ldiv">
+)
+# MACRO >>> Start right pane
+$define(right=
+</div>
+<div class="rdiv">
+)
+# MACRO >>> End split screen
+$define(end=
+</div>)
+
+# Center macro
+$define(center,a_content=<div style="text-align:center; display:block; margin: 0 auto;">
+$a_content()
+</div>)
