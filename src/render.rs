@@ -13,7 +13,7 @@ pub struct RenderOptions {
     // Used by renderer
     preserve: bool,
     format: Option<String>,
-    output: String,
+    output: Option<PathBuf>,
 }
 
 impl RenderOptions {
@@ -24,26 +24,21 @@ impl RenderOptions {
         format: Option<String>,
         input: Option<PathBuf>,
         output: Option<PathBuf>
-    ) -> Self {
+    ) -> Result<Self,GdeError> {
         let input = if let Some(content) = input {
             content
         } else {
-            PathBuf::from("index.gddt")
+            utils::default_entry_path()?
         };
 
-        let output = if let Some(content) = output {
-            content
-        } else {
-            PathBuf::from("out.gddt")
-        };
-        Self { 
+        Ok(Self { 
             preserve,
             purge,
             copy,
             format,
             input : input.to_str().unwrap().to_owned(),
-            output : output.to_str().unwrap().to_owned(),
-        }
+            output : output,
+        })
     }
 }
 
@@ -99,23 +94,20 @@ impl<'a> Renderer<'a> {
             .to_owned();
         args.push("-o".to_owned());
         args.push(out_file);
+        args.push("-g".to_owned());
 
         // Return vec
         Ok(args)
     }
 
     fn set_rad_sources(&self) -> Result<Vec<String>, GdeError> {
+        // User defined macro
+        let mut sources = vec!(self.options.input.clone());
         // Standard macro definition file
-        let mut sources = vec!( utils::std_path()?.to_str().unwrap().to_owned() );
-
+        sources.push("-m".to_owned());
+        sources.push(format!("{}", utils::std_path()?.display()));
         // Set lib definition file
-        let mut lib_path = utils::lib_path()?;
-        lib_path.push(format!("{}.r4f", self.target));
-        sources.push(lib_path.to_str().unwrap().to_owned());
-
-        // TODO
-        // User defined macro files
-        sources.push(self.options.input.clone());
+        sources.push(format!("{}", utils::module_path(self.target)?.display()));
 
         Ok(sources)
     }
@@ -128,10 +120,22 @@ impl<'a> Renderer<'a> {
                 new_path.set_extension("md");
                 std::fs::rename(utils::middle_file_path()?, &new_path)?;
 
+                let format = if let Some(format) = &self.options.format {
+                    format.to_owned()
+                } else {
+                    "html".to_owned()
+                };
+
+                let out_file = if let Some(name) = &self.options.output {
+                    name.to_owned()
+                } else {
+                    utils::build_path()?.join(format!("out.{}", format)).to_owned()
+                };
+
                 marp::marp_render(
                     new_path,
-                    self.options.format.clone(),
-                    &Path::new(&self.options.output)
+                    &format,
+                    &out_file
                 )?;
             }
             "mw" => {
