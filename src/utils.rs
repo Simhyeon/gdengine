@@ -38,6 +38,10 @@ pub fn cache_path() -> Result<PathBuf, GdeError> {
     Ok(pb)
 }
 
+pub fn module_path(name : &str) -> Result<PathBuf, GdeError> {
+    Ok(lib_path()?.join(format!("{}.r4f", name)).to_owned())
+}
+
 pub fn std_path() -> Result<PathBuf, GdeError> {
     let mut pb;
     if cfg!(debug_assertions) {
@@ -45,6 +49,7 @@ pub fn std_path() -> Result<PathBuf, GdeError> {
     } else {
         pb = std::env::current_exe()?;
     }
+    pb.push("libs");
     pb.push("default.r4f");
     Ok(pb)
 }
@@ -65,4 +70,9 @@ pub fn middle_file_path() -> Result<PathBuf, GdeError> {
         .join("out.gddt");
 
     Ok(out_file)
+}
+
+pub fn default_entry_path() -> Result<PathBuf, GdeError> {
+    let pb = std::env::current_dir()?.join("index.gddt");
+    Ok(pb)
 }
