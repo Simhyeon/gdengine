@@ -1,15 +1,18 @@
 ### Todos
 
+* [ ] Make a logic structure much more maintainable
+  * [ ] Make path lazy static
+  * [ ] Make out name as variable so that multiple renderer can utilize it.
+
 * [ ] Basic utilies
-  * [ ] Preprocess
-    * [ ] Santizie, Restoration
-    * [ ] Remove comments
-    * [ ] Purge unused
   * [ ] Render
-    * [ ] Representation
-	* [ ] Wiki
-	* [ ] Documentation
-	* [ ] Web UI
-	* [ ] Flowchart
-	* [ ] Dialogue
+    * [x] Marp(pdf, pptx)
+    * [ ] mediawiki(wikitext)
+    * [ ] pandoc(docx)
+    * [ ] Web UI
+  * [ ] Flowchart
+    * [ ] flowchar-js
+	* [ ] Graphviz
+  * [ ] gdlogue
   * [ ] Postprocess
+    * [ ] Copy file
