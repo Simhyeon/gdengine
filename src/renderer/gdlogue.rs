@@ -1,4 +1,4 @@
-use std::path::{PathBuf, Path};
+use std::path::PathBuf;
 use crate::error::GdeError;
 use std::process::Command;
 use crate::utils;
@@ -51,6 +51,10 @@ pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Res
                 .arg(out_file)
                 .output()?;
             }
+        _ => {
+            eprintln!("No usable module was given");
+            return Ok(());
+        }
     }
     eprintln!("{}", String::from_utf8_lossy(&output.stderr));
     Ok(())
