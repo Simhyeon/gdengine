@@ -1,0 +1,20 @@
+{
+  "name": "gdlogue",
+  "version": "1.0.0",
+  "description": "Game design dialogue design script",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {},
+  "keywords": [
+    "Game development",
+    "Game design"
+  ],
+  "author": "Simon creek",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^7.30.0"
+  },
+  "dependencies": {
+    "ajv": "^6.12.6"
+  }
+}

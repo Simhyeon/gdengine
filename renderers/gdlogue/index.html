@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Dialogue</title>
+		<meta charset="utf-8">
+		<link rel="shortcut icon" href="#">
+		<style type="text/css" media="screen">
+			include(style.css)
+		</style>
+	</head>
+	<body>
+		<script src="//d3js.org/d3.v5.min.js"></script>
+		<script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>
+		<script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
+
+		<div id="graph" style="text-align: center;"></div>
+		<div id="modal" class="modal-overlay" style="display: none;">
+			<div class="modal-window">
+				<div class="modal-header">
+					<span class="title">
+						<h2 id="id">Id</h2>
+					</span>
+					<span class="close-area">&times;</span>
+				</div>
+				<div class="content">
+					<div id="type"></div>
+					<div id="speaker"></div>
+					<div id="texty"></div>
+					<div id="diversion">
+					</div> <!-- this is a scroll view -->
+					<div id="goto" onclick="showNextNodeInfo(event)"></div>
+				</div>
+			</div>
+		</div>
+		<script>
+			include(app.js)
+		</script>
+	</body>
+</html>

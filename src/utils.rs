@@ -1,78 +1,84 @@
-use std::path::PathBuf;
+use std::path::{PathBuf};
 use crate::error::GdeError;
 use lazy_static::lazy_static;
 
-// TODO 
-// Make this lazy_static rather tahn creating pathbuf everytime
+// Paths
+lazy_static! {
+    pub static ref BUILD_PATH: PathBuf = {
+        let mut pb;
+        if cfg!(debug_assertions) {
+            pb = std::env::current_dir().expect("Failed to get path");
+        } else {
+            pb = std::env::current_exe().expect("Failed to get path");
+        }
+        pb.push("build");
+        pb
+    };
 
-pub fn build_path() -> Result<PathBuf, GdeError> {
-    let mut pb;
-    if cfg!(debug_assertions) {
-        pb = std::env::current_dir()?;
-    } else {
-        pb = std::env::current_exe()?;
-    }
-    pb.push("build");
-    Ok(pb)
-}
+    pub static ref LIB_PATH: PathBuf = {
+        let mut pb;
+        if cfg!(debug_assertions) {
+            pb = std::env::current_dir().expect("Failed to get path");
+        } else {
+            pb = std::env::current_exe().expect("Failed to get path");
+        }
+        pb.push("libs");
+        pb
+    };
 
-pub fn lib_path() -> Result<PathBuf, GdeError> {
-    let mut pb;
-    if cfg!(debug_assertions) {
-        pb = std::env::current_dir()?;
-    } else {
-        pb = std::env::current_exe()?;
-    }
-    pb.push("libs");
-    Ok(pb)
-}
+    pub static ref CACHE_PATH: PathBuf = {
+        let mut pb;
+        if cfg!(debug_assertions) {
+            pb = std::env::current_dir().expect("Failed to get path");
+        } else {
+            pb = std::env::current_exe().expect("Failed to get path");
+        }
+        pb.push("cache");
+        pb
+    };
 
-pub fn cache_path() -> Result<PathBuf, GdeError> {
-    let mut pb;
-    if cfg!(debug_assertions) {
-        pb = std::env::current_dir()?;
-    } else {
-        pb = std::env::current_exe()?;
-    }
-    pb.push("cache");
-    Ok(pb)
+    pub static ref STD_MACRO_PATH: PathBuf = {
+        let mut pb;
+        if cfg!(debug_assertions) {
+            pb = std::env::current_dir().expect("Failed to get path");
+        } else {
+            pb = std::env::current_exe().expect("Failed to get path");
+        }
+        pb.push("libs");
+        pb.push("default.r4f");
+        pb
+    };
+
+    // This itself is not used outside of utils file
+    // This is used by renderer_path method which puts renderer name at the end
+    static ref RENDERER_PATH: PathBuf = {
+        let mut pb;
+        if cfg!(debug_assertions) {
+            pb = std::env::current_dir().expect("Failed to get path");
+        } else {
+            pb = std::env::current_exe().expect("Failed to get path");
+        }
+        pb.push("renderer");
+        pb
+    };
+
+    pub static ref DEFAULT_ENTRY_PATH: PathBuf = {
+        std::env::current_dir().expect("Failed to get path").join("index.gddt")
+    };
+
+    pub static ref CONFIG_PATH: PathBuf = {
+        std::env::current_dir().expect("Failed to get path").join("config.json")
+    };
 }
 
 pub fn module_path(name : &str) -> Result<PathBuf, GdeError> {
-    Ok(lib_path()?.join(format!("{}.r4f", name)).to_owned())
+    Ok(LIB_PATH.join(format!("{}.r4f", name)).to_owned())
 }
 
-pub fn std_path() -> Result<PathBuf, GdeError> {
-    let mut pb;
-    if cfg!(debug_assertions) {
-        pb = std::env::current_dir()?;
-    } else {
-        pb = std::env::current_exe()?;
-    }
-    pb.push("libs");
-    pb.push("default.r4f");
-    Ok(pb)
-}
-
-pub fn renderer_path() -> Result<PathBuf, GdeError> {
-    let mut pb;
-    if cfg!(debug_assertions) {
-        pb = std::env::current_dir()?;
-    } else {
-        pb = std::env::current_exe()?;
-    }
-    pb.push("renderers");
-    Ok(pb)
+pub fn renderer_path(name : &str) -> Result<PathBuf, GdeError> {
+    Ok(RENDERER_PATH.join("name"))
 }
 
 pub fn middle_file_path() -> Result<PathBuf, GdeError> {
-    let out_file = cache_path()?
-        .join("out.gddt");
-
-    Ok(out_file)
-}
-
-pub fn default_entry_path() -> Result<PathBuf, GdeError> {
-    let pb = std::env::current_dir()?.join("index.gddt");
-    Ok(pb)
+    Ok(CACHE_PATH.join("out.gddt"))
 }

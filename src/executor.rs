@@ -1,10 +1,11 @@
-use std::path::{PathBuf, Path};
+use std::path::PathBuf;
 use std::process::Command;
 use crate::error::GdeError;
 use crate::utils;
-use crate::renderer::marp;
+use crate::renderer::*;
+use crate::config::Config;
 
-pub struct RenderOptions {
+pub struct ExecOptions {
     // Option used by rad
     purge: bool,
     input: String,
@@ -13,10 +14,10 @@ pub struct RenderOptions {
     // Used by renderer
     preserve: bool,
     format: Option<String>,
-    output: Option<PathBuf>,
+    out_file: Option<PathBuf>,
 }
 
-impl RenderOptions {
+impl ExecOptions {
     pub fn new(
         preserve:bool,
         purge:bool,
@@ -28,7 +29,7 @@ impl RenderOptions {
         let input = if let Some(content) = input {
             content
         } else {
-            utils::default_entry_path()?
+            utils::DEFAULT_ENTRY_PATH.to_owned()
         };
 
         Ok(Self { 
@@ -37,34 +38,41 @@ impl RenderOptions {
             copy,
             format,
             input : input.to_str().unwrap().to_owned(),
-            output : output,
+            out_file: output,
         })
     }
 }
 
-pub struct Renderer<'a> {
-    target: &'a str,
-    options : RenderOptions,
+pub struct Executor<'a> {
+    renderer: &'a str,
+    options : ExecOptions,
+    config: Config,
 }
 
-impl<'a> Renderer<'a> {
-    pub fn new(target: &'a str, options: RenderOptions) -> Self {
+impl<'a> Executor<'a> {
+    pub fn new(renderer: &'a str, options: ExecOptions, config: Config) -> Self {
         Self { 
-            target,
+            renderer,
             options,
+            config
         }
     }
 
-    pub fn render(&self) -> Result<(), GdeError> {
-
-        self.rad_process()?;
-        self.render_main()?;
+    pub fn exec(&self) -> Result<(), GdeError> {
+        self.preprocess()?;
+        self.macro_expansion()?;
+        self.render()?;
         self.postprocess()?;
 
         Ok(())
     }
 
-    fn rad_process(&self) -> Result<(), GdeError> {
+    fn preprocess(&self) -> Result<(), GdeError> {
+        std::env::set_var("GDE_MODULE", self.renderer);
+        Ok(())
+    }
+
+    fn macro_expansion(&self) -> Result<(), GdeError> {
         let args = self.set_rad_arguments()?;
 
         let output = Command::new("rad")
@@ -105,41 +113,23 @@ impl<'a> Renderer<'a> {
         let mut sources = vec!(self.options.input.clone());
         // Standard macro definition file
         sources.push("-m".to_owned());
-        sources.push(format!("{}", utils::std_path()?.display()));
+        sources.push(format!("{}", utils::STD_MACRO_PATH.display()));
         // Set lib definition file
-        sources.push(format!("{}", utils::module_path(self.target)?.display()));
+        sources.push(format!("{}", utils::module_path(self.renderer)?.display()));
 
         Ok(sources)
     }
 
-    fn render_main(&self) -> Result<(), GdeError> {
-        match self.target {
+    fn render(&self) -> Result<(), GdeError> {
+        match self.renderer {
             "marp" =>{
-                // Change name to out.md
-                let mut new_path = utils::middle_file_path()?;
-                new_path.set_extension("md");
-                std::fs::rename(utils::middle_file_path()?, &new_path)?;
-
-                let format = if let Some(format) = &self.options.format {
-                    format.to_owned()
-                } else {
-                    "html".to_owned()
-                };
-
-                let out_file = if let Some(name) = &self.options.output {
-                    name.to_owned()
-                } else {
-                    utils::build_path()?.join(format!("out.{}", format)).to_owned()
-                };
-
-                marp::marp_render(
-                    new_path,
-                    &format,
-                    &out_file
-                )?;
+                marp::render( &self.options.format, &self.options.out_file)?;
             }
-            "mw" => {
-
+            "mediawiki" => {
+                mediawiki::render(&self.config)?;
+            }
+            "gdlogue" => {
+                gdlogue::render(&self.options.format, &self.options.out_file)?;
             }
             _ => eprintln!("No appropriate renderer was given"),
         }

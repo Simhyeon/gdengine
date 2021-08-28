@@ -2,7 +2,9 @@ use clap::clap_app;
 use crate::error::GdeError;
 use std::path::PathBuf;
 use crate::init::Init;
-use crate::render::{Renderer, RenderOptions};
+use crate::utils;
+use crate::config::Config;
+use crate::executor::{Executor, ExecOptions};
 
 /// Struct to parse command line arguments and execute proper operations
 pub struct Cli{}
@@ -30,13 +32,15 @@ impl Cli {
                 "render" => {
                     if let Some(module) = args.value_of("module") {
                         // Set module
-                        let render_option = Cli::parse_render_options(args)?;
+                        let render_option = Cli::parse_exec_options(args)?;
+                        let config = Config::new(&utils::CONFIG_PATH)?;
 
-                        // Render 
-                        Renderer::new(
+                        // Execute 
+                        Executor::new(
                             module,
-                            render_option
-                        ).render()?;
+                            render_option,
+                            config
+                        ).exec()?;
                     }
                 }
                 _ => (),
@@ -64,8 +68,8 @@ impl Cli {
         ).get_matches()
     }
 
-    fn parse_render_options(matches: &clap::ArgMatches) -> Result<RenderOptions, GdeError> {
-        Ok(RenderOptions::new(
+    fn parse_exec_options(matches: &clap::ArgMatches) -> Result<ExecOptions, GdeError> {
+        Ok(ExecOptions::new(
                 matches.is_present("preserve"),
                 matches.is_present("purge"),
                 matches.value_of("copy").map(|s| PathBuf::from(s)),

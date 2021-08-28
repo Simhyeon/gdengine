@@ -2,7 +2,9 @@
 
 * [ ] Make a logic structure much more maintainable
   * [ ] Make path lazy static
-  * [ ] Make out name as variable so that multiple renderer can utilize it.
+  * [ ] Make structure, method, argument naming cohesive and consistent
+
+* [ ] Json parsing
 
 * [ ] Basic utilies
   * [ ] Render
@@ -10,9 +12,9 @@
     * [ ] mediawiki(wikitext)
     * [ ] pandoc(docx)
     * [ ] Web UI
-  * [ ] Flowchart
-    * [ ] flowchar-js
-	* [ ] Graphviz
+    * [ ] Flowchart
+      * [ ] flowchar-js
+      * [ ] Graphviz
   * [ ] gdlogue
   * [ ] Postprocess
-    * [ ] Copy file
+     * [ ] Copy file

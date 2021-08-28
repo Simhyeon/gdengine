@@ -1,7 +1,8 @@
 mod cli;
+mod config;
 mod error;
 mod init;
-mod render;
+mod executor;
 mod renderer;
 mod utils;
 
