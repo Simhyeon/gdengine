@@ -37,8 +37,8 @@ section.title h2 {
 section.split {
     /*overflow: visible;*/
     display: grid;
-    grid-template-columns: v_basis_height()px v_basis_height()px;
-    grid-template-rows: 100px v_basis_height();
+    grid-template-columns: $v_basis_height()px $v_basis_height()px;
+    grid-template-rows: 100px $v_basis_height();
     grid-template-areas: 
         "slideheading slideheading"
         "leftpanel rightpanel";
@@ -53,7 +53,7 @@ section.split .ldiv {
 	flex-direction: column; 
 	padding-right: 25px;
 	overflow: visible;
-  height: v_basis_height()px;
+  height: $v_basis_height()px;
 }
 section.split .rdiv { 
 	grid-area: rightpanel; 
@@ -61,7 +61,7 @@ section.split .rdiv {
 	flex-direction: column; 
 	padding-left: 25px;
 	overflow: visible;
-  height: v_basis_height()px;
+  height: $v_basis_height()px;
 }
 
 section.tnc {

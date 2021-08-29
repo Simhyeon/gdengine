@@ -12,7 +12,9 @@ $define(m_class,a_class=<!-- _class: $a_class() -->)
 # Subsitue with markdown compatible image form 
 # Convert contents into single lined html
 # This was intended for multi line support in csv table
-$define(m_to_br,a_scell=$regex($a_scell(),$nl(),<br>))
+# TODO
+# This is a crude conversion, not real conversion
+$define(m_newline_to_br,a_scell=$regex($a_scell(),$nl(),<br>))
 
 # ==========
 # User interface macros 
@@ -100,7 +102,7 @@ $foreach($a_content*(),    <td>$:</td>)
 )
 # Set table row
 $define(trow,a_content=<tr>
-$foreach($a_content*(),    <td>$:</td>)
+$foreach($a_content*(),\*    $m_newline_to_br(<td>$:</td>)*\)
 </tr>)
 # end table
 $define(tend=</table>)
@@ -114,9 +116,6 @@ $define(image,a_url=
 )
 # Make Set img's max-width with given arguments 
 $define(simage,a_src a_max_width=<div style="text-align: inherit; flex: 1;"><img src="$a_src()" style="width: 100%; max-width: $a_max_width(); max-height: auto;"></img></div>)
-# Fixed position image
-$define(fimage,a_src a_width a_top a_left=<div style="position: fixed; top: $a_top(); left: $a_left();" alt="Image not found"><img style="width: $a_width();" src="$a_src()"></img></div>
-)
 
 # MACRO >>> Text macro that also sets font size for the text
 # Example :

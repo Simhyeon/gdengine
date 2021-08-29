@@ -1,8 +1,8 @@
 ### Todos
 
-* [ ] Make a logic structure much more maintainable
-  * [ ] Make path lazy static
-  * [ ] Make structure, method, argument naming cohesive and consistent
+* [x] Make a logic structure much more maintainable
+  * [x] Make path lazy static
+  * [x] Make structure, method, argument naming cohesive and consistent
 
 * [ ] Json parsing
 
