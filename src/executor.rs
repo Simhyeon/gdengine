@@ -68,7 +68,7 @@ impl<'a> Executor<'a> {
     }
 
     fn preprocess(&self) -> Result<(), GdeError> {
-        std::env::set_var("GDE_MODULE", self.renderer);
+        std::env::set_var("GDE_MODULE", utils::renderer_path(self.renderer)?);
         Ok(())
     }
 

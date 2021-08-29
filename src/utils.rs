@@ -58,7 +58,7 @@ lazy_static! {
         } else {
             pb = std::env::current_exe().expect("Failed to get path");
         }
-        pb.push("renderer");
+        pb.push("renderers");
         pb
     };
 
@@ -76,7 +76,7 @@ pub fn module_path(name : &str) -> Result<PathBuf, GdeError> {
 }
 
 pub fn renderer_path(name : &str) -> Result<PathBuf, GdeError> {
-    Ok(RENDERER_PATH.join("name"))
+    Ok(RENDERER_PATH.join(name))
 }
 
 pub fn middle_file_path() -> Result<PathBuf, GdeError> {
