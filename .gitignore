@@ -7,3 +7,4 @@ default.r4f
 inc
 res
 config.json
+**/node_modules
