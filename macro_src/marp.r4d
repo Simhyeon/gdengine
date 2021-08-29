@@ -1,3 +1,5 @@
+$define(mod_marp=)
+
 # Environment variables 
 $define(v_basis_height=500)
 $define(v_font_default=24)
