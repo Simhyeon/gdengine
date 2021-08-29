@@ -4,56 +4,47 @@ $define(mod_mediawiki=)
 
 # Headers
 # H1 is actually page title and should be downgraded to h2
-define(`_h1', `==$1==')dnl
-define(`_h2', `==$1==')dnl
-define(`_h3', `===$1===')dnl
-define(`_h4', `====$1====')dnl
-define(`_h5', `=====$1=====')dnl
+# = is body indicator so somewhat confusing
+$define(h1,a_content===$a_content()==)
+$define(h2,a_content===$a_content()==)
+$define(h3,a_content====$a_content()===)
+$define(h4,a_content=====$a_content()====)
+$define(h5,a_content======$a_content()=====)
 
 # Bold triple quotes
-define(`_b', `\;\;\;$1\;\;\;')dnl
+$define(b,a_content='''$a_content()''')
 
 # Italic double quotes
-define(`_i', `\;\;$1\;\;')dnl
+$define(i,a_content=''$a_content()'')
 
 # ItalicBold five quotes
-define(`_bi', `\;\;\;\;\;$1\;\;\;\;\;')dnl
+$define(bi,a_content='''''$a_content()''''')
 
 # Strike through
-define(`_st', `<s>$1</s>')dnl
+$define(st,a_content=<s>$a_content()</s>)
 
 # Underline
-define(`_ud', `<u>$1</u>')dnl
+$define(ud,a_content=<u>$a_content</u>)
 
 # Other wiki page link 
-define(`_wiki_page',`[[$1]]')dnl
-define(`_wiki_page_alt',`_wikipage($1|$2)')dnl # Wikipage link with alternative text
+$define(wiki_page,a_url=[[$a_url()]])
+$define(wiki_page_alt,a_url a_alt=wikipage($a_url()|$a_alt())) # Wikipage link with alternative text
 
 # Unordered List
-define(`_ul', `ifelse(`$1', `', `*', `forloop(`', 1, $1, ``*'')')')dnl
+$define(ul,a_count=$forloop(1,$a_count(),*))
 
 # Ordered list
-define(`_ol', `ifelse(`$1', `', `#', `forloop(`', 1, $1, ``#'')')')dnl
+$define(ol,a_count=$forloop(1,$a_count(),#))
 
 # Indentation
-define(`_idt', `ifelse(`$1', `', `:', `forloop(`', 1, $1, `:')')')dnl
+$define(idt,a_count=$forloop(1,$a_count(),:))
 
 # URL Link (Same functionality wit markdown link)
-define(`_url',`[$1 $2]')dnl
+$define(url,a_src a_text=[$a_src() $a_text()])
 
 # Image Link
-define(`_img',`[[File:$1|alt=$2]]')dnl
-
-# Table (normal reading + raw csv)
-# Read from csv file Second parameter is caption. Caption cannot include spaces use underscore instead
-define(`_csv', `esyscmd(`awk -v caption=$2 -f $MODULE/wiki/mediawiki/csvToWikiTable.awk $1')')dnl
-
-# Raw csv file
-define(`_rcsv', `esyscmd(`echo "$*" | awk -f $SCRIPTS/rmExtNewLines.awk | awk -f $MODULE/wiki/mediawiki/csvToWikiTable.awk')')dnl
+$define(image,a_src a_alt=[[File:$a_src()|alt=$a_alt()]]')
 
 # Text with font size macro
 # No font size if value 0, which is automatic in marp
-define(`_text',`<div ifelse(`$1', `0', `', `style="font-size : $1px;"')>
-
-m_trim_nl(m_sanitize(shift($*)))
-</div>')dnl
+$define(text,a_font_size a_content=<div style="font-size : $a_font_size();">$a_content()</div>)
