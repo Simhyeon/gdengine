@@ -1,0 +1,82 @@
+/* Original source: https://github.com/marp-team/marpit/issues/137#issuecomment-522006274 */
+
+section.title {
+  --title-height: 130px;
+  --subtitle-height: 70px;
+
+  overflow: visible;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr var(--title-height) var(--subtitle-height) 1fr;
+  grid-template-areas: "." "title" "subtitle" ".";
+}
+
+section.title h1,
+section.title h2 {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  height: var(--area-height);
+  line-height: var(--area-height);
+  /*font-size: calc(var(--area-height) * 0.7);*/
+}
+
+section.title h1 {
+  grid-area: title;
+  --area-height: var(--title-height);
+  font-size: 2rem;
+}
+
+section.title h2 {
+  grid-area: subtitle;
+  --area-height: var(--subtitle-height);
+  font-size: 0.9rem;
+}
+
+/* Original source : https://github.com/marp-team/marpit/issues/137#issuecomment-524175560 */
+section.split {
+    /*overflow: visible;*/
+    display: grid;
+    grid-template-columns: v_basis_height()px v_basis_height()px;
+    grid-template-rows: 100px v_basis_height();
+    grid-template-areas: 
+        "slideheading slideheading"
+        "leftpanel rightpanel";
+}
+/* debug */
+section.split h1 {
+    grid-area: slideheading;
+}
+section.split .ldiv { 
+	grid-area: leftpanel; 
+	display: flex; 
+	flex-direction: column; 
+	padding-right: 25px;
+	overflow: visible;
+  height: v_basis_height()px;
+}
+section.split .rdiv { 
+	grid-area: rightpanel; 
+	display: flex; 
+	flex-direction: column; 
+	padding-left: 25px;
+	overflow: visible;
+  height: v_basis_height()px;
+}
+
+section.tnc {
+	--title-height: 130px;
+
+	display: grid;
+	grid-template-columns: 1fr;
+    grid-template-rows: var(--title-height) auto;
+	grid-template-areas: "heading" "content";
+}
+
+section.tnc h1 {
+	margin: 0;
+	padding: 0;
+	grid-area: heading;
+	height: var(--area-height);
+	line-height: var(--area-height);
+}

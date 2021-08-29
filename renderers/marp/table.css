@@ -1,0 +1,45 @@
+table {
+	width: 100%;
+	display: table;
+}
+
+table tr.even {
+    background: #f2f2f2;
+}
+table tr.odd {
+    background: #eeeeee;
+}
+
+thead {
+	text-align: center;
+	font-weight: bold;
+}
+
+thead tr {
+	background: #006DCC !important;
+	color: white !important;
+}
+
+/*section.gdtable table td{*/
+	/*white-space: nowrap;*/
+/*}*/
+
+section.gdtable table td:last-child{
+	width:100%;
+}
+
+section.gdtable table td:first-child{
+	text-align: center;
+}
+
+td > * {
+	vertical-align: middle;
+}
+
+td > p {
+	margin-bottom: 0px;
+}
+
+td > ul, li {
+	margin-bottom: 1px;
+}
