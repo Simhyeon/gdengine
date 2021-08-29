@@ -73,7 +73,7 @@ $foreach($a_styles*(),
 # Multiline support csv table related macros
 # Refer macro.md for general usage
 # Start table
-$define(ts=<table>)
+$define(tstart=<table>)
 # Set table font size
 $define(tfont,a_header_size a_body_size=<style scoped>
 	thead > tr > td { 
@@ -94,25 +94,28 @@ $define(tfont,a_header_size a_body_size=<style scoped>
 	}
 </style>)
 # Set table header
-$define(th,a_content=
-$foreach($a_content*(),    <thead>$:</thead>))
+$define(theader,a_content=<thead>
+$foreach($a_content*(),    <td>$:</td>)
+</thead>
+)
 # Set table row
-$define(tr,a_content=
-$m_to_br($foreach($a_content*(),    <tr>$:</tr>)))
+$define(trow,a_content=<tr>
+$foreach($a_content*(),    <td>$:</td>)
+</tr>)
 # end table
-$define(te=</table>)
+$define(tend=</table>)
 
 # URL
-$define(url=a_src a_text=[$a_text()]($a_src())) # $2 is alternate text, $1 is image url
+$define(url,a_src a_text=[$a_text()]($a_src())) # $2 is alternate text, $1 is image url
 
 # Image substitue macros
-$define(img,a_url=
+$define(image,a_url=
 ![Image not found]($a_url())
 )
 # Make Set img's max-width with given arguments 
-$define(simg,a_src a_max_width=<div style="text-align: inherit; flex: 1;"><img src="$a_src()" style="width: 100%; max-width: $a_max_width(); max-height: auto;"></img></div>)
+$define(simage,a_src a_max_width=<div style="text-align: inherit; flex: 1;"><img src="$a_src()" style="width: 100%; max-width: $a_max_width(); max-height: auto;"></img></div>)
 # Fixed position image
-$define(fimg,a_src a_width a_top a_left=<div style="position: fixed; top: $a_top(); left: $a_left();" alt="Image not found"><img style="width: $a_width();" src="$a_src()"></img></div>
+$define(fimage,a_src a_width a_top a_left=<div style="position: fixed; top: $a_top(); left: $a_left();" alt="Image not found"><img style="width: $a_width();" src="$a_src()"></img></div>
 )
 
 # MACRO >>> Text macro that also sets font size for the text
@@ -145,7 +148,7 @@ $define(title,a_title a_subtitle=$m_class(title)
 )
 
 # MACRO >>> Set any class of given arguments
-$define(cls,a_class=$m_class($a_class()))
+$define(class,a_class=$m_class($regex($a_class*(),\*,*\, )))
 
 # Split screen related macros
 # MACRO >>> Start left pane
