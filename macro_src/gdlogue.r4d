@@ -3,16 +3,20 @@
 # "$1," is necessary for the macro "m_webui" to operate
 
 $define(dial_begin=
-$tempto(gdlogue.txt)
-$tempout(true,{)
+$tempto(gdlogue.json)
+$tempout(true,[)
 )
-# Has trailing } which is paired with {}
-$define(dial_end=$tempout(false,{"id":null, "type": null, "goto": null}
-}))
+# Has trailing ] at the end which is paired
+# with Starting [
+$define(dial_end=
+$tempout(false,{"id":null, "type": null, "goto": null}
+])
+$fileout(true,$path(cache,out.json),$tempin())
+)
 
 # Dialogue nodes
 $define(dnode,a_id a_type a_goto a_others=
-$tempout(false,{$a_others(),
+$tempout(false,{$a_others()
 "id":"$a_id()",
 "type":"$a_type()",
 "goto":"$a_goto()"},))

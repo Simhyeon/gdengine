@@ -1,4 +1,4 @@
-const data = include(out.json);
+const data = $include($path(cache,out.json));
 let datamap = new Map(data.map(obj => [obj.id, obj]));
 let modal = document.querySelector("#modal");
 
@@ -121,10 +121,10 @@ document.querySelector('.close-area').addEventListener('click', () => {
 	document.querySelector('#modal').style.display = 'none';
 });
 
-// This should be included by m4 because it uses special syntax for gdmarp
+// out.gv should be located in current working directory
 d3.select("#graph").graphviz()
 	.zoom(false)
-	.renderDot(\~include(out.gv)\~)
+	.renderDot(`$include(out.gv)`)
 	.on('end', () => {
 		let nodes = document.querySelectorAll('.node');
 		nodes.forEach((node) => {

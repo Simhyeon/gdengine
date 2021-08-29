@@ -10,11 +10,15 @@
   * [ ] Render
     * [x] Marp(pdf, pptx)
     * [ ] mediawiki(wikitext)
+	  * [ ] Confirm send works
     * [ ] pandoc(docx)
     * [ ] Web UI
     * [ ] Flowchart
       * [ ] flowchar-js
       * [ ] Graphviz
   * [ ] gdlogue
+    * [x] Change logics
+	* [ ] Make documentations of gdlogue types
+
   * [ ] Postprocess
      * [ ] Copy file
