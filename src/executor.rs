@@ -131,6 +131,9 @@ impl<'a> Executor<'a> {
             "gdlogue" => {
                 gdlogue::render(&self.options.format, &self.options.out_file)?;
             }
+            "flowchartjs" => {
+                flowchartjs::render(&self.options.out_file)?;
+            }
             _ => eprintln!("No appropriate renderer was given"),
         }
         Ok(())
