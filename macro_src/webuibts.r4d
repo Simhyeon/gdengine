@@ -1,0 +1,505 @@
+$define(v_top_space_margin=10px)
+$define(v_top_space_padding=10px)
+$define(v_bot_space_margin=10px)
+$define(v_bot_space_padding=10px)
+
+$define(v_content_padding=10px)
+$define(v_img_padding=10px)
+
+# IFMOD condition
+$define(mod_webuibts=)
+
+# =====
+# Directives macro
+$define(ui_begin=$define(ui_file=$path(cache,ui.html)$fileout(true,$ui_file(),))
+)
+$define(ui_end=)
+
+$define(script_begin=$define(ui_file=$path(cache,ui.js)$fileout(true,$ui_file(),)))
+$define(script_end=)
+
+# =====
+# Top space macros
+$define(top_space,a_content=<div id="topSpace" class="topSpace">
+$a_content()
+</div>)
+$top_space|(a)
+
+$define(top_left,a_content=<div id="topLeft" class="topLeft">
+$a_content()
+</div>)
+$top_left|(a)
+
+$define(top_center,a_content=<div id="topCenter" class="topCenter">
+$a_content()
+</div>)
+$top_center|(a)
+
+$define(top_right,a_content=<div id="topRight" class="topRight">
+$a_content()
+</div>)
+$top_right|(a)
+
+# =====
+# Container macros
+$define(container,a_content=<div id="container" class="gdContainer rowFlex hiddenFlow">
+$a_content()
+</div>)
+$container|(a)
+
+$define(vcontainer,a_content=<div id="container" class="gdContainer colFlex hiddenFlow">
+$a_content()
+</div>)
+$vcontainer|(a)
+
+# =====
+# Layout macros
+
+# sub containers
+$define(header,a_content=<div id="header" class="gdHeader">
+$a_content()
+</div>) # Has fixed size or ratio
+$header|(a)
+
+# content(id, width, ...)
+# _vcontent(id, height, ...)
+$define(content,a_id a_width a_content=$bind+(flex_grow,$ifelse($eval("$a_width()" == "0"),flexGrow))
+<div id="$a_id()" class="gdContent rowFlex fullSize hiddenFlow $flex_grow()" style="width: $a_width();">
+$a_content()
+</div>)
+$content|(1,0,a)
+$content|(1,10px,a)
+
+$define(content_center,a_id a_width a_content=$bind+(flex_grow,$ifelse($eval("$a_width()" == "0"),flexGrow))
+<div id="$a_id()" class="gdContent rowFlex fullSize flexCenter hiddenFlow $flex_grow()" style="width: $a_width();">
+$a_content()
+</div>)
+$content_center|(1,0,a)
+$content_center|(1,10px,a)
+
+$define(vcontent,a_id a_height a_content=
+$bind+(flex_grow,$ifelse($eval("$a_height()" == "0"),flexGrow))
+<div id="$a_id()" class="gdContent colFlex fullSize hiddenFlow $flew_grow()" style="height: $a_height();">
+$a_content()
+</div>)
+$vcontent|(1,0,a)
+$vcontent|(1,10px,a)
+
+$define(vcontent_center,a_id a_height a_content=
+$bind+(flex_grow,$ifelse($eval("$a_height()" == "0"),flexGrow))
+<div id="$a_id()" class="gdContent colFlex flexCenter fullSize hiddenFlow $flex_grow()" style="height: $a_height();">
+$a_content()
+</div>)
+$vcontent_center|(1,0,a)
+$vcontent_center|(1,10px,a)
+
+# Content scrollable
+# This is technically listView
+# content_scroll(id, width, content)
+$define(content_scroll,a_id a_width a_content=
+<div id="$a_id()" class="fullSize" style="width: $a_width(); overflow-x: scroll;">
+$a_content()
+</div>)
+$content_scroll|(1,0,a)
+$content_scroll|(1,10px,a)
+
+# vcontent_scroll(id, height, content)
+$define(vcontent_scroll,a_id a_height a_content=
+<div id="$a_id()" class="fullSize" style="height: $a_height(); overflow-y: scroll;">
+$a_content()
+</div>)
+$vcontent_scroll|(1,0,a)
+$vcontent_scroll|(1,10px,a)
+
+# Footer
+$define(footer,a_content=<div id="footer" class="gdFooter">
+$a_content()
+</div>) # Has fixed size or ratio
+$footer|(b)
+
+# ==========
+# Form macros
+# Text input
+$define(tinput,a_id a_placeholder=
+<input id="$a_id()" type="text" class="form-control" placeholder="$a_placeholder()" aria-label="Username" aria-describedby="basic-addon1">
+)
+$tinput|(1,1)
+
+# Text input with labels
+$define(tinput_label,a_id a_placeholder a_label=
+<div class="input-group mb-3">
+  <span class="input-group-text" id="$a_id()Label">$a_label()</span>
+  <input id="$a_id" type="text" class="form-control" placeholder="$a_placeholder()" aria-label="Username" aria-describedby="basic-addon1">
+</div>)
+
+$tinput_label|(1,1,1)
+
+# Number input
+$define(ninput,a_id a_placeholder=
+<input id="$a_id()" type="number" class="form-control" placeholder="$a_placeholder" aria-label="Username" aria-describedby="basic-addon1" onkeypress="return onlyNumberKey(event)">
+)
+
+$ninput|(1,1)
+
+# Number input with labels
+$define(ninput_label,a_id a_placeholder a_label=
+<div class="input-group mb-3">
+  <span class="input-group-text" id="$a_id()Label">$a_label()</span>
+  <input id="$a_id()" type="number" class="form-control" placeholder="$a_placeholder()" aria-label="Username" aria-describedby="basic-addon1" onkeypress="return onlyNumberKey(event)">
+</div>)
+
+$ninput_label|(1,1,1)
+
+# Input Inline
+$define(inline,a_content=<div class="inlineGroup">
+$a_content()
+</div>)
+
+$inline|(a)
+
+# Switch
+$define(switch,a_id a_label=
+<div class="form-check form-switch">
+	<input class="form-check-input" type="checkbox" id="$a_id()">
+	<label class="form-check-label" for="$a_id()" id="$a_id()Label">$a_label()</label>
+</div>)
+
+$switch|(1,1)
+
+# Radio internal macro
+$define(m_radio,a_name a_id=
+<div class="form-check">
+	<input class="form-check-input" type="radio" name="$a_name()" id="$a_id()" value="$a_id()">
+	<label class="form-check-label" for="$a_id()" id="$a_id()Label">$a_id()</label>
+</div>)
+
+$m_radio|(name,id)
+
+# Radio select
+$define(radio,a_id a_radio_ids=
+<div id="$a_id()" class="radioGroup">
+$foreach($a_radio_ids*(),\*$m_radio($1,$:)*\)
+</div>)
+
+$radio|(1,a,b,c)
+
+# Selection items
+$define(m_sel_item,a_id
+=<option value="$a_id()">$a_id()</option>
+)
+
+$m_sel_item|(1)
+
+# Selection(Dropdown)
+$define(sel,a_id a_sel_ids=
+<select id="$a_id()" class="form-select" aria-label="Default select example">
+$foreach($a_sel_ids*(),\*$m_sel_item($:)*\)
+</select>)
+
+$sel|(1,a,b,c,d)
+
+# Checkboxes
+$define(checkbox,a_id a_label=
+<div class="form-check">
+	<input class="form-check-input" type="checkbox" value="" id="$a_id()">
+	<label class="form-check-label" for="flexCheckDefault" id="$a_id()Label">$a_label()</label>
+</div>)
+
+$checkbox|(1,Label)
+
+# Range
+$define(range,a_id a_label a_min a_max=
+<label for="$a_id()" class="form-label" id="$a_id()Label">$a_label()</label>
+<input type="range" class="form-range" id="$a_id()" min="$a_min()" max="$a_max()">)
+
+# carousel item
+$define(car_item,a_content=
+<div class="carousel-item">
+	$a_content()
+</div>)
+
+$car_item|(ITEM)
+
+# TODO carousel
+$define(car,a_id a_content=
+<div id="$a_id()" class="carousel slide" data-bs-ride="carousel">
+	<div class="carousel-inner">
+		$a_content()
+	</div>
+</div>)
+
+$car|(1,$car_item(ITEM) $car_item(ITEM2))
+
+$define(float_item,a_id a_content=
+<div id="$a_id()" class="floating-item">
+	$a_content()
+</div>)
+
+$float_item|(1,2)
+
+# Floating menu
+$define(float_menu,a_id a_position a_content=
+<div id="$a_id" class="floating-menu floating-$a_position()" disabled="true">
+	$a_content()
+</div>)
+
+$float_menu|(id,top,$float_item(1,2))
+
+# Dialogue
+# dial(id,speaker,text)
+$define(dial,a_id a_speaker a_text=
+<div id="$a_id()" class="dialogue">
+	<div id="$a_speaker()Speaker" class="dialogue-speaker">$a_speaker()</div>
+	<div id="$a_text()Text" class="dialogue-text">$a_text()</div>
+</div>)
+
+$dial|(1,1,1)
+
+# =====
+# General
+$define(image,a_src a_id a_size=
+<img id="$a_id()" class="img" style="width: $a_size(); height: $a_size();" src="$a_src()" alt="Image not rendered"></img>
+)
+$image|(src,id,50px)
+
+# Icon
+$define(icon,a_icon=<i class="bi bi-$a_icon()"></i>)
+
+$icon|(1)
+
+# Paragraph
+$define(p,a_content=<p>$a_content()</p>)
+
+$p|(TTTTTT)
+
+# Button
+# btn(id,content)
+$define(btn,a_id a_content=<button id="$a_id()" class="flexGrow btn btn-primary">$a_content()</button>)
+
+$btn|(id,content)
+
+# label(Text label content)
+$define(label,a_id a_content=<div id="$a_id()" class="">
+$a_content()
+</div>)
+
+$label|(id,content)
+
+# Label but center text
+$define(label_center,a_id a_content=<div id="$a_id()" class="flexGrow gdLabel">
+$a_content()
+</div>)
+
+$label_center|(id,content)
+
+# MACRO >>> Squre grid macro
+$define(grid_cell,a_id a_content=
+<div id="$a_id()" class="grid"><div class="gridContent">
+$a_content()
+</div></div>
+)
+
+$grid_cell|(id,content)
+
+$define(grid,a_id a_grid_count a_content=
+<div class="gridContainer" id="$a_id()" style="grid-template-columns: repeat(auto-fill, minmax( $eval(100 / $a_grid_count())%, 1fr));">
+$a_content()
+</div>
+)
+
+$grid|(id,3,content)
+
+# TODO
+# Until here
+
+# ==========
+# Swappable area
+# Swapp button radio group
+$define(swap_buttons=<div id="$1" class="btn-group" role="group">
+foreach(`it, (shift($*)), `m_swap_button($1, it))
+</div>)
+
+# Single swap button
+$define(`m_swap_button=
+<input type="radio" class="btn-check" name="$1" value="no" id="$2"
+       aria-expanded="false"
+       aria-controls="$2"
+       data-bs-toggle="collapse"
+       data-bs-target=",$2">
+<label class="btn btn-outline-primary" for="$2">$2</label>
+)
+
+# Swappable items
+# second argument or target parent should be same with parent div, element or _contents id
+$define(swap_item=
+<div id="$1" class="collapse" data-bs-parent=",$2">
+	shift(shift($*))
+</div>
+)
+
+# Card component
+$define(card=<div id="$1" class="card card-body">
+<h5 class="card-title">$2</h5>
+shift(shift($*))
+</div>)
+# Card with image
+$define(card_img=<div id="$1" class="card card-body">
+<img src="$3" class="card-img-top" alt="!!Card Image is not found!!">
+<h5 class="card-title">$2</h5>
+$4
+</div>)
+
+# collection, simply collection of aligned div items
+# collection doesnt expand but srhik while list view can be expanded with scroll bars
+# _coll(id ,loopCount, content)
+$define(coll=<div id="$1" class="gdCollection rowFlex">
+forloop(`i, 1, $2, `shift(shift($*)))
+</div>) 
+
+$define(vcoll=<div id="$1" class="gdCollection colFlex">
+forloop(`i, 1, $2, `shift(shift($*)))
+</div>) 
+
+# Modal macros
+# Modal Header
+$define(`m_modal_header=
+<div class="modal-header">
+	<h5 class="modal-title">$1</h5>
+	<button type="button" class="btn-close modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>)
+# Modal body
+$define(`m_modal_body=
+<div class="modal-body">
+	$1
+</div>)
+# Modal footer
+$define(`m_modal_footer=
+<div class="modal-footer">
+	$1
+</div>)
+# Modal user macros
+$define(modal=
+<div class="modal fade" id="$1" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			m_modal_header($2)
+			m_modal_body($3)
+			m_modal_footer($4)
+		</div>
+	</div>
+</div>
+)
+
+# =====
+# Bottom space macros
+$define(bot_space=<div id="botSpace" class="botSpace">
+$*
+</div>)
+
+$define(bot_left=<div id="botLeft" class="botLeft">
+$*
+</div>)
+
+$define(bot_center=<div id="botCenter" class="botCenter">
+$*
+</div>)
+
+$define(bot_right=<div id="botRight" class="botRight">
+$*
+</div>)
+
+
+# MISC
+# There were too much things to modify I just forced full html tags bc, why not
+$define(screen_touch=
+<div class="modal" id="$1" tabindex="-1" aria-hidden="true" onclick="``hideModal(this)">
+	<div class="modal-dialog modal-fullscreen">
+		<div class="modal-content modal-tp text-white">
+			<button type="button" style="display: none;" class="modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			<div class="modal-body" style="display: flex; justify-content: center; align-items: center;">
+			$2
+			</div>
+			<div class="modal-footer" style="border: 0; justify-content: center;">
+				Click to dismiss
+			</div>
+		</div>
+	</div>
+</div>
+)
+
+# Sidebar
+# Sidebar Left
+$define(sidebar_left=
+<div class="offcanvas offcanvas-start" tabindex="-1" id="$1">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="$1Label"></h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+	$2
+  </div>
+</div>
+)
+
+# Sidebar Right
+$define(sidebar_right=
+<div class="offcanvas offcanvas-end" tabindex="-1" id="$1">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="$1Label"></h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+	$2
+  </div>
+</div>
+)
+
+# ==========
+# Style modifier
+# Css tyle and js script can use this modifier html tag to modify
+# element that comes next to the modifier
+$define(style_next=<modifier class="foreach(`it, ($*), ``mdf-it() )"></modifier>)
+
+# ==========
+# Scripts
+
+# Add callback for event
+# Origin id, eventType, callbackMacro 
+$define(add_call=addCallback`("$1", "$2",`(ev`) => {$3}`))
+
+# Add tooltip to element 
+$define(add_tooltip=setProperties`("$1",{"data-bs-toggle":"tooltip","data-bs-placement":"top","title":"$2"}`))
+$define(add_tooltips=
+foreach(`it, ($*), add_tooltip(m_parse_pair(it))
+))
+
+# Call alert function
+# e.g.) _add_call(alert, click, _call_alert(This is new text))
+$define(call_alert=alert("$1"))
+
+# Call element toggle function
+$define(call_toggle=toggleElement("$1"))
+
+# Call sync value function, while this says value but it syncs text
+$define(call_sync_text=syncText("$1",ev))
+
+# Go to url
+$define(call_visit=window.location="$1")
+
+# Call specific event on target
+$define(call_event=triggerEvent("$1" , "$2"))
+
+# Call update, or say set properties on target
+$define(call_update=setProperties("$1",{"$2" : "$3"}))
+
+# Show Modal
+$define(call_modal=callModal("$1"))
+
+# Show Modal
+$define(hide_modal=hideModal("$1"))
+
+# Toggle sidebar
+$define(call_sidebar=toggleSidebar("$1"))
+
+# Toggle floatmenu
+$define(call_float_menu=toggleFloatMenu("$1"))
