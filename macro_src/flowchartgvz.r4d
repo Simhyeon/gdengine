@@ -49,14 +49,17 @@ $define(
 	a_id a_label a_yesId a_noId
 	=
 	$bind+(id,n$a_id())
+	$bind+(idR,n$a_id()R)
+	$bind+(yes_id,n$a_yesId())
+	$bind+(no_id,n$a_noId())
 	$tempout(false,
-d() [label="$a_label()" shape=diamond];
-d()R [ width=0 shape=point ];
-k=same; $id(); $id()R;}
-
+		$id() [label="$a_label()" shape=diamond];
+		$idR() [ width=0 shape=point ];
+		{rank=same; $id(); $idR();}
+		)
 	$append(DIRS,
-		$id():e -> $id()R:w [arrowhead=none];\n$id() -> $a_yesId() [weight=8];\n$id()R:e -> $a_noId()R:e [arrowhead=none];\n$a_noId() -> $a_noId()R [dir=back minlen=2];
-	)
+		$id():e -> $idR():w [arrowhead=none];$nl()$id() -> $yes_id() [weight=8];$nl()$idR():e -> $no_id()R:e [arrowhead=none];$nl()$no_id() -> $no_id()R [dir=back minlen=2];
+		)
 )
 
 # fnode_input(id,label,nextId)
@@ -64,11 +67,13 @@ $define(finput,
 	a_id a_label a_nextId
 	=
 	$bind+(id,n$a_id())
+	$bind+(idR,n$a_id()R)
 	$bind+(nextId,n$a_nextId())
+
 	$tempout(false,
 		$id() [label="$a_label()" shape=parallelogram];
-		$id()R [width=0 shape=point];
-		{rank=same; $id(); $id()R;}
+		$idR() [width=0 shape=point];
+		{rank=same; $id(); $idR();}
 	)
 	$append(DIRS=$id() -> $nextId() [weight=8];$nl())
 )
