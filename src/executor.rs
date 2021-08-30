@@ -137,6 +137,9 @@ impl<'a> Executor<'a> {
             "flowchartgvz" => {
                 flowchartgvz::render(&self.options.format,&self.options.out_file)?;
             }
+            "webuibts" => {
+                webuibts::render(&self.options.format,&self.options.out_file)?;
+            }
             _ => eprintln!("No appropriate renderer was given"),
         }
         Ok(())
