@@ -1,0 +1,74 @@
+# Directives macro
+$define(
+	flowchart_begin
+	=
+	$tempto(fjs.txt)
+	$tempout(true,digraph G {)
+	$define(DIRS=)
+)
+$define(
+	flowchart_end
+	=
+	$fileout(true,$path(cache,flowchartgvz_source.gvz),$tempin()$nl()$DIRS()$nl()})
+)
+
+# Start
+# fstart(label,goto)
+$define(
+	fstart,
+	a_label a_goto
+	=$tempout(false,start [ label="$a_label()" ];$nl())
+	$append(DIRS,start -> n$a_goto() [weight=8];$nl())
+)
+
+# End
+# fend(label)
+$define(
+	fend,
+	a_label
+	=$tempout(false,nend [label="$a_label()"];)
+)
+
+# fnode(id,label,nextId)
+$define(
+	fnode,
+	a_id a_label a_nextId
+	=
+	$bind+(id,n$a_id())
+	$bind+(nextId,n$a_nextId())
+	$tempout(false,$id() [label="$a_label()" shape=rect];
+$id()R [width=0 shape=point];
+{rank=same; $id(); $id()R;}$nl())
+	$append(DIRS,$id() -> $nextId() [weight=8];$nl())
+)
+
+# Flowchart node
+# _fnode_cond(id,label,yesId,noId)
+$define(
+	fcond,
+	a_id a_label a_yesId a_noId
+	=
+	$bind+(id,n$a_id())
+	$tempout(false,
+d() [label="$a_label()" shape=diamond];
+d()R [ width=0 shape=point ];
+k=same; $id(); $id()R;}
+
+	$append(DIRS,
+		$id():e -> $id()R:w [arrowhead=none];\n$id() -> $a_yesId() [weight=8];\n$id()R:e -> $a_noId()R:e [arrowhead=none];\n$a_noId() -> $a_noId()R [dir=back minlen=2];
+	)
+)
+
+# fnode_input(id,label,nextId)
+$define(finput,
+	a_id a_label a_nextId
+	=
+	$bind+(id,n$a_id())
+	$bind+(nextId,n$a_nextId())
+	$tempout(false,
+		$id() [label="$a_label()" shape=parallelogram];
+		$id()R [width=0 shape=point];
+		{rank=same; $id(); $id()R;}
+	)
+	$append(DIRS=$id() -> $nextId() [weight=8];$nl())
+)

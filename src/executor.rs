@@ -134,6 +134,9 @@ impl<'a> Executor<'a> {
             "flowchartjs" => {
                 flowchartjs::render(&self.options.out_file)?;
             }
+            "flowchartgvz" => {
+                flowchartgvz::render(&self.options.format,&self.options.out_file)?;
+            }
             _ => eprintln!("No appropriate renderer was given"),
         }
         Ok(())
