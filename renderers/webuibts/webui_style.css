@@ -1,0 +1,287 @@
+html, body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+.carousel-inner *:first-child {
+	display:block;
+}
+
+* {
+	font-size: 1.3rem;
+}
+
+#header > *, #footer > * {
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+.dialogue {
+	display: flex;
+	flex-direction: column;
+	padding-left : 2.5%;
+	padding-right : 2.5%;
+	align-items: flex-start;
+	flex-grow :1;
+}
+
+.dialogue-speaker {
+	font-weight: bold;
+	flex-grow : 0;
+	border-bottom: 1px solid #d0cccc;
+}
+
+.dialogue-text {
+	flex-grow: 1;
+}
+
+.collapsing {
+	transition: none !important;
+}
+
+img {
+	text-align: center;
+}
+
+.imgContainer {
+	display: flex;
+	justify-content: center; /* align horizontal */
+	align-items: center; /* align vertical */
+}
+
+.img {
+	padding : v_img_padding();
+	width: 100%;
+}
+
+.fontl {
+	font-size: 1.5rem;
+}
+.fontlg {
+	font-size: 2rem;
+}
+
+.webui {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between; 
+}
+
+/* Container flex direction is customizable */
+.gdContainer {
+	display: flex;
+	flex-grow: 1;
+}
+
+.gdHeader {
+	display: flex;
+	flex-direction: row;
+	flex-grow: 0;
+}
+
+.gdCollection {
+	display: flex;
+	flex-grow: 1;
+	justify-content: space-evenly;
+}
+
+.gdCollection > button, .gdCollection > div {
+	margin : 5px;
+}
+
+.collItem, .gdLabel {
+	flex-grow: 1;
+	display: flex;
+	justify-content: center; /* align horizontal */
+	align-items: center; /* align vertical */
+}
+
+.center_items {
+	align-items: center; 
+}
+
+.gdFooter {
+	display: flex;
+	flex-grow: 0;
+}
+
+.gdContent {
+	display: flex;
+	/*flex-grow: 1;*/
+	padding : v_content_padding();
+	/*Add border only when given such option*/
+	border : ifdef(`v_content_border',`1px', `0px') solid black;
+}
+
+.topSpace {
+	display: flex;
+	justify-content: space-between; 
+	margin : v_top_space_margin();
+	padding : v_top_space_padding();
+	flex-grow: 0;
+	flex-basis: 10%;
+}
+
+.topCenter {
+	justify-content: center; 
+	display: flex;
+}
+
+.topLeft {
+	display: flex;
+	flex-direction: row;
+}
+
+.topRight {
+	display: flex;
+	flex-direction: row-reverse;
+}
+
+.botSpace {
+	display: flex;
+	justify-content: space-between; 
+	margin : v_bot_space_margin();
+	padding : v_bot_space_padding();
+	flex-grow: 0;
+	flex-basis: 10%;
+}
+
+.botCenter {
+	justify-content: center; 
+	display: flex;
+}
+
+.botLeft {
+	display: flex;
+	flex-direction: row;
+}
+
+.hsplit > * {
+	width: 50% !important;
+	flex-grow : 0 !important;
+}
+
+.vsplit > * {
+	height: 50% !important;
+	flex-grow : 0 !important;
+}
+
+.botRight {
+	display: flex;
+	flex-direction: row-reverse;
+}
+
+.rowFlex {
+	flex-direction: row;
+}
+
+.colFlex {
+	flex-direction: column;
+}
+
+.flexGrow {
+	flex-grow : 1;
+}
+
+.modal-tp {
+	background: transparent;
+}
+
+.flexCenter {
+	justify-content: center;
+	align-items: center;
+}
+
+.fullSize {
+	width: 100%;
+	height: 100%;
+}
+
+.fullWidth {
+	width: 100%;
+}
+
+.fullHeight {
+	height: 100%;
+}
+
+.inlineGroup .form-check {
+	display: inline-block;
+	margin-right: 1rem;
+}
+
+.hiddenFlow {
+	overflow: hidden;
+}
+
+/* I have no idea how square grid works...*/
+/*https://stackoverflow.com/questions/46548987/a-grid-layout-with-responsive-squares*/
+.gridContainer {
+	display: grid;
+	/*grid-template-columns: repeat(auto-fill, minmax(30%, 1fr));*/
+	/* Try not to use gap because gap can break consistency in minmax calculation */
+	/*grid-gap: 10px;*/
+}
+
+.grid {
+	position: relative;
+	/*border: 1px solid;*/
+	box-sizing: border-box;
+}
+
+.grid::before {
+	content: '';
+	display: block;
+	padding-top: 100%;
+}
+
+.grid .gridContent {
+	position: absolute;
+	top: 0; left: 0;
+	height: 100%;
+	width: 100%;
+}
+
+.floating-menu {
+	visibility: hidden;
+	display: flex;
+	position: absolute;
+}
+
+.floating-left {
+	flex-direction: column;
+
+	top: 50%;
+	left: 5px;
+	transform: translateY(-50%); 
+	border: 1px solid black;
+}
+
+.floating-right {
+	flex-direction: column;
+
+	top: 50%;
+	right: 5px;
+	transform: translateY(-50%); 
+}
+
+.floating-top {
+	flex-direction: row;
+	top: 5px;
+	left: 50%;
+	transform: translateX(-50%); 
+}
+
+.floating-bottom {
+	flex-direction: row;
+	bottom: 5px;
+	left: 50%;
+	transform: translateX(-50%); 
+}
+
+.floating-item {
+	flex: 1;
+	cursor: pointer;
+}

@@ -1,0 +1,13 @@
+/* CSS style invoked by pure css */
+modifier.mdf-border + * {
+	border: 1px solid black !important;
+}
+
+modifier.mdf-hidden + * {
+	display: none !important;
+}
+
+/* CSS style invoked in combination with js + css */
+.dialogue-preset1 .dialogue {
+	border: 1px solid black;
+}
