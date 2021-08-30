@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width">
+		<title>Flowchart</title>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js" integrity="sha512-tBzZQxySO5q5lqwLWfu8Q+o4VkTcRGOeQGVQ0ueJga4A1RKuzmAu5HXDOXLEjpbKyV7ow9ympVoa6wZLEzRzDg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/flowchart/1.15.0/flowchart.min.js" integrity="sha512-6QsSiIybtf8tuZ6xfjRTr2tdtw3Gp4q5RSCh2b6q9seoKEQmhAG1RrCA8F0kXTwivVxRVbp/YF3zOh8rvEAU7Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+		<style type="text/css" media="screen">
+			html, body {
+				margin : 0;
+				height: 100%;
+			}
+			.wrapper {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				min-height: 100%;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="wrapper">
+			<div id="diagram"></div>
+		</div>
+		<script charset="utf-8">
+			var diagram = flowchart.parse(`$include($path(cache,flowchartjs_source.txt))`);
+			diagram.drawSVG('diagram');
+		</script>
+	</body>
+</html>
