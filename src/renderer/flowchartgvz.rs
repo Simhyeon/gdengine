@@ -3,7 +3,7 @@ use std::process::Command;
 use crate::utils;
 use crate::error::GdeError;
 
-pub(crate) fn render(format: &Option<String>,out_file: &Option<PathBuf>) -> Result<(), GdeError> {
+pub(crate) fn render(format: &Option<String>,out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeError> {
     let source_file = utils::CACHE_PATH.join("flowchartgvz_source.gvz");
 
     // Set default format, which is png
@@ -24,27 +24,27 @@ pub(crate) fn render(format: &Option<String>,out_file: &Option<PathBuf>) -> Resu
         "pdf" => {
             Command::new("dot")
                 .arg("-Tpdf")
-                .arg(source_file)
+                .arg(&source_file)
                 .arg("-o")
-                .arg(out_file)
+                .arg(&out_file)
                 .output()?
             }
         "png" => {
             Command::new("dot")
                 .arg("-Gdpi=300")
                 .arg("-Tpng")
-                .arg(source_file)
+                .arg(&source_file)
                 .arg("-o")
-                .arg(out_file)
+                .arg(&out_file)
                 .output()?
             }
         _ => {
             eprintln!("No usable format was given");
-            return Ok(());
+            return Ok(None);
         }
     };
 
     eprintln!("{}", String::from_utf8_lossy(&output.stderr));
 
-    Ok(())
+    Ok(Some(out_file))
 }

@@ -22,6 +22,7 @@ impl Cli {
                 "init" => {
                     // Create new files and directories
                     Init::new_gddt_file()?;
+                    Init::new_config_file()?;
                     Init::new_macro_file()?;
                     Init::new_directories()?;
                     // Git option
@@ -29,11 +30,18 @@ impl Cli {
                         Init::git_init()?;
                     }
                 },
+                "test" => {
+
+                }
+                "run" => {
+
+                }
                 "render" => {
                     if let Some(module) = args.value_of("module") {
                         // Set module
                         let render_option = Cli::parse_exec_options(args)?;
-                        let config = Config::new(&utils::CONFIG_PATH)?;
+                        let config = if let Ok(config) = Config::from(&utils::CONFIG_PATH) { config
+                        } else { return Err(GdeError::NotGdeDirectory); };
 
                         // Execute 
                         Executor::new(

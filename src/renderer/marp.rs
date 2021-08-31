@@ -1,9 +1,9 @@
-use std::path::{PathBuf, Path};
+use std::path::PathBuf;
 use std::process::Command;
 use crate::utils;
 use crate::error::GdeError;
 
-pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Result<(), GdeError> {
+pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeError> {
     // Change name to out.md
     let mut source_file = utils::middle_file_path()?;
     source_file.set_extension("md");
@@ -22,15 +22,15 @@ pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Res
     };
 
     let output = Command::new("marp")
-        .arg(source_file)
+        .arg(&source_file)
         .arg("--allow-local-files")
         .arg("--html")
         .arg(format!("--{}",format))
         .arg("-o")
-        .arg(out_file)
+        .arg(&out_file)
         .output()?;
 
     eprintln!("{}", String::from_utf8_lossy(&output.stderr));
 
-    Ok(())
+    Ok(Some(out_file))
 }

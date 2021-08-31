@@ -61,8 +61,8 @@ impl<'a> Executor<'a> {
     pub fn exec(&self) -> Result<(), GdeError> {
         self.preprocess()?;
         self.macro_expansion()?;
-        self.render()?;
-        self.postprocess()?;
+        let out_file = self.render()?;
+        self.postprocess(out_file)?;
 
         Ok(())
     }
@@ -120,39 +120,47 @@ impl<'a> Executor<'a> {
         Ok(sources)
     }
 
-    fn render(&self) -> Result<(), GdeError> {
-        match self.renderer {
+    fn render(&self) -> Result<Option<PathBuf>, GdeError> {
+        let out_file = match self.renderer {
             "marp" =>{
-                marp::render( &self.options.format, &self.options.out_file)?;
+                marp::render( &self.options.format, &self.options.out_file)?
             }
             "mediawiki" => {
-                mediawiki::render(&self.config)?;
+                mediawiki::render(&self.config)?
             }
             "gdlogue" => {
-                gdlogue::render(&self.options.format, &self.options.out_file)?;
+                gdlogue::render(&self.options.format, &self.options.out_file)?
             }
             "flowchartjs" => {
-                flowchartjs::render(&self.options.out_file)?;
+                flowchartjs::render(&self.options.out_file)?
             }
             "flowchartgvz" => {
-                flowchartgvz::render(&self.options.format,&self.options.out_file)?;
+                flowchartgvz::render(&self.options.format,&self.options.out_file)?
             }
             "webuibts" => {
-                webuibts::render(&self.options.out_file)?;
+                webuibts::render(&self.options.out_file)?
             }
-            _ => eprintln!("No appropriate renderer was given"),
-        }
-        Ok(())
+            _ => {eprintln!("No appropriate renderer was given"); None}
+        };
+        
+        Ok(out_file)
     }
 
     // Copy output file to designated file
     // Remove cached file
-    fn postprocess(&self) -> Result<(), GdeError> {
-        if let Some(path) = &self.options.copy {
-
+    fn postprocess(&self, final_file: Option<PathBuf>) -> Result<(), GdeError> {
+        if let Some(final_file) = final_file {
+            if let Some(path) = &self.options.copy {
+                if path.is_dir() {
+                    std::fs::rename(&final_file, path.join(&final_file.file_name().unwrap()))?;
+                } else {
+                    std::fs::rename(final_file, path)?;
+                }
+            }
         }
-        if self.options.preserve {
-
+        if !self.options.preserve {
+            std::fs::remove_dir_all(utils::CACHE_PATH.to_owned())?;
+            std::fs::create_dir(utils::CACHE_PATH.to_owned())?;
         }
         Ok(())
     }

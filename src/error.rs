@@ -10,6 +10,8 @@ pub enum GdeError {
     JsonError(serde_json::Error),
     #[error("Config error : {0}")]
     ConfigError(String),
+    #[error("Not a gde directory")]
+    NotGdeDirectory,
 }
 
 impl From<std::io::Error> for GdeError {

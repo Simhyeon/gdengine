@@ -3,7 +3,7 @@ use crate::error::GdeError;
 use std::process::Command;
 use crate::utils;
 
-pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Result<(), GdeError> {
+pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeError> {
 
     // Source file
     let source_file = utils::CACHE_PATH.join("out.json");
@@ -39,7 +39,7 @@ pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Res
             output = Command::new("rad")
                 .arg(utils::renderer_path("gdlogue")?.join("index.html"))
                 .arg("-o")
-                .arg(out_file)
+                .arg(&out_file)
                 .output()?;
             }
         "pdf" => {
@@ -47,7 +47,7 @@ pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Res
                 .arg("-Tpdf")
                 .arg("out.gv")
                 .arg("-o")
-                .arg(out_file)
+                .arg(&out_file)
                 .output()?;
             }
         "png" => {
@@ -56,15 +56,15 @@ pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Res
                 .arg("-Tpng")
                 .arg("out.gv")
                 .arg("-o")
-                .arg(out_file)
+                .arg(&out_file)
                 .output()?;
             }
         _ => {
             eprintln!("No usable format was given");
-            return Ok(());
+            return Ok(None);
         }
     }
     eprintln!("{}", String::from_utf8_lossy(&output.stderr));
     std::fs::rename("out.gv", utils::CACHE_PATH.join("out.gv"))?;
-    Ok(())
+    Ok(Some(out_file))
 }

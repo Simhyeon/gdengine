@@ -1,5 +1,6 @@
 use std::fs;
 use std::path::Path;
+use crate::config::Config;
 use crate::error::GdeError;
 use std::process::Command;
 
@@ -10,6 +11,10 @@ pub struct Init;
 impl Init {
     pub fn new_gddt_file() -> Result<(), GdeError> {
         fs::write(Path::new("index.gddt"), "")?;
+        Ok(())
+    }
+    pub fn new_config_file() -> Result<(), GdeError> {
+        fs::write(Path::new("config.json"), Config::new_file())?;
         Ok(())
     }
 
