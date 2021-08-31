@@ -14,8 +14,15 @@ pub(crate) fn render(out_file: &Option<PathBuf>) -> Result<(), GdeError> {
     };
 
     // TODO
+    let output = Command::new("rad")
+        .arg(utils::renderer_path("webuibts")?.join("index.html"))
+        .arg("-m")
+        .arg(utils::module_path("webuibts")?)
+        .arg("-o")
+        .arg(out_file)
+        .output()?;
 
-    // eprintln!("{}", String::from_utf8_lossy(&output.stderr));
+    eprintln!("{}", String::from_utf8_lossy(&output.stderr));
 
     Ok(())
 }
