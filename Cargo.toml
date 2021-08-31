@@ -2,6 +2,13 @@
 name = "gdengine"
 version = "0.1.0"
 edition = "2018"
+license = "MIT OR Apache-2.0"
+keywords = ["macro", "text-processing", "game-design", "game-development"]
+categories = ["command-line-utilities", "text-processing", "game-development"]
+description = "Game design document creation tool"
+homepage = "https://github.com/simhyeon/gdengine"
+repository = "https://github.com/simhyeon/gdengine"
+readme = "README.md"
 
 [dependencies]
 clap = "3.0.0-beta.2"
