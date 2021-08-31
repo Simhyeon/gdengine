@@ -2,6 +2,7 @@
 
 * [ ] run and test
 * [ ] Refactor config parsing
+* [ ] Test renders 
 
 * [ ] Basic utilies
   * [ ] Render
