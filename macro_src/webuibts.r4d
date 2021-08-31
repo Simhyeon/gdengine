@@ -11,12 +11,16 @@ $define(mod_webuibts=)
 
 # =====
 # Directives macro
-$define(ui_begin=$define(ui_file=$path(cache,ui.html)$fileout(true,$ui_file(),))
+$define(ui_begin=
+		$tempto(rad_ui.html)
+		$redir(true)
 )
-$define(ui_end=)
-
-$define(script_begin=$define(ui_file=$path(cache,ui.js)$fileout(true,$ui_file(),)))
-$define(script_end=)
+$define(ui_end=$redir(false)$fileout(true,$path(cache,ui.html),$tempin()))
+$define(script_begin=
+		$tempto(rad_ui.js)
+		$redir(true)
+)
+$define(script_end=$redir(false)$fileout(true,$path(cache,ui.js),$tempin()))
 
 # =====
 # Top space macros
@@ -178,7 +182,7 @@ $m_radio|(name,id)
 # Radio select
 $define(radio,a_id a_radio_ids=
 <div id="$a_id()" class="radioGroup">
-$foreach($a_radio_ids*(),\*$m_radio($1,$:)*\)
+$foreach($a_radio_ids*(),\*$m_radio($a_id(),$:)*\)
 </div>)
 
 $radio|(1,a,b,c)
