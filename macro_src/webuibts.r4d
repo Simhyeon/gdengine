@@ -79,7 +79,7 @@ $content_center|(1,10px,a)
 
 $define(vcontent,a_id a_height a_content=
 $bind+(flex_grow,$ifelse($eval("$a_height()" == "0"),flexGrow))
-<div id="$a_id()" class="gdContent colFlex fullSize hiddenFlow $flew_grow()" style="height: $a_height();">
+<div id="$a_id()" class="gdContent colFlex fullSize hiddenFlow $flex_grow()" style="height: $a_height();">
 $a_content()
 </div>)
 $vcontent|(1,0,a)
@@ -129,7 +129,7 @@ $tinput|(1,1)
 $define(tinput_label,a_id a_placeholder a_label=
 <div class="input-group mb-3">
   <span class="input-group-text" id="$a_id()Label">$a_label()</span>
-  <input id="$a_id" type="text" class="form-control" placeholder="$a_placeholder()" aria-label="Username" aria-describedby="basic-addon1">
+  <input id="$a_id()" type="text" class="form-control" placeholder="$a_placeholder()" aria-label="Username" aria-describedby="basic-addon1">
 </div>)
 
 $tinput_label|(1,1,1)
@@ -220,7 +220,6 @@ $define(car_item,a_content=
 
 $car_item|(ITEM)
 
-# TODO carousel
 $define(car,a_id a_content=
 <div id="$a_id()" class="carousel slide" data-bs-ride="carousel">
 	<div class="carousel-inner">
@@ -239,7 +238,7 @@ $float_item|(1,2)
 
 # Floating menu
 $define(float_menu,a_id a_position a_content=
-<div id="$a_id" class="floating-menu floating-$a_position()" disabled="true">
+<div id="$a_id()" class="floating-menu floating-$a_position()" disabled="true">
 	$a_content()
 </div>)
 
@@ -309,115 +308,144 @@ $a_content()
 
 $grid|(id,3,content)
 
-# TODO
-# Until here
-
 # ==========
 # Swappable area
-# Swapp button radio group
-$define(swap_buttons=<div id="$1" class="btn-group" role="group">
-foreach(`it, (shift($*)), `m_swap_button($1, it))
-</div>)
 
 # Single swap button
-$define(`m_swap_button=
-<input type="radio" class="btn-check" name="$1" value="no" id="$2"
+$define(m_swap_button,a_name a_id=
+<input type="radio" class="btn-check" name="$a_name()" value="no" id="$a_id()"
        aria-expanded="false"
-       aria-controls="$2"
+       aria-controls="$a_name()"
        data-bs-toggle="collapse"
-       data-bs-target=",$2">
-<label class="btn btn-outline-primary" for="$2">$2</label>
+       data-bs-target="$a_name()">
+<label class="btn btn-outline-primary" for="$a_id()">$a_id()</label>
 )
+$m_swap_button|(name,id)
+
+# Swap button radio group
+$define(swap_button_group,a_id a_swap_buttons=<div id="$a_id()" class="btn-group" role="group">
+$foreach($a_swap_buttons*(),\*$m_swap_button($a_id(), $:)*\)
+</div>)
+$swap_button_group|(id,Hello World,John doe)
 
 # Swappable items
 # second argument or target parent should be same with parent div, element or _contents id
-$define(swap_item=
-<div id="$1" class="collapse" data-bs-parent=",$2">
-	shift(shift($*))
+$define(swap_item,a_id a_parent_id a_content=
+<div id="$a_id()" class="collapse" data-bs-parent="$a_parent_id()">
+	$a_content()
 </div>
 )
 
+$swap_item|(id,parent,content)
+
 # Card component
-$define(card=<div id="$1" class="card card-body">
-<h5 class="card-title">$2</h5>
-shift(shift($*))
+$define(card,a_id a_title a_content=<div id="$a_id()" class="card card-body">
+<h5 class="card-title">$a_title()</h5>
+$a_content()
 </div>)
+
+$card|(id,title,content)
+
 # Card with image
-$define(card_img=<div id="$1" class="card card-body">
-<img src="$3" class="card-img-top" alt="!!Card Image is not found!!">
-<h5 class="card-title">$2</h5>
-$4
+$define(card_img,a_id a_title a_image a_content=<div id="$a_id()" class="card card-body">
+<img src="$a_image()" class="card-img-top" alt="!!Card Image is not found!!">
+<h5 class="card-title">$a_title()</h5>
+$a_content()
 </div>)
+
+$card|(id,src,title,content)
 
 # collection, simply collection of aligned div items
 # collection doesnt expand but srhik while list view can be expanded with scroll bars
-# _coll(id ,loopCount, content)
-$define(coll=<div id="$1" class="gdCollection rowFlex">
-forloop(`i, 1, $2, `shift(shift($*)))
+# coll(id ,loopCount, content)
+$define(coll,a_id a_count a_content=<div id="$a_id()" class="gdCollection rowFlex">
+$forloop(0,$a_count(),$a_content())
 </div>) 
 
-$define(vcoll=<div id="$1" class="gdCollection colFlex">
-forloop(`i, 1, $2, `shift(shift($*)))
+$coll|(id,5,content)
+
+$define(vcoll,a_id a_count a_content=<div id="$a_id()" class="gdCollection colFlex">
+$forloop(0,$a_count(),$a_content())
 </div>) 
+
+$vcoll|(id,5,content)
 
 # Modal macros
 # Modal Header
-$define(`m_modal_header=
+$define(m_modal_header,a_title=
 <div class="modal-header">
-	<h5 class="modal-title">$1</h5>
+	<h5 class="modal-title">$a_title()</h5>
 	<button type="button" class="btn-close modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>)
+
+$m_modal_header|(title)
+
 # Modal body
-$define(`m_modal_body=
+$define(m_modal_body,a_content=
 <div class="modal-body">
-	$1
+	$a_content()
 </div>)
+
+$m_modal_body|(content)
+
 # Modal footer
-$define(`m_modal_footer=
+$define(m_modal_footer,a_content=
 <div class="modal-footer">
-	$1
+	$a_content()
 </div>)
+
+$m_modal_footer|(content)
+
 # Modal user macros
-$define(modal=
-<div class="modal fade" id="$1" tabindex="-1" aria-hidden="true">
+$define(modal,a_id a_title a_body a_footer=
+<div class="modal fade" id="$a_id()" tabindex="-1" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			m_modal_header($2)
-			m_modal_body($3)
-			m_modal_footer($4)
+			m_modal_header($a_title())
+			m_modal_body($a_body())
+			m_modal_footer($a_footer())
 		</div>
 	</div>
 </div>
 )
 
+$modal|(id,title,body,footer)
+
 # =====
 # Bottom space macros
-$define(bot_space=<div id="botSpace" class="botSpace">
-$*
+$define(bot_space,a_content=<div id="botSpace" class="botSpace">
+$a_content()
 </div>)
 
-$define(bot_left=<div id="botLeft" class="botLeft">
-$*
+$bot_space|(content)
+
+$define(bot_left,a_content=<div id="botLeft" class="botLeft">
+$a_content()
 </div>)
 
-$define(bot_center=<div id="botCenter" class="botCenter">
-$*
+$bot_left|(content)
+
+$define(bot_center,a_content=<div id="botCenter" class="botCenter">
+$a_content()
 </div>)
 
-$define(bot_right=<div id="botRight" class="botRight">
-$*
+$bot_center|(content)
+
+$define(bot_right,a_content=<div id="botRight" class="botRight">
+$a_content()
 </div>)
 
+$bot_right|(content)
 
 # MISC
 # There were too much things to modify I just forced full html tags bc, why not
-$define(screen_touch=
-<div class="modal" id="$1" tabindex="-1" aria-hidden="true" onclick="``hideModal(this)">
+$define(screen_touch,a_id a_content=
+<div class="modal" id="$a_id()" tabindex="-1" aria-hidden="true" onclick="``hideModal(this)">
 	<div class="modal-dialog modal-fullscreen">
 		<div class="modal-content modal-tp text-white">
 			<button type="button" style="display: none;" class="modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			<div class="modal-body" style="display: flex; justify-content: center; align-items: center;">
-			$2
+			$a_content()
 			</div>
 			<div class="modal-footer" style="border: 0; justify-content: center;">
 				Click to dismiss
@@ -427,79 +455,87 @@ $define(screen_touch=
 </div>
 )
 
+$screen_touch|(id,content)
+
 # Sidebar
 # Sidebar Left
-$define(sidebar_left=
-<div class="offcanvas offcanvas-start" tabindex="-1" id="$1">
+$define(sidebar_left,a_id a_content=
+<div class="offcanvas offcanvas-start" tabindex="-1" id="$a_id()">
   <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="$1Label"></h5>
+    <h5 class="offcanvas-title" id="$a_id()Label"></h5>
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-	$2
+	$a_content()
   </div>
 </div>
 )
 
+$sidebar_left|(id,content)
+
 # Sidebar Right
-$define(sidebar_right=
-<div class="offcanvas offcanvas-end" tabindex="-1" id="$1">
+$define(sidebar_right,a_id a_content=
+<div class="offcanvas offcanvas-end" tabindex="-1" id="$a_id()">
   <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="$1Label"></h5>
+    <h5 class="offcanvas-title" id="$a_id()Label"></h5>
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-	$2
+	$a_content()
   </div>
 </div>
 )
+
+$sidebar_right|(id,content)
 
 # ==========
 # Style modifier
 # Css tyle and js script can use this modifier html tag to modify
 # element that comes next to the modifier
-$define(style_next=<modifier class="foreach(`it, ($*), ``mdf-it() )"></modifier>)
+$define(style_next,a_mdf_classes=<modifier class="$foreach(a_mdf_classes*(),mdf-$:)"></modifier>)
+
+$style_next|(1,2,4,5,6)
 
 # ==========
 # Scripts
 
 # Add callback for event
 # Origin id, eventType, callbackMacro 
-$define(add_call=addCallback`("$1", "$2",`(ev`) => {$3}`))
+$define(add_call,a_id a_event_type a_content
+		=addCallback("$a_id()", "$a_event_type()",(ev) => {$a_content()}))
 
 # Add tooltip to element 
-$define(add_tooltip=setProperties`("$1",{"data-bs-toggle":"tooltip","data-bs-placement":"top","title":"$2"}`))
-$define(add_tooltips=
-foreach(`it, ($*), add_tooltip(m_parse_pair(it))
-))
+$define(add_tooltip,a_id a_tooltip
+		=setProperties("$a_id()",{"data-bs-toggle":"tooltip","data-bs-placement":"top","title":"$a_tooltip()"}))
 
 # Call alert function
-# e.g.) _add_call(alert, click, _call_alert(This is new text))
-$define(call_alert=alert("$1"))
+# e.g. add_call(alert, click, call_alert(This is new text))
+$define(call_alert,a_id
+		=alert("$a_id()"))
 
 # Call element toggle function
-$define(call_toggle=toggleElement("$1"))
+$define(call_toggle,a_id=toggleElement("$a_id()"))
 
 # Call sync value function, while this says value but it syncs text
-$define(call_sync_text=syncText("$1",ev))
+$define(call_sync_text,a_id=syncText("$a_id()",ev))
 
 # Go to url
-$define(call_visit=window.location="$1")
+$define(call_visit,a_id=window.location="$a_id()")
 
 # Call specific event on target
-$define(call_event=triggerEvent("$1" , "$2"))
+$define(call_event,a_id a_event_type=triggerEvent("$a_id()" , "$a_event_type()"))
 
 # Call update, or say set properties on target
-$define(call_update=setProperties("$1",{"$2" : "$3"}))
+$define(call_update,a_id a_prop_name a_prop_value=setProperties("$a_id()",{"$a_prop_name()" : "$a_prop_value()"}))
 
 # Show Modal
-$define(call_modal=callModal("$1"))
+$define(call_modal,a_id=callModal("$a_id()"))
 
 # Show Modal
-$define(hide_modal=hideModal("$1"))
+$define(hide_modal,a_id=hideModal("$a_id()"))
 
 # Toggle sidebar
-$define(call_sidebar=toggleSidebar("$1"))
+$define(call_sidebar,a_id=toggleSidebar("$a_id()"))
 
 # Toggle floatmenu
-$define(call_float_menu=toggleFloatMenu("$1"))
+$define(call_float_menu,a_id=toggleFloatMenu("$a_id()"))
