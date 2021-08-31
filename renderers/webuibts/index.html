@@ -11,15 +11,14 @@
 		<style type="text/css" media="screen">
 			$include($path($env(GDE_MODULE),webui_style.css))
 			$include($path($env(GDE_MODULE),modifier.css))
-			$ifdef(v_use_custom_css,$include(webui_custom.css))
 		</style>
 		<title>
-			m_webui_title()
+			Webui Demo
 		</title>
 	</head>
 	<body onload="init()">
 		<div class="webui">
-			m_webui_content()
+			$include($path(cache,ui.html))
 		</div>
 	</body>
 	<script charset="utf-8">
@@ -27,8 +26,7 @@
 		$include($path($env(GDE_MODULE),index.js))
 
 		function init() {
-			// TODO Change this
-			$ifdef(m_webui_script,m_webui_script())
+			$include($path(cache,ui.js))
 			modify()
 		}
 	</script>
