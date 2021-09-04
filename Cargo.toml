@@ -15,6 +15,7 @@ clap = "3.0.0-beta.2"
 thiserror = "1.0.25"
 lazy_static = "1.4.0"
 serde_json = "1.0.64"
+r4d = {version = "0.5.1", features = ["full"] }
 
 [[bin]]
 name = "gde"
