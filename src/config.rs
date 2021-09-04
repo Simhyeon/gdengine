@@ -21,9 +21,21 @@ impl Config {
     pub fn new_file() -> String {
         String::from(r#"{
     env: {},
-    run: "", 
-    test: ""
+    run: [],
+    test: [""]
 }"#)
+    }
+
+    pub fn get_value_as_array(&self, name:&str) -> Option<Vec<Value>> {
+        if let Some(value) =self.content.get(name) {
+            if let Value::Array(arr) = value {
+                Some(arr.to_owned())
+            } else {
+                None
+            }
+        } else {
+            None
+        }
     }
 
     pub fn get_env(&self, index:&str) -> Option<String> {
