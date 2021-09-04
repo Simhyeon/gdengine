@@ -19,7 +19,11 @@ impl Config {
     }
 
     pub fn new_file() -> String {
-        String::from(r#"{env:{},run: "", test: ""}"#)
+        String::from(r#"{
+    env: {},
+    run: "", 
+    test: ""
+}"#)
     }
 
     pub fn get_env(&self, index:&str) -> Option<String> {
