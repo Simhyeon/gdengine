@@ -1,7 +1,8 @@
 use std::path::PathBuf;
-use std::process::Command;
 use crate::utils;
 use crate::error::GdeError;
+use rad::processor::Processor;
+use rad::error::RadError;
 
 pub(crate) fn render(out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeError> {
     // Set default outfile
@@ -11,13 +12,19 @@ pub(crate) fn render(out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeE
         utils::BUILD_PATH.join("out.html").to_owned()
     };
 
-    let output = Command::new("rad")
-        .arg(utils::renderer_path("flowchartjs")?.join("index.html"))
-        .arg("-o")
-        .arg(&out_file)
-        .output()?;
-
-    eprintln!("{}", String::from_utf8_lossy(&output.stderr));
+    if let Err(err) = rad(&out_file) {
+        eprintln!("{}", err);
+    }
 
     Ok(Some(out_file))
+}
+
+fn rad(out_file : &PathBuf) -> Result<(), RadError> {
+    Processor::new()
+        .greedy(true)
+        .purge(true)
+        .write_to_file(Some(out_file.to_owned()))?
+        .from_file(&utils::renderer_path("flowchartjs").expect("Failed to get path").join("index.html"))?;
+
+    Ok(())
 }
