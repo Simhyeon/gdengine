@@ -1,9 +1,10 @@
-use std::path::PathBuf;
-use std::process::Command;
+use std::path::{PathBuf, Path};
 use crate::error::GdeError;
 use crate::utils;
 use crate::renderer::*;
 use crate::config::Config;
+use rad::processor::Processor;
+use rad::error::RadError;
 
 pub struct ExecOptions {
     // Option used by rad
@@ -60,7 +61,9 @@ impl<'a> Executor<'a> {
 
     pub fn exec(&self) -> Result<(), GdeError> {
         self.preprocess()?;
-        self.macro_expansion()?;
+        if let Err(err) = self.macro_expansion() {
+            eprintln!("{}", err);
+        }
         let out_file = self.render()?;
         self.postprocess(out_file)?;
 
@@ -72,55 +75,22 @@ impl<'a> Executor<'a> {
         Ok(())
     }
 
-    fn macro_expansion(&self) -> Result<(), GdeError> {
-        let args = self.set_rad_arguments()?;
-
-        let output = Command::new("rad")
-            .args(&args)
-            .output()?;
-
-        // Print out error
-        eprintln!("{}", String::from_utf8_lossy(&output.stderr));
+    fn macro_expansion(&self) -> Result<(), RadError> {
+        Processor::new()
+            .purge(self.options.purge)
+            .greedy(true)
+            .write_to_file(Some(utils::middle_file_path().expect("Failed to get path")))?
+            .custom_rules(Some(vec![
+                    utils::STD_MACRO_PATH.to_owned(),
+                    utils::module_path(self.renderer).expect("Failed to get path")
+            ]))?
+            .from_file(Path::new(&self.options.input))?;
 
         Ok(())
     }
 
-    fn set_rad_arguments(&self) -> Result<Vec<String>, GdeError> {
-        // Set include files
-        let mut args = self.set_rad_sources()?;
-        
-        // Set other options
-        // Purge option
-        if self.options.purge {
-            args.push("-p".to_owned());
-        }
-
-        // Set out file, or middle file
-        let out_file = utils::middle_file_path()?
-            .to_str()
-            .unwrap()
-            .to_owned();
-        args.push("-o".to_owned());
-        args.push(out_file);
-        args.push("-g".to_owned());
-
-        // Return vec
-        Ok(args)
-    }
-
-    fn set_rad_sources(&self) -> Result<Vec<String>, GdeError> {
-        // User defined macro
-        let mut sources = vec!(self.options.input.clone());
-        // Standard macro definition file
-        sources.push("-m".to_owned());
-        sources.push(format!("{}", utils::STD_MACRO_PATH.display()));
-        // Set lib definition file
-        sources.push(format!("{}", utils::module_path(self.renderer)?.display()));
-
-        Ok(sources)
-    }
-
     fn render(&self) -> Result<Option<PathBuf>, GdeError> {
+        println!("Render with \"{}\"", self.renderer);
         let out_file = match self.renderer {
             "marp" =>{
                 marp::render( &self.options.format, &self.options.out_file)?
