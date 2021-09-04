@@ -1,7 +1,7 @@
 use std::path::PathBuf;
-use std::process::Command;
 use crate::utils;
 use crate::error::GdeError;
+use std::ffi::OsStr;
 
 pub(crate) fn render(format: &Option<String>,out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeError> {
     let source_file = utils::CACHE_PATH.join("flowchartgvz_source.gvz");
@@ -20,31 +20,26 @@ pub(crate) fn render(format: &Option<String>,out_file: &Option<PathBuf>) -> Resu
         utils::BUILD_PATH.join(&format!("out.{}",format)).to_owned()
     };
 
-    let output = match format.as_str() {
+    match format.as_str() {
         "pdf" => {
-            Command::new("dot")
-                .arg("-Tpdf")
-                .arg(&source_file)
-                .arg("-o")
-                .arg(&out_file)
-                .output()?
-            }
-        "png" => {
-            Command::new("dot")
-                .arg("-Gdpi=300")
-                .arg("-Tpng")
-                .arg(&source_file)
-                .arg("-o")
-                .arg(&out_file)
-                .output()?
-            }
-        _ => {
-            eprintln!("No usable format was given");
-            return Ok(None);
+            utils::command("dot", vec![
+                OsStr::new("-Tpdf"),
+                source_file.as_os_str(),
+                OsStr::new("-o"),
+                out_file.as_os_str()
+            ])?;
         }
-    };
-
-    eprintln!("{}", String::from_utf8_lossy(&output.stderr));
+        "png" => {
+            utils::command("dot", vec![
+                OsStr::new("-Gdpi=300"),
+                OsStr::new("-Tpng"),
+                source_file.as_os_str(),
+                OsStr::new("-o"),
+                out_file.as_os_str()
+            ])?;
+        }
+        _ => { eprintln!("No usable format was given"); }
+    }
 
     Ok(Some(out_file))
 }

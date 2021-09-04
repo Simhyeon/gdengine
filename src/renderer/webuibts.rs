@@ -22,7 +22,6 @@ pub(crate) fn render(out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeE
 fn rad(out_file : &PathBuf) -> Result<(), RadError> {
     Processor::new()
         .greedy(true)
-        .purge(true)
         .write_to_file(Some(out_file.to_owned()))?
         .custom_rules(Some(
                 vec![utils::module_path("webuibts").expect("Failed to get module path")]

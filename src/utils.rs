@@ -1,6 +1,8 @@
 use std::path::PathBuf;
 use crate::error::GdeError;
 use lazy_static::lazy_static;
+use std::process::Command;
+use std::ffi::OsStr;
 
 // Paths
 lazy_static! {
@@ -81,4 +83,26 @@ pub fn renderer_path(name : &str) -> Result<PathBuf, GdeError> {
 
 pub fn middle_file_path() -> Result<PathBuf, GdeError> {
     Ok(CACHE_PATH.join("out.gddt"))
+}
+
+// Cross platform command call
+pub fn command(program: &str, args: Vec<impl AsRef<OsStr>>) -> Result<(), GdeError> {
+
+    let output = if cfg!(target_os = "windows") {
+        Command::new("cmd")
+            .arg("/C")
+            .arg(program)
+            .args(args)
+            .output()
+            .expect("failed to execute process")
+    } else {
+        Command::new(program)
+            .args(args)
+            .output()
+            .expect("failed to execute process")
+    };
+
+    eprintln!("{}", String::from_utf8_lossy(&output.stderr));
+
+    Ok(())
 }

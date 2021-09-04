@@ -1,7 +1,7 @@
 use std::path::PathBuf;
-use std::process::Command;
 use crate::utils;
 use crate::error::GdeError;
+use std::ffi::OsStr;
 
 pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeError> {
     // Change name to out.md
@@ -21,16 +21,14 @@ pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Res
         utils::BUILD_PATH.join(format!("out.{}", format)).to_owned()
     };
 
-    let output = Command::new("marp")
-        .arg(&source_file)
-        .arg("--allow-local-files")
-        .arg("--html")
-        .arg(format!("--{}",format))
-        .arg("-o")
-        .arg(&out_file)
-        .output()?;
-
-    eprintln!("{}", String::from_utf8_lossy(&output.stderr));
+    utils::command("marp", vec![
+        source_file.as_os_str(),
+        OsStr::new("--allow-local-files"),
+        OsStr::new("--html"),
+        OsStr::new(&format!("--{}", format)),
+        OsStr::new("-o"),
+        out_file.as_os_str()
+    ])?;
 
     Ok(Some(out_file))
 }

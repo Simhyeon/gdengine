@@ -22,7 +22,6 @@ pub(crate) fn render(out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeE
 fn rad(out_file : &PathBuf) -> Result<(), RadError> {
     Processor::new()
         .greedy(true)
-        .purge(true)
         .write_to_file(Some(out_file.to_owned()))?
         .from_file(&utils::renderer_path("flowchartjs").expect("Failed to get path").join("index.html"))?;
 

@@ -1,9 +1,9 @@
 use std::path::PathBuf;
 use crate::error::GdeError;
-use std::process::Command;
 use crate::utils;
 use rad::processor::Processor;
 use rad::error::RadError;
+use std::ffi::OsStr;
 
 pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeError> {
 
@@ -26,45 +26,39 @@ pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Res
 
     // Execute
     // This validates json file and yield out.gv in current working directory
-    let mut output = Command::new("node")
-        // Other aguments
-        .arg(utils::renderer_path("gdlogue")?.join("index.js"))
-        .arg(source_file)
-        .arg("dotify")
-        .output()?;
+    utils::command("node", vec![
+        utils::renderer_path("gdlogue")?.join("index.js").as_os_str(),
+        source_file.as_os_str(),
+        OsStr::new("dotify")
+    ])?;
 
-    eprintln!("{}", String::from_utf8_lossy(&output.stderr));
     match format.as_str() {
         "html" => {
-            // This evaluates indes.html template
-            // And create app.js with necessary data
+            // This evaluates index.html template
+            // And creates app.js with necessary data
             if let Err(err) = rad(&out_file) {
                 eprintln!("{}", err);
             }
         }
         "pdf" => {
-            output = Command::new("dot")
-                .arg("-Tpdf")
-                .arg("out.gv")
-                .arg("-o")
-                .arg(&out_file)
-                .output()?;
+            utils::command("dot", vec![
+                OsStr::new("-Tpdf"),
+                OsStr::new("out.gv"),
+                OsStr::new("-o"),
+                out_file.as_os_str()
+            ])?;
         }
         "png" => {
-            output = Command::new("dot")
-                .arg("-Gdpi=300")
-                .arg("-Tpng")
-                .arg("out.gv")
-                .arg("-o")
-                .arg(&out_file)
-                .output()?;
+            utils::command("dot", vec![
+                OsStr::new("-Gdpi=300"),
+                OsStr::new("-Tpng"),
+                OsStr::new("out.gv"),
+                OsStr::new("-o"),
+                out_file.as_os_str()
+            ])?;
         }
-        _ => {
-            eprintln!("No usable format was given");
-            return Ok(None);
-        }
+        _ => { eprintln!("No usable format was given"); }
     }
-    eprintln!("{}", String::from_utf8_lossy(&output.stderr));
     std::fs::rename("out.gv", utils::CACHE_PATH.join("out.gv"))?;
     Ok(Some(out_file))
 }
@@ -72,7 +66,6 @@ pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Res
 fn rad(out_file : &PathBuf) -> Result<(), RadError> {
     Processor::new()
         .greedy(true)
-        .purge(true)
         .write_to_file(Some(out_file.to_owned()))?
         .from_file(&utils::renderer_path("gdlogue").expect("Failed to get renderer path").join("index.html"))?;
 
