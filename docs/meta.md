@@ -1,8 +1,13 @@
 ### Todos
 
+* [ ] Find a way to decrease external dependencies
+* [ ] Find if graphviz/dot binding exists
+* [ ] Find a way to create global installer program
+- graphviz
+- nodejs
+- pandoc
+
 * [ ] run and test
-* [ ] Refactor config parsing
-* [ ] Test renders 
 
 * [ ] Basic utilies
   * [ ] Render
@@ -26,6 +31,8 @@
 
 ## DONE
 
+* [x] Make cross platform command call
+* [x] Refactor config parsing
 * [x] Make a logic structure much more maintainable
   * [x] Make path lazy static
   * [x] Make structure, method, argument naming cohesive and consistent
