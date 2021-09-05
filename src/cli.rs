@@ -80,13 +80,15 @@ impl Cli {
         Self::args_builder().get_matches()
     }
 
-    pub fn get_string_matches(args: &str) -> clap::ArgMatches {
-        Self::args_builder().get_matches_from(args.split(' '))
+    pub fn get_string_matches(input: &str) -> clap::ArgMatches {
+        let mut args = vec!["gde"];
+        args.extend(input.split(' '));
+        Self::args_builder().get_matches_from(args)
     }
 
     // TODO Add stream or file type option for main usage
     fn args_builder() -> clap::App<'static> {
-        clap_app!(Gde =>
+        clap_app!(gde =>
             (version: "0.2.0")
             (author: "Simon Creek <simoncreek@tutanota.com>")
             (about: "Gdengine is a document automation program.")
@@ -100,6 +102,7 @@ impl Cli {
             (@arg copy: -c --copy +takes_value "Copy to directory")
             (@arg module: -m --module +takes_value "Render module")
             (@arg format: -f --format +takes_value "Render format")
+            (@arg test: --test "Render yields some information to files")
         )
     }
 
@@ -107,6 +110,7 @@ impl Cli {
         Ok(ExecOptions::new(
                 matches.is_present("preserve"),
                 matches.is_present("purge"),
+                matches.is_present("test"),
                 matches.value_of("copy").map(|s| PathBuf::from(s)),
                 matches.value_of("format").map(|s| s.to_owned()),
                 matches.value_of("input").map(|s| PathBuf::from(s) ),

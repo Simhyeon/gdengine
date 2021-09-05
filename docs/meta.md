@@ -1,3 +1,9 @@
+### Imminent
+
+* [ ] Make gdlogue rust implementation
+* [ ] Make docx renderer in rust
+* [ ] Make a separate crate to create a pptx file
+
 ### Todos
 
 * [ ] Find a way to decrease external dependencies
@@ -8,6 +14,11 @@
 - pandoc
 
 * [ ] run and test
+  * [x] Run -> Simply run not so hard
+  * [ ] Test
+    * [x] No panicking
+	* [ ] Final result
+	- This cannot be done yet, because print result is private method
 
 * [ ] Basic utilies
   * [ ] Render
@@ -15,6 +26,7 @@
     * [ ] mediawiki(wikitext)
 	  * [ ] Confirm send works
     * [ ] pandoc(docx)
+	  * [ ] Make pure rust implementation
     * [ ] Web UI
 	  * [ ] Simply ported macro file, not functioning
 	  * [ ] Make webui documentations
@@ -24,6 +36,7 @@
   * [ ] gdlogue
     * [x] Change logics
 	* [ ] Make documentations of gdlogue types
+	* [ ] Make renderer's rust implementation
 
   * [x] Postprocess
      * [x] Copy file

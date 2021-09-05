@@ -10,6 +10,7 @@ pub struct ExecOptions {
     // Option used by rad
     purge: bool,
     input: String,
+    test: bool,
     // Used by post process
     copy: Option<PathBuf>,
     // Used by renderer
@@ -22,6 +23,7 @@ impl ExecOptions {
     pub fn new(
         preserve:bool,
         purge:bool,
+        test:bool,
         copy: Option<PathBuf>,
         format: Option<String>,
         input: Option<PathBuf>,
@@ -36,6 +38,7 @@ impl ExecOptions {
         Ok(Self { 
             preserve,
             purge,
+            test,
             copy,
             format,
             input : input.to_str().unwrap().to_owned(),
@@ -63,8 +66,26 @@ impl<'a> Executor<'a> {
         self.preprocess()?;
         if let Err(err) = self.macro_expansion() {
             eprintln!("{}", err);
+            if self.options.test {
+                eprintln!("{}", err);
+                return Ok(());
+            } else {
+                return Err(GdeError::Raderror(err));
+            }
         }
-        let out_file = self.render()?;
+        let out_file = match self.render() {
+            Result::Ok(value) => value,
+            Err(err) => {
+                // On test environment, it is fine to fail 
+                if self.options.test {
+                    eprintln!("{}", err);
+                    return Ok(());
+                } else {
+                    return Err(err);
+                }
+            }
+        };
+
         self.postprocess(out_file)?;
 
         Ok(())
@@ -85,6 +106,12 @@ impl<'a> Executor<'a> {
                     utils::module_path(self.renderer).expect("Failed to get path")
             ]))?
             .from_file(Path::new(&self.options.input))?;
+
+        // TODO 
+        // print result is private
+        //if self.options.test {
+            // processor.print_result();
+        //}
 
         Ok(())
     }
@@ -120,6 +147,15 @@ impl<'a> Executor<'a> {
     // Remove cached file
     fn postprocess(&self, final_file: Option<PathBuf>) -> Result<(), GdeError> {
         if let Some(final_file) = final_file {
+
+            // Change middle name to Test_out.gddt
+            if self.options.test{
+                std::fs::rename(
+                    utils::middle_file_path()?, 
+                    utils::CACHE_PATH.join("Test_out.gddt")
+                )?;
+            } 
+
             if let Some(path) = &self.options.copy {
                 if path.is_dir() {
                     std::fs::rename(&final_file, path.join(&final_file.file_name().unwrap()))?;
