@@ -38,11 +38,12 @@ impl Config {
         }
     }
 
-    pub fn get_env(&self, index:&str) -> Option<String> {
+    pub fn get_env_string(&self, index:&str) -> Option<String> {
         if let Some(value) =self.content.get("env")?.get(index) {
-            Some(value.to_string())
-        } else {
-            None
+            if let serde_json::Value::String(content) = value {
+                return Some(content.to_owned());
+            }
         }
+        return None;
     }
 }
