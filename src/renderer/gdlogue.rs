@@ -1,9 +1,9 @@
-use std::path::PathBuf;
+use std::path::{PathBuf, Path};
 use crate::error::GdeError;
 use crate::utils;
 use rad::processor::Processor;
 use rad::error::RadError;
-use std::ffi::OsStr;
+use gdlogue::*;
 
 pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeError> {
 
@@ -24,50 +24,61 @@ pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Res
         utils::BUILD_PATH.join(format!("out.{}", format)).to_owned()
     };
 
-    // Execute
-    // This validates json file and yield out.gv in current working directory
-    utils::command("node", vec![
-        utils::renderer_path("gdlogue")?.join("index.js").as_os_str(),
-        source_file.as_os_str(),
-        OsStr::new("dotify")
-    ])?;
-
     match format.as_str() {
         "html" => {
             // This evaluates index.html template
             // And creates app.js with necessary data
-            if let Err(err) = rad(&out_file) {
+            if let Err(err) = html_dialogue(&out_file) {
                 eprintln!("{}", err);
             }
         }
-        "pdf" => {
-            utils::command("dot", vec![
-                OsStr::new("-Tpdf"),
-                OsStr::new("out.gv"),
-                OsStr::new("-o"),
-                out_file.as_os_str()
-            ])?;
-        }
-        "png" => {
-            utils::command("dot", vec![
-                OsStr::new("-Gdpi=300"),
-                OsStr::new("-Tpng"),
-                OsStr::new("out.gv"),
-                OsStr::new("-o"),
-                out_file.as_os_str()
-            ])?;
+        "pdf" | "png" => {
+            if let Err(err) = dot_image(&source_file, &format) {
+                eprintln!("{}", err);
+                return Err(GdeError::RendererError("Failed to create new dot image"));
+            }
+
+            // Move file contents into designated out file
+            if format.as_str() == "pdf" {
+                std::fs::rename("out.pdf", utils::BUILD_PATH.join(&out_file))?;
+            } else {
+                std::fs::rename("out.png", utils::BUILD_PATH.join(&out_file))?;
+            }
         }
         _ => { eprintln!("No usable format was given"); }
     }
+    // Move cached file
     std::fs::rename("out.gv", utils::CACHE_PATH.join("out.gv"))?;
     Ok(Some(out_file))
 }
 
-fn rad(out_file : &PathBuf) -> Result<(), RadError> {
+fn html_dialogue(out_file : &PathBuf) -> Result<(), RadError> {
+    if let Err(err) = dot_file(&utils::CACHE_PATH.join("out.json")) {
+        eprintln!("Err : {}", err);
+    }
+
     Processor::new()
         .greedy(true)
         .write_to_file(Some(out_file.to_owned()))?
         .from_file(&utils::renderer_path("gdlogue").expect("Failed to get renderer path").join("index.html"))?;
+
+    Ok(())
+}
+
+fn dot_file(path: &Path) -> Result<(), GdlError> {
+    let file_content = Dialogue::read_from_file(path)?.dot_script("dialogue")?;
+    std::fs::write(std::env::current_dir()?.join("out.gv"), file_content.as_bytes())?;
+    Ok(())
+}
+
+fn dot_image(path: &Path, format: &str) -> Result<(), GdlError> {
+    let format_enum: Format;
+    match format {
+        "png" => format_enum = Format::Png,
+        "pdf" => format_enum = Format::Pdf,
+        _ => {eprintln!("No proepr format was given"); return Ok(());}
+    }
+    Dialogue::new_dot_image(path, format_enum)?;
 
     Ok(())
 }
