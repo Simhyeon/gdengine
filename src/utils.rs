@@ -101,7 +101,7 @@ pub fn command(program: &str, args: Vec<impl AsRef<OsStr>>) -> Result<(), GdeErr
             .output()
             .expect("failed to execute process")
     };
-
+    println!("{}", String::from_utf8_lossy(&output.stdout));
     eprintln!("{}", String::from_utf8_lossy(&output.stderr));
 
     Ok(())
