@@ -5,8 +5,8 @@ use rad::error::RadError;
 pub enum GdeError {
     #[error("IO Error : {0}")]
     IoError(std::io::Error),
-    #[error("Failed to add source script for macro execution")]
-    SourceError,
+    #[error("Renderer error : {0}")]
+    RendererError(&'static str),
     #[error("Failed to operate json : {0}")]
     JsonError(serde_json::Error),
     #[error("Config error : {0}")]
