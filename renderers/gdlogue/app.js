@@ -1,5 +1,5 @@
 const data = $include($path(cache,out.json));
-let datamap = new Map(data.map(obj => [obj.id, obj]));
+let datamap = new Map(data.nodes.map(obj => [obj.id, obj]));
 let modal = document.querySelector("#modal");
 
 function purgeChildren(node) {
@@ -29,11 +29,11 @@ function newDiversion(type,parentNode, div) {
 	let wrapper = document.createElement('div');
 	wrapper.classList = 'diversion';
 
-	if (type == 'selection') { // goto and text
+	if (type == 'Selection') { // goto and text
 		let textElem = document.createElement('div');
 		textElem.textContent = div.text;
 		wrapper.appendChild(textElem);
-	} else if (type == 'branch') { // goto target and quali
+	} else if (type == 'Branch') { // goto target and quali
 		let targetElem = document.createElement('div');
 		targetElem.textContent = 'Target : ' + div.target;
 		wrapper.appendChild(targetElem);
@@ -55,7 +55,9 @@ function newDiversion(type,parentNode, div) {
 
 function showNextNodeInfo(event) {
 	let gotoId = event.currentTarget.dataset.goto;
-	showInfo(gotoId);
+	if (!nullEmpty(gotoId)) {
+		showInfo(gotoId);
+	}
 }
 
 function showNodeInfo(event) {
@@ -69,7 +71,7 @@ function showInfo(id) {
 
 	// This fields are mandatory
 	modal.querySelector("#id").textContent = id;
-	modal.querySelector("#type").textContent = 'Type : ' + target.type;
+	modal.querySelector("#type").textContent = 'Type : ' + target.node_type;
 
 	// These field are optional
 	// Set only when not empty
@@ -91,7 +93,7 @@ function showInfo(id) {
 	gotoElem.classList = "goto";
 	gotoElem.dataset.goto = target.goto;
 
-	if(!nullEmptyArr(target.diversion)) {
+	if(!nullEmptyArr(target.branches) || !nullEmptyArr(target.selections)) {
 		let divGroup = modal.querySelector("#diversion");
 
 		// Remove exsting elements
@@ -104,10 +106,15 @@ function showInfo(id) {
 
 		// Starting separator
 		divGroup.appendChild(document.createElement('hr'));
-		// DEBUG
-		target.diversion.forEach((div) => {
-			newDiversion(target.type, divGroup, div);
-		})
+		if (target.node_type == "Selection") {
+			target.selections.forEach((div) => {
+				newDiversion(target.node_type, divGroup, div);
+			})
+		} else if (target.node_type == "Branch") {
+			target.branches.forEach((div) => {
+				newDiversion(target.node_type, divGroup, div);
+			})
+		}
 		// Ending separator
 		divGroup.appendChild(document.createElement('hr'));
 	} else {
@@ -133,7 +140,33 @@ d3.select("#graph").graphviz()
 	});
 
 document.addEventListener('keydown', ( e ) => {
-    if ( e.key === 'Escape' || e.key === 'Backspace') { // ESC
-		document.getElementById('modal').style.display = 'none';
-    }
+	switch (e.key) {
+		case 'Escape':
+		case 'Backspace':
+			document.getElementById('modal').style.display = 'none';
+			break;
+		case 'Enter':
+			if (document.getElementById('modal').style.display === 'none') {
+				// Show start node info
+				showInfo('start');
+			} else {
+				// Click first link,goto in modal
+				document.querySelector("#modal .goto").click();
+			}
+			break;
+		
+		// Check if given number
+		default:
+			let parsed = parseInt(e.key);
+			// Is a number
+			if ( !isNaN(parsed) ) {
+				parsed -= 1; // This is because 1 should mean 0 index
+				let links = document.querySelectorAll("#modal .goto");
+				if (parsed < links.length) {
+					links[parsed].click();
+				}
+			}
+			break;
+			
+	}
 });
