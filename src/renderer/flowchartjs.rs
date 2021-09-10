@@ -1,8 +1,7 @@
 use std::path::PathBuf;
 use crate::utils;
 use crate::error::GdeError;
-use rad::processor::Processor;
-use rad::error::RadError;
+use rad::{Processor, RadError};
 
 pub(crate) fn render(out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeError> {
     // Set default outfile

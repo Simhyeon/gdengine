@@ -1,5 +1,5 @@
 use thiserror::Error;
-use rad::error::RadError;
+use rad::RadError;
 
 #[derive(Debug, Error)]
 pub enum GdeError {

@@ -3,8 +3,7 @@ use crate::error::GdeError;
 use crate::utils;
 use crate::renderer::*;
 use crate::config::Config;
-use rad::processor::Processor;
-use rad::error::RadError;
+use rad::{Processor, RadError};
 
 pub struct ExecOptions {
     // Option used by rad
@@ -97,21 +96,20 @@ impl<'a> Executor<'a> {
     }
 
     fn macro_expansion(&self) -> Result<(), RadError> {
-        Processor::new()
+        let mut processor = Processor::new()
             .purge(self.options.purge)
             .greedy(true)
             .write_to_file(Some(utils::middle_file_path().expect("Failed to get path")))?
             .custom_rules(Some(vec![
                     utils::STD_MACRO_PATH.to_owned(),
                     utils::module_path(self.renderer).expect("Failed to get path")
-            ]))?
-            .from_file(Path::new(&self.options.input))?;
+            ]))?.build();
 
-        // TODO 
-        // print result is private
-        //if self.options.test {
-            // processor.print_result();
-        //}
+        processor.from_file(Path::new(&self.options.input))?;
+
+        if self.options.test {
+             processor.print_result()?;
+        }
 
         Ok(())
     }

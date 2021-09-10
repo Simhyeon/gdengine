@@ -1,6 +1,10 @@
 ### Imminent
 
-* [ ] Make gdlogue rust implementation
+* [x] Make gdlogue rust implementation
+  * [x] Png
+  * [x] Pdf
+  * [x] Html
+* [ ] Make mediawiki renderer in rust
 * [ ] Make docx renderer in rust
 * [ ] Make a separate crate to create a pptx file
 
