@@ -9,8 +9,7 @@ This is a new cross platform implementation of previous
 
 - marp(slide): [marp-cli](https://github.com/marp-team/marp-cli) + [chromium](https://www.chromium.org/)
 - flowchartgvz(static flowchart) : [graphviz](https://graphviz.org/)
-- mediawiki(wikitext page) : [nodejs](https://nodejs.org/)
-- gdlogue(Dialogue) : [nodejs](https://nodejs.org/) + [graphviz](https://graphviz.org/)
+- gdlogue(Dialogue) : [graphviz](https://graphviz.org/)
 
 ### Renderers
 
@@ -34,7 +33,6 @@ gde render -m marp -p -c ../build
 
 * [ ] Docx renderer with docx-rs with markdown-pulldown-parser
 * [ ] Create a separate crate for converting markdown into pptx file
-* [ ] Make unnecessary nodejs files into pure rust implementation (Gdlogue, mediawiki)
 * [ ] Global installer for dependencies
 
 ### Goal

@@ -115,7 +115,7 @@ impl<'a> Executor<'a> {
     }
 
     fn render(&self) -> Result<Option<PathBuf>, GdeError> {
-        println!("Render with \"{}\"", self.renderer);
+        //println!("Render with \"{}\"", self.renderer);
         let out_file = match self.renderer {
             "marp" =>{
                 marp::render( &self.options.format, &self.options.out_file)?

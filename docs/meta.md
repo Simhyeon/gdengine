@@ -1,12 +1,12 @@
 ### Imminent
 
+* [ ] Make docx renderer in rust
+* [ ] Make a separate crate to create a pptx file
 * [x] Make gdlogue rust implementation
   * [x] Png
   * [x] Pdf
   * [x] Html
-* [ ] Make mediawiki renderer in rust
-* [ ] Make docx renderer in rust
-* [ ] Make a separate crate to create a pptx file
+* [x] Make mediawiki renderer in rust
 
 ### Todos
 
@@ -19,28 +19,27 @@
 
 * [ ] run and test
   * [x] Run -> Simply run not so hard
-  * [ ] Test
+  * [x] Test
     * [x] No panicking
-	* [ ] Final result
-	- This cannot be done yet, because print result is private method
+	* [x] Final result
 
 * [ ] Basic utilies
   * [ ] Render
     * [x] Marp(pdf, pptx)
-    * [ ] mediawiki(wikitext)
-	  * [ ] Confirm send works
+    * [x] mediawiki(wikitext)
+	  * [x] Confirm send works
     * [ ] pandoc(docx)
 	  * [ ] Make pure rust implementation
     * [ ] Web UI
-	  * [ ] Simply ported macro file, not functioning
+	  * [x] Port macro file
 	  * [ ] Make webui documentations
     * [ ] Flowchart
-      * [ ] flowchar-js -> Not fully tested
+      * [ ] flowchart-js -> Not fully tested
       * [ ] Graphviz -> Not fully tested
   * [ ] gdlogue
-    * [x] Change logics
 	* [ ] Make documentations of gdlogue types
-	* [ ] Make renderer's rust implementation
+    * [x] Change logics
+	* [x] Make renderer's rust implementation
 
   * [x] Postprocess
      * [x] Copy file
