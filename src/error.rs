@@ -1,3 +1,4 @@
+use reqwest::Request;
 use thiserror::Error;
 use rad::RadError;
 
@@ -15,6 +16,8 @@ pub enum GdeError {
     NotGdeDirectory,
     #[error("Raderror : {0}")]
     Raderror(RadError),
+    #[error("Reqwest error : {0}")]
+    ReqError(reqwest::Error),
 }
 
 impl From<std::io::Error> for GdeError {
@@ -32,5 +35,11 @@ impl From<serde_json::Error> for GdeError {
 impl From<RadError> for GdeError {
     fn from(err : RadError) -> Self {
         Self::Raderror(err)
+    }
+}
+
+impl From<reqwest::Error> for GdeError {
+    fn from(err : reqwest::Error) -> Self {
+        Self::ReqError(err)
     }
 }
