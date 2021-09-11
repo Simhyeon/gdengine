@@ -2,6 +2,7 @@
 
 * [ ] Make docx renderer in rust
 * [ ] Make a separate crate to create a pptx file
+- Completely ditch nodejs dependencies
 * [x] Make gdlogue rust implementation
   * [x] Png
   * [x] Pdf
@@ -11,6 +12,9 @@
 ### Todos
 
 * [ ] Find a way to decrease external dependencies
+- Reqwest is super heavy... though it is not so easy to create all necessary
+logics with only hyper crate.
+- Ditch clap derive and use clap builder. Who would've though clap derive is that heavy
 * [ ] Find if graphviz/dot binding exists
 * [ ] Find a way to create global installer program
 - graphviz
@@ -54,10 +58,3 @@
   * [x] Make structure, method, argument naming cohesive and consistent
 
 * [x] Json parsing
-
-## Extra
-
-* [ ] A shower thought, rendering should be a sole burden of the given renderer
-not a burden of executor or game design engine
-- What I mean is that gdlogue is only about validating and creating out.gv file
-- But it might be a better refactor to enable gdlogue to actully create a file not just yield out.gv file. I mean it is much more natural, isn't it?
