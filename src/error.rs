@@ -1,4 +1,3 @@
-use reqwest::Request;
 use thiserror::Error;
 use rad::RadError;
 

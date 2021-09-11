@@ -1,4 +1,4 @@
-use clap::clap_app;
+use clap::{Arg,App};
 use crate::error::GdeError;
 use crate::orchestrator::Orchestrator;
 use std::path::PathBuf;
@@ -68,6 +68,8 @@ impl Cli {
                             render_option,
                             config
                         ).exec()?;
+                    } else {
+                        eprintln!("No proper render module was provided");
                     }
                 }
                 _ => (),
@@ -86,24 +88,56 @@ impl Cli {
         Self::args_builder().get_matches_from(args)
     }
 
-    // TODO Add stream or file type option for main usage
     fn args_builder() -> clap::App<'static> {
-        clap_app!(gde =>
-            (version: "0.2.0")
-            (author: "Simon Creek <simoncreek@tutanota.com>")
-            (about: "Gdengine is a document automation program.")
-            (@setting ArgRequiredElseHelp)
-            (@arg ACTION: "An action to take")
-            (@arg help: -h --help "Display help message")
-            (@arg preserve: -p --preserve "Preserve temporary files")
-            (@arg purge: -P --purge "Purge unused macro invocations")
-            (@arg input: -n --input +takes_value "Input file to process")
-            (@arg output: -o --output +takes_value "Output file to yield")
-            (@arg copy: -c --copy +takes_value "Copy to directory")
-            (@arg module: -m --module +takes_value "Render module")
-            (@arg format: -f --format +takes_value "Render format")
-            (@arg test: --test "Render yields some information to files")
-        )
+        App::new("gde")
+            .version("0.2.0")
+            .author("Simon creek <simoncreek@tutanota.com>")
+            .about("Gdengine is a document automation program.")
+            .setting(clap::AppSettings::ArgRequiredElseHelp)
+            .arg(Arg::new("ACTION")
+                .about("An action to take")
+                .index(1)
+                .required(true))
+            .arg(Arg::new("help")
+                .about("Display help message")
+                .short('h')
+                .long("help"))
+            .arg(Arg::new("preserve")
+                .about("Preserve temporary files")
+                .short('p')
+                .long("preserve"))
+            .arg(Arg::new("purge")
+                .about("Purge unused macro invocations")
+                .short('P')
+                .long("purge"))
+            .arg(Arg::new("input")
+                .about("Input file to process")
+                .short('i')
+                .long("input")
+                .takes_value(true))
+            .arg(Arg::new("output")
+                .about("Output file to save result")
+                .short('o')
+                .long("output")
+                .takes_value(true))
+            .arg(Arg::new("copy")
+                .about("Copy to directory")
+                .short('c')
+                .long("copy")
+                .takes_value(true))
+            .arg(Arg::new("module")
+                .about("Render module")
+                .short('m')
+                .long("module")
+                .takes_value(true))
+            .arg(Arg::new("format")
+                .about("Render format")
+                .short('f')
+                .long("format")
+                .takes_value(true))
+            .arg(Arg::new("test")
+                .about("Render yields extra information about process")
+                .long("test"))
     }
 
     fn parse_exec_options(&self,matches: &clap::ArgMatches) -> Result<ExecOptions, GdeError> {
