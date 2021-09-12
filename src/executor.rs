@@ -123,6 +123,9 @@ impl<'a> Executor<'a> {
             "mediawiki" => {
                 mediawiki::render(&self.config)?
             }
+            "pandoc" => {
+                pandoc::render(&self.options.out_file)?
+            }
             "gdlogue" => {
                 gdlogue::render(&self.options.format, &self.options.out_file)?
             }
