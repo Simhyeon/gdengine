@@ -33,6 +33,7 @@ logics with only hyper crate.
     * [x] mediawiki(wikitext)
 	  * [x] Confirm send works
     * [ ] pandoc(docx)
+	  * [x] At least make it work
 	  * [ ] Make pure rust implementation
     * [ ] Web UI
 	  * [x] Port macro file
@@ -58,3 +59,13 @@ logics with only hyper crate.
   * [x] Make structure, method, argument naming cohesive and consistent
 
 * [x] Json parsing
+
+### How to make docx renderer
+
+**Options**
+
+- Pandoc
+Pandoc is useful in a way that it can insert raw openxml directly.
+
+- Pulldown parser + docx-rs
+Highly customizable but hard to make
