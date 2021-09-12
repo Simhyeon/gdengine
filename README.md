@@ -10,12 +10,14 @@ This is a new cross platform implementation of previous
 - marp(slide): [marp-cli](https://github.com/marp-team/marp-cli) + [chromium](https://www.chromium.org/)
 - flowchartgvz(static flowchart) : [graphviz](https://graphviz.org/)
 - gdlogue(Dialogue) : [graphviz](https://graphviz.org/)
+- pandoc(Docx) : [pandoc](https://pandoc.org/)
 
 ### Renderers
 
 **Document renderer**
 - marp (slide as html,pdf,pptx)
 - mediawiki (web served wiki page)
+- pandoc (docx, or say ooxml compatible file)
 
 **Component renderer**
 - flowchartjs (flowchart, html)
