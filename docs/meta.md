@@ -1,16 +1,18 @@
 ### Imminent
 
-* [ ] Make docx renderer in rust
-* [ ] Make a separate crate to create a pptx file
-- Completely ditch nodejs dependencies
-* [x] Make gdlogue rust implementation
-  * [x] Png
-  * [x] Pdf
-  * [x] Html
-* [x] Make mediawiki renderer in rust
+* [x] Make sandboxed release package.
+- Compiled marp
+- Chromium
+- pandoc
+- Graphviz dot renderer needs more consideration
+
+* [ ] Update vs code extensions
 
 ### Todos
 
+* [ ] Make docx renderer in rust
+* [ ] Make a separate crate to create a pptx file
+- Completely ditch nodejs dependencies
 * [ ] Find a way to decrease external dependencies
 - Reqwest is super heavy... though it is not so easy to create all necessary
 logics with only hyper crate.
@@ -18,8 +20,6 @@ logics with only hyper crate.
 * [ ] Find if graphviz/dot binding exists
 * [ ] Find a way to create global installer program
 - graphviz
-- nodejs
-- pandoc
 
 * [ ] run and test
   * [x] Run -> Simply run not so hard
@@ -40,6 +40,7 @@ logics with only hyper crate.
 	  * [ ] Make webui documentations
     * [ ] Flowchart
       * [ ] flowchart-js -> Not fully tested
+	    * [ ] Interactive flowchart with given json chunk functionality
       * [ ] Graphviz -> Not fully tested
   * [ ] gdlogue
 	* [ ] Make documentations of gdlogue types
@@ -51,6 +52,12 @@ logics with only hyper crate.
 	 * [x] Remove cache
 
 ## DONE
+
+* [x] Make gdlogue rust implementation
+  * [x] Png
+  * [x] Pdf
+  * [x] Html
+* [x] Make mediawiki renderer in rust
 
 * [x] Make cross platform command call
 * [x] Refactor config parsing

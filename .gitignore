@@ -8,3 +8,4 @@ inc
 res
 config.json
 **/node_modules
+**/bin
