@@ -11,7 +11,18 @@ pub(crate) fn render(out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeE
         utils::BUILD_PATH.join("out.docx").to_owned()
     };
 
-    utils::command("pandoc", vec![
+    let pandoc_path: PathBuf;
+    if cfg!(debug_assertions) {
+        pandoc_path = utils::renderer_path("pandoc")?.join("bin").join("pandoc");
+    } else {
+        if cfg!(target_os = "windows") {
+            pandoc_path = std::env::current_exe()?.join("pandoc.exe");
+        } else {
+            pandoc_path = std::env::current_exe()?.join("pandoc");
+        }
+    }
+
+    utils::command(pandoc_path.to_str().unwrap(), vec![
         utils::middle_file_path()?.as_os_str(),
         OsStr::new("--from"),
         OsStr::new("markdown+raw_attribute"),
