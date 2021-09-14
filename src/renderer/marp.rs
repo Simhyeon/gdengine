@@ -31,7 +31,7 @@ pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Res
         } else {
             chrome_name= "chrome";
         }
-        std::env::set_var("CHROME_PATH", std::env::current_exe()?.join(chrome_name));
+        std::env::set_var("CHROME_PATH", std::env::current_exe()?.join("chrome").join(chrome_name));
     }
 
     let marp_path: PathBuf;
