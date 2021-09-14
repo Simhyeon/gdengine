@@ -21,7 +21,31 @@ pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Res
         utils::BUILD_PATH.join(format!("out.{}", format)).to_owned()
     };
 
-    utils::command("marp", vec![
+    // Set local chrome path for marp
+    if cfg!(debug_assertions) {
+        std::env::set_var("CHROME_PATH", utils::renderer_path("marp")?.join("bin").join("chrome").join("chrome"));
+    } else {
+        let chrome_name: &str;
+        if cfg!(target_os = "windows") {
+            chrome_name= "chrome.exe";
+        } else {
+            chrome_name= "chrome";
+        }
+        std::env::set_var("CHROME_PATH", std::env::current_exe()?.join(chrome_name));
+    }
+
+    let marp_path: PathBuf;
+    if cfg!(debug_assertions) {
+        marp_path = utils::renderer_path("marp")?.join("bin").join("marp");
+    } else {
+        if cfg!(target_os = "windows") {
+            marp_path = std::env::current_exe()?.join("marp.exe");
+        } else {
+            marp_path = std::env::current_exe()?.join("marp");
+        }
+    }
+
+    utils::command(marp_path.to_str().unwrap(), vec![
         source_file.as_os_str(),
         OsStr::new("--allow-local-files"),
         OsStr::new("--html"),
