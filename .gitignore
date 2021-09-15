@@ -3,7 +3,6 @@ test
 cache
 build
 index.gddt
-default.r4f
 inc
 res
 config.json

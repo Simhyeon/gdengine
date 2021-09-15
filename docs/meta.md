@@ -1,5 +1,9 @@
 ### Imminent
 
+* [ ] Change carrousel syntax
+* [ ] Make if mod macro as default
+- Need newer version of r4d but it is not ready yet
+
 * [x] Make sandboxed release package.
 - Compiled marp
 - Chromium
@@ -7,6 +11,8 @@
 - Graphviz dot renderer needs more consideration
 
 * [ ] Update vs code extensions
+  * [x] R4d
+  * [x] Gddt
 
 ### Todos
 
