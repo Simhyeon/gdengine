@@ -1,4 +1,6 @@
+# mod
 $define(mod_mediawiki=)
+
 # Purpose of wikitext macro is not about making all macros compliant with
 # wikitext, rather it is about making markdown compatible wikitext macro
 

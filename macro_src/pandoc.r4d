@@ -1,3 +1,6 @@
+# Mod
+$define(mod_pandoc=)
+
 # Basic syntax macros of markdown syntax
 # Headers
 $define(h1,a_content=# $a_content())

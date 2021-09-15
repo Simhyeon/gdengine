@@ -1,3 +1,6 @@
+# mod
+$define(mod_webuibts=)
+
 $define(v_top_space_margin=10px)
 $define(v_top_space_padding=10px)
 $define(v_bot_space_margin=10px)
@@ -5,10 +8,6 @@ $define(v_bot_space_padding=10px)
 
 $define(v_content_padding=10px)
 $define(v_img_padding=10px)
-
-# IFMOD condition
-$define(mod_webuibts=)
-
 # =====
 # Directives macro
 $define(ui_begin=
@@ -67,14 +66,14 @@ $header|(a)
 
 # content(id, width, ...)
 # _vcontent(id, height, ...)
-$define(content,a_id a_width a_content=$bind+(flex_grow,$ifelse($eval("$a_width()" == "0"),flexGrow))
+$define(content,a_id a_width a_content=$bind+(flex_grow,$if($eval("$a_width()" == "0"),flexGrow))
 <div id="$a_id()" class="gdContent rowFlex fullSize hiddenFlow $flex_grow()" style="width: $a_width();">
 $a_content()
 </div>)
 $content|(1,0,a)
 $content|(1,10px,a)
 
-$define(content_center,a_id a_width a_content=$bind+(flex_grow,$ifelse($eval("$a_width()" == "0"),flexGrow))
+$define(content_center,a_id a_width a_content=$bind+(flex_grow,$if($eval("$a_width()" == "0"),flexGrow))
 <div id="$a_id()" class="gdContent rowFlex fullSize flexCenter hiddenFlow $flex_grow()" style="width: $a_width();">
 $a_content()
 </div>)
@@ -82,7 +81,7 @@ $content_center|(1,0,a)
 $content_center|(1,10px,a)
 
 $define(vcontent,a_id a_height a_content=
-$bind+(flex_grow,$ifelse($eval("$a_height()" == "0"),flexGrow))
+$bind+(flex_grow,$if($eval("$a_height()" == "0"),flexGrow))
 <div id="$a_id()" class="gdContent colFlex fullSize hiddenFlow $flex_grow()" style="height: $a_height();">
 $a_content()
 </div>)
@@ -90,7 +89,7 @@ $vcontent|(1,0,a)
 $vcontent|(1,10px,a)
 
 $define(vcontent_center,a_id a_height a_content=
-$bind+(flex_grow,$ifelse($eval("$a_height()" == "0"),flexGrow))
+$bind+(flex_grow,$if($eval("$a_height()" == "0"),flexGrow))
 <div id="$a_id()" class="gdContent colFlex flexCenter fullSize hiddenFlow $flex_grow()" style="height: $a_height();">
 $a_content()
 </div>)

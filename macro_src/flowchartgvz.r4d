@@ -1,3 +1,6 @@
+# Mod
+$define(mod_flowchartgvz=)
+
 # Directives macro
 $define(
 	flowchart_begin

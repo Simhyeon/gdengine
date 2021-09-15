@@ -1,3 +1,6 @@
+# mod
+$define(mod_gdlogue=)
+
 # Directives
 # For ergnomics, end array with nullified object
 # "$1," is necessary for the macro "m_webui" to operate

@@ -1,3 +1,6 @@
+# mod
+$define(mod_flowchartjs=)
+
 # Directives macro
 $define(flowchart_begin=$tempto(fjs.txt)$tempout(true,)$define(DIRS=))
 $define(flowchart_end=$fileout(true,$path(cache,flowchartjs_source.txt),$tempin()$nl()$DIRS()))
