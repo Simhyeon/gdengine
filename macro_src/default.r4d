@@ -1,6 +1,5 @@
 $define(tp,a_row=$regex($a_row*(),\*,*\,$nl()))
 $define(ifmod,a_mod a_content=
 	$bind(result,$ifdef(mod_$a_mod()))
-	$result()
 	$if($result(),$a_content*())
 )
