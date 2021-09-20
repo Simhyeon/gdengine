@@ -1,20 +1,9 @@
-### Imminent
-
-* [ ] Change carrousel syntax
-* [ ] Make if mod macro as default
-- Need newer version of r4d but it is not ready yet
-
-* [x] Make sandboxed release package.
-- Compiled marp
-- Chromium
-- pandoc
-- Graphviz dot renderer needs more consideration
-
-* [ ] Update vs code extensions
-  * [x] R4d
-  * [x] Gddt
 
 ### Todos
+
+* [ ] Add basic permission
+* [x] Make vim snippets
+* [ ] Consider adding debug flags
 
 * [ ] Make docx renderer in rust
 * [ ] Make a separate crate to create a pptx file
@@ -27,11 +16,18 @@ logics with only hyper crate.
 * [ ] Find a way to create global installer program
 - graphviz
 
+* [-] Make sandboxed release package.
+- Compiled marp
+- Chromium
+- pandoc
+- Graphviz dot renderer needs more consideration
+
 * [ ] run and test
   * [x] Run -> Simply run not so hard
   * [x] Test
     * [x] No panicking
 	* [x] Final result
+	* [ ] Maybe send test flag to each renderer 
 
 * [ ] Basic utilies
   * [ ] Render
@@ -41,6 +37,7 @@ logics with only hyper crate.
     * [ ] pandoc(docx)
 	  * [x] At least make it work
 	  * [ ] Make pure rust implementation
+	    * [ ] This needs new language 
     * [ ] Web UI
 	  * [x] Port macro file
 	  * [ ] Make webui documentations

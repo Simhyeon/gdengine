@@ -3,7 +3,7 @@ use crate::error::GdeError;
 use crate::utils;
 use crate::renderer::*;
 use crate::config::Config;
-use rad::{Processor, RadError};
+use rad::{Processor, RadError, AuthType};
 
 pub struct ExecOptions {
     // Option used by rad
@@ -99,6 +99,7 @@ impl<'a> Executor<'a> {
         let mut processor = Processor::new()
             .purge(self.options.purge)
             .greedy(true)
+            .allow(Some(vec!(AuthType::ENV, AuthType::FIN, AuthType::FOUT, AuthType::CMD)))
             .write_to_file(Some(utils::middle_file_path().expect("Failed to get path")))?
             .custom_rules(Some(vec![
                     utils::STD_MACRO_PATH.to_owned(),
