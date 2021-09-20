@@ -1,26 +1,10 @@
-
 ### Todos
 
-* [ ] Add basic permission
-* [x] Make vim snippets
 * [ ] Consider adding debug flags
 
 * [ ] Make docx renderer in rust
 * [ ] Make a separate crate to create a pptx file
-- Completely ditch nodejs dependencies
 * [ ] Find a way to decrease external dependencies
-- Reqwest is super heavy... though it is not so easy to create all necessary
-logics with only hyper crate.
-- Ditch clap derive and use clap builder. Who would've though clap derive is that heavy
-* [ ] Find if graphviz/dot binding exists
-* [ ] Find a way to create global installer program
-- graphviz
-
-* [-] Make sandboxed release package.
-- Compiled marp
-- Chromium
-- pandoc
-- Graphviz dot renderer needs more consideration
 
 * [ ] run and test
   * [x] Run -> Simply run not so hard
@@ -50,12 +34,14 @@ logics with only hyper crate.
     * [x] Change logics
 	* [x] Make renderer's rust implementation
 
-  * [x] Postprocess
-     * [x] Copy file
-	 * [x] Remove cache
-
 ## DONE
 
+* [-] Make sandboxed release package.
+- Compiled marp
+- Chromium
+- pandoc
+- Graphviz dot renderer needs more consideration
+* [x] Make vim snippets
 * [x] Make gdlogue rust implementation
   * [x] Png
   * [x] Pdf
@@ -69,6 +55,10 @@ logics with only hyper crate.
   * [x] Make structure, method, argument naming cohesive and consistent
 
 * [x] Json parsing
+
+* [x] Postprocess
+    * [x] Copy file
+    * [x] Remove cache
 
 ### How to make docx renderer
 
