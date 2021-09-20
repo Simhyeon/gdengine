@@ -1,4 +1,6 @@
 /target
+chrome
+pandoc
 test
 cache
 build
