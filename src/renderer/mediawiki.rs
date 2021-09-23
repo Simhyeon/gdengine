@@ -2,14 +2,20 @@ use std::path::{PathBuf, Path};
 use crate::error::GdeError;
 use crate::config::Config;
 use crate::utils;
-use reqwest::blocking::Client;
+use reqwest::blocking::{Client, multipart};
+
+pub const IMAGE_LIST : &str = "image_list.txt";
 
 /// MediaWiki's target is not a file but server loaded page
-pub(crate) fn render(config: &Config) -> Result<Option<PathBuf>, GdeError> {
+pub(crate) fn render(config: &Config, test: bool) -> Result<Option<PathBuf>, GdeError> {
     check_prerequisites(config)?;
     let source_file = utils::middle_file_path()?;
 
-    MediaWikiRequest::new(config.get_env_string("mediawiki_url").unwrap(),config, &source_file)?.exec()?;
+    let request = MediaWikiRequest::new(config.get_env_string("mediawiki_url").unwrap(),config, &source_file)?;
+
+    if !test {
+        request.exec()?;
+    }
 
     Ok(Some(source_file))
 }
@@ -51,6 +57,7 @@ impl<'a> MediaWikiRequest<'a> {
         self.post_login(&login_token)?;
         let csrf_token = self.get_csrf_token()?;
         self.edit_page(&csrf_token)?;
+        self.upload_images(&csrf_token)?;
         Ok(())
     }
 
@@ -121,9 +128,48 @@ impl<'a> MediaWikiRequest<'a> {
 
         if let serde_json::Value::String(content) = &json["edit"]["result"] {
             println!("Edit page : {}", content)
+        } else {
+            eprintln!("Failed to push page");
+        }
+
+        Ok(())
+    }
+
+    fn upload_images(&self, csrf_token: &str) -> Result<(), GdeError> {
+
+        let images = String::from_utf8(std::fs::read(Path::new(IMAGE_LIST))?).expect("");
+
+        for line in images.lines().into_iter() {
+            let path_buf = PathBuf::from(line);
+            let form_params = [
+                ("action".to_owned(), "upload".to_owned()),
+                ("ignorewarnings".to_owned(), "1".to_owned()),
+                ("filename".to_owned(),path_buf.file_name().unwrap().to_str().unwrap().to_string()),
+                ("format".to_owned(), "json".to_owned())
+            ];
+            let file_part = multipart::Form::new()
+                .text("token", csrf_token.to_owned())
+                .file("file", &path_buf)?;
+
+            let request = self.client.post(&self.url)
+                .header(reqwest::header::CONTENT_DISPOSITION, line.to_owned())
+                .query(&form_params)
+                .multipart(file_part)
+                .build()?;
+
+            // For DEBUG purpose
+            // _print_ln!("REQ : {}", request.url());
+
+            let response = self.client.execute(request)?.text()?;
+
+            let json: serde_json::Value = serde_json::from_str(&response)?;
+            if let serde_json::Value::String(content) = &json["upload"]["result"] {
+                println!("Edit page : {}", content)
+            } else {
+                eprintln!("Failed to upload images");
+            }
         }
 
         Ok(())
     }
 }
-
