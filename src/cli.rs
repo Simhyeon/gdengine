@@ -67,7 +67,7 @@ impl Cli {
                             module,
                             render_option,
                             config
-                        ).exec()?;
+                        )?.exec()?;
                     } else {
                         eprintln!("No proper render module was provided");
                     }

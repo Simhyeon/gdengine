@@ -73,12 +73,12 @@ lazy_static! {
     };
 }
 
-pub fn module_path(name : &str) -> Result<PathBuf, GdeError> {
-    Ok(LIB_PATH.join(format!("{}.r4f", name)).to_owned())
+pub fn module_path(name : impl AsRef<str>) -> Result<PathBuf, GdeError> {
+    Ok(LIB_PATH.join(format!("{}.r4f", name.as_ref())).to_owned())
 }
 
-pub fn renderer_path(name : &str) -> Result<PathBuf, GdeError> {
-    Ok(RENDERER_PATH.join(name))
+pub fn renderer_path(name : impl AsRef<str>) -> Result<PathBuf, GdeError> {
+    Ok(RENDERER_PATH.join(name.as_ref()))
 }
 
 pub fn middle_file_path() -> Result<PathBuf, GdeError> {

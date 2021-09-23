@@ -17,6 +17,8 @@ pub enum GdeError {
     Raderror(RadError),
     #[error("Reqwest error : {0}")]
     ReqError(reqwest::Error),
+    #[error("Invalid command error : {0}")]
+    InvalidCommand(String)
 }
 
 impl From<std::io::Error> for GdeError {

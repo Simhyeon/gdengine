@@ -5,6 +5,142 @@ use crate::renderer::*;
 use crate::config::Config;
 use rad::{Processor, RadError, AuthType};
 
+pub struct Executor {
+    render_type: RenderType,
+    options : ExecOptions,
+    config: Config,
+}
+
+impl Executor {
+    pub fn new(render_type: &str, options: ExecOptions, config: Config) -> Result<Self,GdeError> {
+        Ok(Self { 
+            render_type : RenderType::from(render_type)?,
+            options,
+            config
+        })
+    }
+
+    pub fn exec(&self) -> Result<(), GdeError> {
+        self.preprocess()?;
+        if let Err(err) = self.macro_expansion() {
+            eprintln!("{}", err);
+            if self.options.test {
+                eprintln!("{}", err);
+                return Ok(());
+            } else {
+                return Err(GdeError::Raderror(err));
+            }
+        }
+        let out_file = match self.render() {
+            Result::Ok(value) => value,
+            Err(err) => {
+                // On test environment, it is fine to fail 
+                if self.options.test {
+                    eprintln!("{}", err);
+                    return Ok(());
+                } else {
+                    return Err(err);
+                }
+            }
+        };
+
+        self.postprocess(out_file)?;
+
+        Ok(())
+    }
+
+    fn preprocess(&self) -> Result<(), GdeError> {
+        std::env::set_var("GDE_MODULE", utils::renderer_path(self.render_type.to_string())?);
+        Ok(())
+    }
+
+    fn macro_expansion(&self) -> Result<(), RadError> {
+        let mut processor = Processor::new()
+            .purge(self.options.purge)
+            .greedy(true)
+            .allow(Some(vec!(AuthType::ENV, AuthType::FIN, AuthType::FOUT, AuthType::CMD)))
+            .write_to_file(Some(utils::middle_file_path().expect("Failed to get path")))?
+            .custom_rules(Some(vec![
+                    utils::STD_MACRO_PATH.to_owned(),
+                    utils::module_path(self.render_type.to_string()).expect("Failed to get path")
+            ]))?.build();
+
+        processor.from_file(Path::new(&self.options.input))?;
+
+        if self.options.test {
+             processor.print_result()?;
+        }
+
+        Ok(())
+    }
+
+    fn render(&self) -> Result<Option<PathBuf>, GdeError> {
+        let out_file = match self.render_type {
+            RenderType::Marp =>{
+                marp::render( &self.options.format, &self.options.out_file)?
+            }
+            RenderType::MediaWiki => {
+                mediawiki::render(&self.config, self.options.test)?
+            }
+            RenderType::Pandoc => {
+                pandoc::render(&self.options.out_file)?
+            }
+            RenderType::Gdlogue => {
+                gdlogue::render(&self.options.format, &self.options.out_file)?
+            }
+            RenderType::FlowchartJs => {
+                flowchartjs::render(&self.options.out_file)?
+            }
+            RenderType::FlowchartGvz => {
+                flowchartgvz::render(&self.options.format,&self.options.out_file)?
+            }
+            RenderType::Webuibts => {
+                webuibts::render(&self.options.out_file)?
+            }
+        };
+        
+        Ok(out_file)
+    }
+
+    // Copy output file to designated file
+    // Remove cached file
+    fn postprocess(&self, final_file: Option<PathBuf>) -> Result<(), GdeError> {
+        if let Some(final_file) = final_file {
+
+            // Change middle name to Test_out.gddt
+            if self.options.test{
+                std::fs::rename(
+                    utils::middle_file_path()?, 
+                    utils::CACHE_PATH.join("test_out.gddt")
+                )?;
+            } 
+
+            // Copy option
+            if let Some(path) = &self.options.copy {
+                if path.is_dir() {
+                    std::fs::rename(&final_file, path.join(&final_file.file_name().unwrap()))?;
+                } else {
+                    std::fs::rename(final_file, path)?;
+                }
+            }
+        }
+        // Renderer specific files
+        match self.render_type {
+            RenderType::MediaWiki => {
+                std::fs::copy(Path::new(mediawiki::IMAGE_LIST), &*utils::CACHE_PATH)?;
+            }
+            _ => ()
+        }
+
+        // Cache preservation
+        if !self.options.preserve {
+            std::fs::remove_dir_all(utils::CACHE_PATH.to_owned())?;
+            std::fs::create_dir(utils::CACHE_PATH.to_owned())?;
+        }
+        Ok(())
+    }
+}
+
 pub struct ExecOptions {
     // Option used by rad
     purge: bool,
@@ -46,130 +182,47 @@ impl ExecOptions {
     }
 }
 
-pub struct Executor<'a> {
-    renderer: &'a str,
-    options : ExecOptions,
-    config: Config,
+pub enum RenderType {
+    Marp,
+    MediaWiki,
+    Pandoc,
+    Gdlogue,
+    FlowchartJs,
+    FlowchartGvz,
+    Webuibts
 }
 
-impl<'a> Executor<'a> {
-    pub fn new(renderer: &'a str, options: ExecOptions, config: Config) -> Self {
-        Self { 
-            renderer,
-            options,
-            config
-        }
-    }
-
-    pub fn exec(&self) -> Result<(), GdeError> {
-        self.preprocess()?;
-        if let Err(err) = self.macro_expansion() {
-            eprintln!("{}", err);
-            if self.options.test {
-                eprintln!("{}", err);
-                return Ok(());
-            } else {
-                return Err(GdeError::Raderror(err));
-            }
-        }
-        let out_file = match self.render() {
-            Result::Ok(value) => value,
-            Err(err) => {
-                // On test environment, it is fine to fail 
-                if self.options.test {
-                    eprintln!("{}", err);
-                    return Ok(());
-                } else {
-                    return Err(err);
-                }
-            }
+impl RenderType {
+    pub fn from(render_type : &str) -> Result<Self, GdeError> {
+        let render_type = match render_type.to_lowercase().as_str() {
+            "marp" => Self::Marp,
+            "mediawiki" => Self::MediaWiki,
+            "pandoc" => Self::Pandoc,
+            "gdlogue" => Self::Gdlogue,
+            "flowchartjs" => Self::FlowchartJs,
+            "flowchartgvz" => Self::FlowchartGvz,
+            "webuibts" => Self::Webuibts,
+            _ => return Err(GdeError::InvalidCommand(format!("{} is not valid render type",render_type))),
         };
-
-        self.postprocess(out_file)?;
-
-        Ok(())
+        Ok(render_type)
     }
+}
 
-    fn preprocess(&self) -> Result<(), GdeError> {
-        std::env::set_var("GDE_MODULE", utils::renderer_path(self.renderer)?);
-        Ok(())
-    }
+use std::fmt;
 
-    fn macro_expansion(&self) -> Result<(), RadError> {
-        let mut processor = Processor::new()
-            .purge(self.options.purge)
-            .greedy(true)
-            .allow(Some(vec!(AuthType::ENV, AuthType::FIN, AuthType::FOUT, AuthType::CMD)))
-            .write_to_file(Some(utils::middle_file_path().expect("Failed to get path")))?
-            .custom_rules(Some(vec![
-                    utils::STD_MACRO_PATH.to_owned(),
-                    utils::module_path(self.renderer).expect("Failed to get path")
-            ]))?.build();
-
-        processor.from_file(Path::new(&self.options.input))?;
-
-        if self.options.test {
-             processor.print_result()?;
-        }
-
-        Ok(())
-    }
-
-    fn render(&self) -> Result<Option<PathBuf>, GdeError> {
-        //println!("Render with \"{}\"", self.renderer);
-        let out_file = match self.renderer {
-            "marp" =>{
-                marp::render( &self.options.format, &self.options.out_file)?
-            }
-            "mediawiki" => {
-                mediawiki::render(&self.config)?
-            }
-            "pandoc" => {
-                pandoc::render(&self.options.out_file)?
-            }
-            "gdlogue" => {
-                gdlogue::render(&self.options.format, &self.options.out_file)?
-            }
-            "flowchartjs" => {
-                flowchartjs::render(&self.options.out_file)?
-            }
-            "flowchartgvz" => {
-                flowchartgvz::render(&self.options.format,&self.options.out_file)?
-            }
-            "webuibts" => {
-                webuibts::render(&self.options.out_file)?
-            }
-            _ => {eprintln!("No appropriate renderer was given"); None}
+impl fmt::Display for RenderType {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        let string = match self {
+            &RenderType::Marp => "marp",
+            &RenderType::MediaWiki => "mediawiki",
+            &RenderType::Gdlogue => "gdlogue",
+            &RenderType::Webuibts => "webuibts",
+            &RenderType::Pandoc => "pandoc",
+            &RenderType::FlowchartGvz => "flowchartgvz",
+            &RenderType::FlowchartJs => "flowchartjs",
         };
-        
-        Ok(out_file)
-    }
-
-    // Copy output file to designated file
-    // Remove cached file
-    fn postprocess(&self, final_file: Option<PathBuf>) -> Result<(), GdeError> {
-        if let Some(final_file) = final_file {
-
-            // Change middle name to Test_out.gddt
-            if self.options.test{
-                std::fs::rename(
-                    utils::middle_file_path()?, 
-                    utils::CACHE_PATH.join("Test_out.gddt")
-                )?;
-            } 
-
-            if let Some(path) = &self.options.copy {
-                if path.is_dir() {
-                    std::fs::rename(&final_file, path.join(&final_file.file_name().unwrap()))?;
-                } else {
-                    std::fs::rename(final_file, path)?;
-                }
-            }
-        }
-        if !self.options.preserve {
-            std::fs::remove_dir_all(utils::CACHE_PATH.to_owned())?;
-            std::fs::create_dir(utils::CACHE_PATH.to_owned())?;
-        }
+        fmt.write_str(string)?;
         Ok(())
     }
 }
+
