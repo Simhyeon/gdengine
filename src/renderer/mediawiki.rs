@@ -13,9 +13,8 @@ pub(crate) fn render(config: &Config, test: bool) -> Result<Option<PathBuf>, Gde
 
     let request = MediaWikiRequest::new(config.get_env_string("mediawiki_url").unwrap(),config, &source_file)?;
 
-    if !test {
-        request.exec()?;
-    }
+    if test { request.login()?; } 
+    else { request.exec()?; }
 
     Ok(Some(source_file))
 }
@@ -52,12 +51,17 @@ impl<'a> MediaWikiRequest<'a> {
         })
     }
 
-    pub fn exec(&self) -> Result<(), GdeError> {
+    fn exec(&self) -> Result<(), GdeError> {
         let login_token = self.get_login_token()?;
         self.post_login(&login_token)?;
         let csrf_token = self.get_csrf_token()?;
         self.edit_page(&csrf_token)?;
         self.upload_images(&csrf_token)?;
+        Ok(())
+    }
+
+    fn login(&self) -> Result<(), GdeError> {
+        self.get_login_token()?;
         Ok(())
     }
 
