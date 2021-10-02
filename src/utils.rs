@@ -22,7 +22,7 @@ lazy_static! {
         if cfg!(debug_assertions) {
             pb = std::env::current_dir().expect("Failed to get path");
         } else {
-            pb = std::env::current_exe().expect("Failed to get path");
+            pb = std::env::current_exe().expect("Failed to get path").parent().unwrap().to_owned();
         }
         pb.push("libs");
         pb
