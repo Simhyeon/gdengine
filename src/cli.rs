@@ -46,21 +46,18 @@ impl Cli {
                     }
                 },
                 "test" => {
-                    let config = if let Ok(config) = Config::from(&utils::CONFIG_PATH) { config
-                    } else { return Err(GdeError::NotGdeDirectory); };
+                    let config = Config::from(&utils::CONFIG_PATH)?;
                     Orchestrator::test(&config)?;
                 }
                 "run" => {
-                    let config = if let Ok(config) = Config::from(&utils::CONFIG_PATH) { config
-                    } else { return Err(GdeError::NotGdeDirectory); };
+                    let config = Config::from(&utils::CONFIG_PATH)?;
                     Orchestrator::run(&config)?;
                 }
                 "render" => {
                     if let Some(module) = args.value_of("module") {
                         // Set module
                         let render_option = self.parse_exec_options(args)?;
-                        let config = if let Ok(config) = Config::from(&utils::CONFIG_PATH) { config
-                        } else { return Err(GdeError::NotGdeDirectory); };
+                        let config = Config::from(&utils::CONFIG_PATH)?;
 
                         // Execute 
                         Executor::new(
