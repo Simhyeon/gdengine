@@ -28,16 +28,7 @@ lazy_static! {
         pb
     };
 
-    pub static ref CACHE_PATH: PathBuf = {
-        let mut pb;
-        if cfg!(debug_assertions) {
-            pb = std::env::current_dir().expect("Failed to get path");
-        } else {
-            pb = std::env::current_exe().expect("Failed to get path");
-        }
-        pb.push("cache");
-        pb
-    };
+    pub static ref CACHE_PATH: PathBuf = std::env::current_dir().expect("Failed to get path").join("cache");
 
     pub static ref STD_MACRO_PATH: PathBuf = {
         let mut pb;
@@ -64,13 +55,9 @@ lazy_static! {
         pb
     };
 
-    pub static ref DEFAULT_ENTRY_PATH: PathBuf = {
-        std::env::current_dir().expect("Failed to get path").join("index.gddt")
-    };
+    pub static ref DEFAULT_ENTRY_PATH: PathBuf = std::env::current_dir().expect("Failed to get path").join("index.gddt");
 
-    pub static ref CONFIG_PATH: PathBuf = {
-        std::env::current_dir().expect("Failed to get path").join("config.json")
-    };
+    pub static ref CONFIG_PATH: PathBuf = std::env::current_dir().expect("Failed to get path").join("config.json");
 }
 
 pub fn module_path(name : impl AsRef<str>) -> Result<PathBuf, GdeError> {
