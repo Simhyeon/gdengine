@@ -8,6 +8,12 @@ pub struct Config {
 
 impl Config {
     pub fn from(path: &Path) -> Result<Self,GdeError> {
+
+        // Given config file doesn't exist
+        if !path.exists() {
+            return Err(GdeError::NotGdeDirectory);
+        }
+
         // Parse the string of data into serde_json::Value.
         let v: Value = serde_json::from_str(
             &String::from_utf8_lossy(&std::fs::read(path)?)
@@ -18,11 +24,12 @@ impl Config {
         })
     }
 
+    /// Create new config json string
     pub fn new_file() -> String {
         String::from(r#"{
-    env: {},
-    run: [],
-    test: [""]
+    "env": {},
+    "run": [],
+    "test": [""]
 }"#)
     }
 
