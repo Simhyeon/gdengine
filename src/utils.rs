@@ -24,22 +24,16 @@ lazy_static! {
         } else {
             pb = std::env::current_exe().expect("Failed to get path").parent().unwrap().to_owned();
         }
-        pb.push("libs");
+        println!("LIB_PATH: {}", pb.display());
         pb
     };
 
     pub static ref CACHE_PATH: PathBuf = std::env::current_dir().expect("Failed to get path").join("cache");
 
     pub static ref STD_MACRO_PATH: PathBuf = {
-        let mut pb;
-        if cfg!(debug_assertions) {
-            pb = std::env::current_dir().expect("Failed to get path");
-        } else {
-            pb = std::env::current_exe().expect("Failed to get path");
-        }
-        pb.push("libs");
+        let mut pb = (&*LIB_PATH).to_owned();
         pb.push("default.r4f");
-        pb
+        pb.to_path_buf()
     };
 
     // This itself is not used outside of utils file
