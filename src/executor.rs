@@ -63,7 +63,8 @@ impl Executor {
             .custom_rules(Some(vec![
                     utils::STD_MACRO_PATH.to_owned(),
                     utils::module_path(self.render_type.to_string()).expect("Failed to get path")
-            ]))?.build();
+            ]))?
+            .build();
 
         processor.from_file(Path::new(&self.options.input))?;
 
