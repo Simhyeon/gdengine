@@ -24,7 +24,7 @@ lazy_static! {
         } else {
             pb = std::env::current_exe().expect("Failed to get path").parent().unwrap().to_owned();
         }
-        println!("LIB_PATH: {}", pb.display());
+        pb.push("libs");
         pb
     };
 

@@ -1,23 +1,25 @@
 ### Todos
 
+* [ ] Wikitext previewer
+    * [ ] Somehow find a way to mimick wikipedia for testing
+* [ ] Bug
+	* [ ] Not a gde directory error even if I initiated a directory
+
 * [ ] Consider adding debug flags
 
-* [ ] Make docx renderer in rust
-* [ ] Make a separate crate to create a pptx file
+* [ ] Easily distributable renderer
+	* [ ] DOCX + domain specific language
+	* [ ] PPTX + dms
 * [ ] Find a way to decrease external dependencies
+	* [ ] Possibly reqwest crate
 
 * [ ] run and test
-  * [x] Run -> Simply run not so hard
   * [x] Test
-    * [x] No panicking
-	* [x] Final result
 	* [ ] Maybe send test flag to each renderer 
+	* [ ] File diff output
 
 * [ ] Basic utilies
   * [ ] Render
-    * [x] Marp(pdf, pptx)
-    * [x] mediawiki(wikitext)
-	  * [x] Confirm send works
     * [ ] pandoc(docx)
 	  * [x] At least make it work
 	  * [ ] Make pure rust implementation
@@ -31,8 +33,6 @@
       * [ ] Graphviz -> Not fully tested
   * [ ] gdlogue
 	* [ ] Make documentations of gdlogue types
-    * [x] Change logics
-	* [x] Make renderer's rust implementation
 
 ## DONE
 
