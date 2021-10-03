@@ -1,7 +1,7 @@
 use std::path::{PathBuf, Path};
 use crate::error::GdeError;
 use crate::utils;
-use rad::{Processor, RadError};
+use rad::{Processor, RadError, AuthType};
 use gdlogue::*;
 
 pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeError> {
