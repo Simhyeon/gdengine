@@ -29,7 +29,7 @@ impl Config {
         String::from(r#"{
     "env": {},
     "run": [],
-    "test": [""]
+    "test": []
 }"#)
     }
 
