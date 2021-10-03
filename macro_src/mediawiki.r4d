@@ -53,3 +53,6 @@ $fileout(false,image_list.txt,$a_src()$nl()))
 # Text with font size macro
 # No font size if value 0, which is automatic in marp
 $define(text,a_font_size a_content=<div style="font-size : $a_font_size();">$a_content()</div>)
+
+# New page
+$define(newpage=----$nl())

@@ -9,6 +9,13 @@ $define(v_tbody_default=14)
 
 # Macros 
 
+# Set font family
+$define(font,a_font_names=<style>
+section {
+  font-family: $a_font_names();
+}
+</style>)
+
 # Substitue class name with marp compatible class form 
 # white space between _class: and $1 is necessary 
 $define(m_class,a_class=<!-- _class: $a_class() -->)

@@ -15,6 +15,9 @@ $define(
 	$fileout(true,$path(cache,flowchartgvz_source.gvz),$tempin()$nl()$DIRS()$nl()})
 )
 
+# Font
+$define(font,a_font_name=$tempout(fontname="$a_font_name()"$nl() ))
+
 # Start
 # fstart(label,goto)
 $define(
