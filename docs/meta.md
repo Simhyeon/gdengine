@@ -1,5 +1,14 @@
 ### Todos
 
+* [ ] Renderpath is not set right
+
+* [ ] Flowchart
+    * [ ] Make yes not distinguishable
+
+* [ ] Font supports
+    * [ ] Flowchartgvz + flowchartjs
+	* [ ] Marp
+
 * [ ] Wikitext previewer
     * [ ] Somehow find a way to mimick wikipedia for testing
 * [ ] Bug

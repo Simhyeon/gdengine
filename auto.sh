@@ -1,4 +1,4 @@
-echo "$PWD/renderers/marp/bin/marp"
+#!/bin/sh
 
 if [ ! -f "$PWD/renderers/marp/bin/marp" ]; then
 	echo "Marp doesn't exist renderers/marp/bin"
