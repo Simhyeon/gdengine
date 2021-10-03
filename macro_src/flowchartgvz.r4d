@@ -6,7 +6,7 @@ $define(
 	flowchart_begin
 	=
 	$tempto(fjs.txt)
-	$tempout(true,digraph G {)
+	$tempout(digraph G {)
 	$define(DIRS=)
 )
 $define(
@@ -20,8 +20,8 @@ $define(
 $define(
 	fstart,
 	a_label a_goto
-	=$tempout(false,start [ label="$a_label()" ];$nl())
-	$append(DIRS,start -> n$a_goto() [weight=8];$nl())
+	=$tempout(start [ label="$a_label()" ];$nl())
+	$append(DIRS,start -> n$a_goto();$nl())
 )
 
 # End
@@ -29,7 +29,7 @@ $define(
 $define(
 	fend,
 	a_label
-	=$tempout(false,nend [label="$a_label()"];)
+	=$tempout(nend [label="$a_label()"];$nl(){rank=sink; nend;}$nl())
 )
 
 # fnode(id,label,nextId)
@@ -39,30 +39,31 @@ $define(
 	=
 	$bind+(id,n$a_id())
 	$bind+(nextId,n$a_nextId())
-	$tempout(false,$id() [label="$a_label()" shape=rect];
-$id()R [width=0 shape=point];
-{rank=same; $id(); $id()R;}$nl())
-	$append(DIRS,$id() -> $nextId() [weight=8];$nl())
+	$tempout($id() [label="$a_label()" shape=rect]; $nl()$id()R [width=0 shape=point]; $nl(){rank=same; $id(); $id()R;}$nl())
+	$append(DIRS,$id() -> $nextId();$nl())
+)
+# fnode_right(id,label,nextId)
+$define(
+	fnode_right,
+	a_id a_label a_nextId
+	=
+	$bind+(id,n$a_id())
+	$bind+(nextId,n$a_nextId())
+	$tempout($id() [label="$a_label()" shape=rect]; $nl()$id()R [width=0 shape=point]; $nl(){rank=same; $id(); $id()R;}$nl())
+	$append(DIRS,$id():e -> $nextId():e;$nl())
 )
 
 # Flowchart node
-# _fnode_cond(id,label,yesId,noId)
+# _fcond(id,label,yesId,noId)
 $define(
 	fcond,
 	a_id a_label a_yesId a_noId
 	=
 	$bind+(id,n$a_id())
-	$bind+(idR,n$a_id()R)
 	$bind+(yes_id,n$a_yesId())
 	$bind+(no_id,n$a_noId())
-	$tempout(false,
-		$id() [label="$a_label()" shape=diamond];
-		$idR() [ width=0 shape=point ];
-		{rank=same; $id(); $idR();}
-		)
-	$append(DIRS,
-		$id():e -> $idR():w [arrowhead=none];$nl()$id() -> $yes_id() [weight=8];$nl()$idR():e -> $no_id()R:e [arrowhead=none];$nl()$no_id() -> $no_id()R [dir=back minlen=2];
-		)
+	$tempout( $id() [label="$a_label()" shape=diamond];$nl())
+	$append(DIRS, $id() -> $yes_id();$nl()$id() -> $no_id();)
 )
 
 # fnode_input(id,label,nextId)
@@ -70,13 +71,7 @@ $define(finput,
 	a_id a_label a_nextId
 	=
 	$bind+(id,n$a_id())
-	$bind+(idR,n$a_id()R)
 	$bind+(nextId,n$a_nextId())
-
-	$tempout(false,
-		$id() [label="$a_label()" shape=parallelogram];
-		$idR() [width=0 shape=point];
-		{rank=same; $id(); $idR();}
-	)
-	$append(DIRS=$id() -> $nextId() [weight=8];$nl())
+	$tempout($id() [label="$a_label()" shape=parallelogram];)
+	$append(DIRS=$id() -> $nextId()$nl())
 )

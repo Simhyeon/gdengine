@@ -2,32 +2,32 @@
 $define(mod_flowchartjs=)
 
 # Directives macro
-$define(flowchart_begin=$tempto(fjs.txt)$tempout(true,)$define(DIRS=))
+$define(flowchart_begin=$tempto(fjs.txt)$tempout()$define(DIRS=))
 $define(flowchart_end=$fileout(true,$path(cache,flowchartjs_source.txt),$tempin()$nl()$DIRS()))
 
 # Start
 # fstart(label,goto)
 $define(fstart,a_label a_goto=
-	$tempout(false,start=>start: $a_label()$nl())
+	$tempout(start=>start: $a_label()$nl())
 	$append(DIRS,start->$a_goto()$nl())
 )
 
 # End
 # fend(label)
 $define(fend,a_label=
-	$tempout(false,end=>end: $a_label()$nl())
+	$tempout(end=>end: $a_label()$nl())
 )
 
 # Flowchart node
 # fnode_cond(id,label,yesId,noId)
 $define(fcond,a_id a_label a_yesId a_noId=
-	$tempout(false,$a_id()=>condition: $a_label()$nl())
+	$tempout($a_id()=>condition: $a_label()$nl())
 	$append(DIRS,$a_id()(yes)->$a_yesId()$nl()$a_id()(no)->$a_noId()$nl())
 )
 
 # fnode(id,label,nextId)
 $define(fnode,a_id a_label a_nextId=
-	$tempout(false,$a_id()=>operation: $a_label()$nl())
+	$tempout($a_id()=>operation: $a_label()$nl())
 	$append(DIRS,$a_id()->$a_nextId()$nl())
 )
 
@@ -35,12 +35,12 @@ $define(fnode,a_id a_label a_nextId=
 # But I'm sure there would be a better approach.
 # fnode_right(id,label,nextId)
 $define(fnode_right,a_id a_label a_nextId=
-	$tempout(false,$a_id()=>operation: $a_label()$nl())
+	$tempout($a_id()=>operation: $a_label()$nl())
 	$append(DIRS,$a_id()(right)->$a_nextId()$nl())
 )
 
 # fnode_input(id,label,nextId)
 $define(finput,a_id a_label a_nextId=
-	$tempout(false,$a_id=>inputoutput: $a_label$nl())
+	$tempout($a_id=>inputoutput: $a_label$nl())
 	$append(DIRS,$a_id()->$a_nextId()$nl())
 )
