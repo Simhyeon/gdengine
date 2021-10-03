@@ -55,5 +55,8 @@ pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Res
         out_file.as_os_str()
     ])?;
 
+    // Revert name back to out.md
+    std::fs::rename(source_file, utils::middle_file_path()?)?;
+
     Ok(Some(out_file))
 }
