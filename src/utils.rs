@@ -53,6 +53,7 @@ pub fn renderer_path(name : impl AsRef<str>) -> Result<PathBuf, GdeError> {
     Ok(RENDERER_PATH.join(name.as_ref()))
 }
 
+/// out.gddt
 pub fn middle_file_path() -> Result<PathBuf, GdeError> {
     Ok(CACHE_PATH.join("out.gddt"))
 }
