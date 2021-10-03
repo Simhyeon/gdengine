@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use crate::utils;
 use crate::error::GdeError;
-use rad::{Processor, RadError};
+use rad::{Processor, RadError, AuthType};
 
 pub(crate) fn render(out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeError> {
     // Set default outfile
@@ -21,6 +21,7 @@ pub(crate) fn render(out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeE
 fn rad(out_file : &PathBuf) -> Result<(), RadError> {
     Processor::new()
         .greedy(true)
+        .allow(Some(vec!(AuthType::FIN, AuthType::ENV)))
         .write_to_file(Some(out_file.to_owned()))?
         .from_file(&utils::renderer_path("flowchartjs").expect("Failed to get path").join("index.html"))?;
 

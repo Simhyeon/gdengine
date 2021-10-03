@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use crate::utils;
 use crate::error::GdeError;
-use rad::{Processor, RadError};
+use rad::{AuthType, Processor, RadError};
 
 pub(crate) fn render(out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeError> {
     // Set default outfile
@@ -22,6 +22,7 @@ fn rad(out_file : &PathBuf) -> Result<(), RadError> {
     Processor::new()
         .greedy(true)
         .write_to_file(Some(out_file.to_owned()))?
+        .allow(Some(vec!(AuthType::FIN, AuthType::ENV)))
         .custom_rules(Some(
                 vec![utils::module_path("webuibts").expect("Failed to get module path")]
         ))?

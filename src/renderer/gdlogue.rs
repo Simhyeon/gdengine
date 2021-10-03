@@ -59,6 +59,7 @@ fn html_dialogue(out_file : &PathBuf) -> Result<(), RadError> {
     Processor::new()
         .greedy(true)
         .write_to_file(Some(out_file.to_owned()))?
+        .allow(Some(vec!(AuthType::FIN, AuthType::ENV)))
         .from_file(&utils::renderer_path("gdlogue").expect("Failed to get renderer path").join("index.html"))?;
 
     Ok(())
