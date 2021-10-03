@@ -6,16 +6,7 @@ use std::ffi::OsStr;
 
 // Paths
 lazy_static! {
-    pub static ref BUILD_PATH: PathBuf = {
-        let mut pb;
-        if cfg!(debug_assertions) {
-            pb = std::env::current_dir().expect("Failed to get path");
-        } else {
-            pb = std::env::current_exe().expect("Failed to get path");
-        }
-        pb.push("build");
-        pb
-    };
+    pub static ref BUILD_PATH: PathBuf = std::env::current_dir().expect("Failed to get path").join("build");
 
     pub static ref LIB_PATH: PathBuf = {
         let mut pb;
@@ -43,7 +34,7 @@ lazy_static! {
         if cfg!(debug_assertions) {
             pb = std::env::current_dir().expect("Failed to get path");
         } else {
-            pb = std::env::current_exe().expect("Failed to get path");
+            pb = std::env::current_exe().expect("Failed to get path").parent().expect("Failed to get path").to_path_buf();
         }
         pb.push("renderers");
         pb
