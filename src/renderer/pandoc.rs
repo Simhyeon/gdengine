@@ -16,9 +16,9 @@ pub(crate) fn render(out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeE
         pandoc_path = utils::renderer_path("pandoc")?.join("bin").join("pandoc");
     } else {
         if cfg!(target_os = "windows") {
-            pandoc_path = std::env::current_exe()?.join("pandoc.exe");
+            pandoc_path = utils::renderer_path("pandoc")?.join("bin").join("pandoc.exe");
         } else {
-            pandoc_path = std::env::current_exe()?.join("pandoc");
+            pandoc_path = utils::renderer_path("pandoc")?.join("bin").join("pandoc");
         }
     }
 

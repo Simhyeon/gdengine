@@ -22,26 +22,27 @@ pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Res
     };
 
     // Set local chrome path for marp
+    let chrome_name: &str;
     if cfg!(debug_assertions) {
-        std::env::set_var("CHROME_PATH", utils::renderer_path("marp")?.join("bin").join("chrome").join("chrome"));
+        chrome_name = "chrome";
     } else {
-        let chrome_name: &str;
         if cfg!(target_os = "windows") {
             chrome_name= "chrome.exe";
         } else {
             chrome_name= "chrome";
         }
-        std::env::set_var("CHROME_PATH", std::env::current_exe()?.join("chrome").join(chrome_name));
     }
+    let chrome_path = utils::renderer_path("marp")?.join("bin").join("chrome").join(chrome_name);
+    std::env::set_var("CHROME_PATH", chrome_path);
 
     let marp_path: PathBuf;
     if cfg!(debug_assertions) {
         marp_path = utils::renderer_path("marp")?.join("bin").join("marp");
     } else {
         if cfg!(target_os = "windows") {
-            marp_path = std::env::current_exe()?.join("marp.exe");
+            marp_path = utils::renderer_path("marp")?.join("bin").join("marp.exe");
         } else {
-            marp_path = std::env::current_exe()?.join("marp");
+            marp_path = utils::renderer_path("marp")?.join("bin").join("marp");
         }
     }
 
