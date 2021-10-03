@@ -56,7 +56,8 @@ impl Executor {
 
     fn macro_expansion(&self) -> Result<(), RadError> {
         let mut processor = Processor::new()
-            .purge(self.options.purge)
+            .purge(true)
+            .strict(self.options.strict)
             .greedy(true)
             .allow(Some(vec!(AuthType::ENV, AuthType::FIN, AuthType::FOUT, AuthType::CMD)))
             .write_to_file(Some(utils::middle_file_path().expect("Failed to get path")))?
@@ -144,7 +145,7 @@ impl Executor {
 
 pub struct ExecOptions {
     // Option used by rad
-    purge: bool,
+    strict: bool,
     input: String,
     test: bool,
     // Used by post process
@@ -158,7 +159,7 @@ pub struct ExecOptions {
 impl ExecOptions {
     pub fn new(
         preserve:bool,
-        purge:bool,
+        strict:bool,
         test:bool,
         copy: Option<PathBuf>,
         format: Option<String>,
@@ -173,7 +174,7 @@ impl ExecOptions {
 
         Ok(Self { 
             preserve,
-            purge,
+            strict,
             test,
             copy,
             format,
