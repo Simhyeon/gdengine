@@ -87,7 +87,7 @@ impl Cli {
 
     fn args_builder() -> clap::App<'static> {
         App::new("gde")
-            .version("0.3.1")
+            .version("0.3.2")
             .author("Simon creek <simoncreek@tutanota.com>")
             .about("Gdengine is a document automation program.")
             .setting(clap::AppSettings::ArgRequiredElseHelp)
