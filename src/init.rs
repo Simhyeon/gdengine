@@ -37,7 +37,7 @@ impl Init {
         utils::command("git",vec![OsStr::new("init")])?;
 
         // Crate gitignore file
-        fs::write(Path::new(".gitignore"), "build\ncache")?;
+        fs::write(Path::new(".gitignore"), "build\ncache\nres")?;
         Ok(())
     }
 
