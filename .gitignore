@@ -10,5 +10,4 @@ res
 config.json
 **/node_modules
 **/bin
-Makefile
 gde
