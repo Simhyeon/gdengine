@@ -131,7 +131,16 @@ impl Executor {
         // Renderer specific files
         match self.render_type {
             RenderType::MediaWiki => {
-                std::fs::copy(Path::new(mediawiki::IMAGE_LIST), &*utils::CACHE_PATH)?;
+                let image_list = std::env::current_dir()?.join(mediawiki::IMAGE_LIST);
+                // Test reseve image list file
+                if self.options.test {
+                    std::fs::rename(
+                        image_list,
+                        &*utils::CACHE_PATH.join(mediawiki::IMAGE_LIST)
+                    )?;
+                } else {
+                    std::fs::remove_file(image_list)?;
+                }
             }
             _ => ()
         }
