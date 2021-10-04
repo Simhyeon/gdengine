@@ -27,7 +27,6 @@ impl Config {
     /// Create new config json string
     pub fn new_file() -> String {
         String::from(r#"{
-    "env": {},
     "run": [],
     "test": []
 }"#)
@@ -43,14 +42,5 @@ impl Config {
         } else {
             None
         }
-    }
-
-    pub fn get_env_string(&self, index:&str) -> Option<String> {
-        if let Some(value) =self.content.get("env")?.get(index) {
-            if let serde_json::Value::String(content) = value {
-                return Some(content.to_owned());
-            }
-        }
-        return None;
     }
 }
