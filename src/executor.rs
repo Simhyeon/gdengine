@@ -2,21 +2,18 @@ use std::path::{PathBuf, Path};
 use crate::error::GdeError;
 use crate::utils;
 use crate::renderer::*;
-use crate::config::Config;
 use rad::{Processor, RadError, AuthType};
 
 pub struct Executor {
     render_type: RenderType,
     options : ExecOptions,
-    config: Config,
 }
 
 impl Executor {
-    pub fn new(render_type: &str, options: ExecOptions, config: Config) -> Result<Self,GdeError> {
+    pub fn new(render_type: &str, options: ExecOptions) -> Result<Self,GdeError> {
         Ok(Self { 
             render_type : RenderType::from(render_type)?,
             options,
-            config
         })
     }
 
@@ -87,7 +84,7 @@ impl Executor {
                 marp::render( &self.options.format, &self.options.out_file)?
             }
             RenderType::MediaWiki => {
-                mediawiki::render(&self.config, self.options.test)?
+                mediawiki::render(self.options.test)?
             }
             RenderType::Pandoc => {
                 pandoc::render(&self.options.out_file)?
