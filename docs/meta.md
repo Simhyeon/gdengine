@@ -1,18 +1,31 @@
 ### Todos
 
-* [ ] Renderpath is not set right
+* [ ] Mediaikwi image macro needs change
+- Image upload needs absolute path but file link needs only filename which is a bummer
+
+* [ ] Vim snippets
+    * [ ] FLowchart name changes
+	* [ ] Upload\_image
+
+* [x] Saving bot password in config.json is not necessarily a good idea, utilslize .env file
+* [ ] Path ergonomics is hard to resolve
+- For example, image file is based on current workingg diretory and in normal
+scenarios, it is in root directory however some cases, index file may not be in
+root directory. And image's source directory is hard to catch, especially in marp page
 
 * [ ] Flowchart
-    * [ ] Make yes not distinguishable
+    * [x] Make yes distinguishable
+	* [ ] Make horizontal variation
 
 * [ ] Font supports
-    * [ ] Flowchartgvz + flowchartjs
-	* [ ] Marp
+    * [x] Flowchartgvz 
+	* [ ] Flowchartjs 
+	- It is not so intuitive to make it, because only data(dms) is given to html file
+	* [-] Marp
+	- NOt yet tested
 
 * [ ] Wikitext previewer
     * [ ] Somehow find a way to mimick wikipedia for testing
-* [ ] Bug
-	* [ ] Not a gde directory error even if I initiated a directory
 
 * [ ] Consider adding debug flags
 
@@ -44,6 +57,9 @@
 	* [ ] Make documentations of gdlogue types
 
 ## DONE
+
+* [x] Renderpath is not set right
+* [x] Purge was not default -> Fixed
 
 * [-] Make sandboxed release package.
 - Compiled marp
