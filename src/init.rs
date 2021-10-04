@@ -19,6 +19,11 @@ impl Init {
         Ok(())
     }
 
+    pub fn new_env_file() -> Result<(), GdeError> {
+        fs::write(Path::new(".env"), "")?;
+        Ok(())
+    }
+
     // Create new macro file
     pub fn new_macro_file() -> Result<(), GdeError> {
         Init::macro_file()?;
@@ -37,7 +42,7 @@ impl Init {
         utils::command("git",vec![OsStr::new("init")])?;
 
         // Crate gitignore file
-        fs::write(Path::new(".gitignore"), "build\ncache\nres")?;
+        fs::write(Path::new(".gitignore"), "build\ncache\nres\n.env")?;
         Ok(())
     }
 
