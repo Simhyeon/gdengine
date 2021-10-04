@@ -44,15 +44,16 @@ $define(idt,a_count=$forloop(1,$a_count(),:))
 # URL Link (Same functionality wit markdown link)
 $define(url,a_src a_text=[$a_src() $a_text()])
 
-$define(upload_image=$fileout(true,image_list.txt,))
+$define(upload_image=$define(UPLOAD_IMAGE=)
+$fileout(true,image_list.txt,))
 
 # Image Link
 $define(image,a_src=[[File:$a_src()|alt=Image file]]
-$fileout(false,image_list.txt,$a_src()$nl()))
+$if($ifdef(UPLOAD_IMAGE),\*$fileout(false,image_list.txt,$a_src()$nl())*\))
 
 # Text with font size macro
 # No font size if value 0, which is automatic in marp
 $define(text,a_font_size a_content=<div style="font-size : $a_font_size();">$a_content()</div>)
 
-# New page
-$define(newpage=----$nl())
+# HR
+$define(hr=----$nl())
