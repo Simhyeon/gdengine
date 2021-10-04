@@ -31,10 +31,9 @@ $define(fnode,a_id a_label a_nextId=
 	$append(DIRS,$a_id()->$a_nextId()$nl())
 )
 
-# This was to make redirection look better,
-# But I'm sure there would be a better approach.
-# fnode_right(id,label,nextId)
-$define(fnode_right,a_id a_label a_nextId=
+# Alternative node
+# fnodea(id,label,nextId)
+$define(fnodea,a_id a_label a_nextId=
 	$tempout($a_id()=>operation: $a_label()$nl())
 	$append(DIRS,$a_id()(right)->$a_nextId()$nl())
 )

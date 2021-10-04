@@ -6,7 +6,7 @@ $define(
 	flowchart_begin
 	=
 	$tempto(fjs.txt)
-	$tempout(digraph G {$nl()graph [splines=polyline]$nl())
+	$tempout(digraph G {$nl()graph [splines=ortho; nodesep=0.5]$nl())
 	$define(DIRS=)
 )
 $define(
@@ -17,6 +17,10 @@ $define(
 
 # Font
 $define(font,a_font_name=$tempout(fontname="$a_font_name()"$nl() ))
+
+# Set orientation as "from left to right"
+# flr()
+$define(flr=$tempout(rankdir=LR$nl()))
 
 # Start
 # fstart(label,goto)
@@ -45,15 +49,19 @@ $define(
 	$tempout($id() [label="$a_label()" shape=rect];$nl())
 	$append(DIRS,$id() -> $nextId() [weight=8];$nl())
 )
-# fnode_right(id,label,nextId)
+# Alternative node
+# fnodea(id,label,nextId)
 $define(
-	fnode_right,
+	fnodea,
 	a_id a_label a_nextId
 	=
 	$bind+(id,n$a_id())
 	$bind+(nextId,n$a_nextId())
-	$tempout($id() [label="$a_label()" shape=rect]; $nl())
-	$append(DIRS,$id():e -> $nextId():e;$nl())
+	$tempout($id() [label="$a_label()" shape=rect];
+	$nextId()_right [shape=point; width=0];
+	{rank=same; $nextId(); $nextId()_right;}$nl())
+	$append(DIRS, $nextId() -> $nextId()_right [dir=back];
+$id() -> $nextId()_right[arrowhead=none];$nl())
 )
 
 # Flowchart node
@@ -66,7 +74,7 @@ $define(
 	$bind+(yes_id,n$a_yesId())
 	$bind+(no_id,n$a_noId())
 	$tempout($id() [label="$a_label()" shape=diamond];$nl(){ rank=same; $id(); $no_id(); }$nl())
-	$append(DIRS,$id() -> $yes_id()[label="yes"; weight=8; color="firebrick3"];$nl()$id() -> $no_id() [label="no"; color="dodgerblue3"];$nl())
+	$append(DIRS,$id() -> $yes_id()[xlabel="yes"; weight=8; color="firebrick3"];$nl()$id() -> $no_id() [xlabel="no"; color="dodgerblue3"];$nl())
 )
 
 # fnode_input(id,label,nextId)
