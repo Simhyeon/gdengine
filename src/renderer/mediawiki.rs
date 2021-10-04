@@ -1,17 +1,16 @@
 use std::path::{PathBuf, Path};
 use crate::error::GdeError;
-use crate::config::Config;
 use crate::utils;
 use reqwest::blocking::{Client, multipart};
 
 pub const IMAGE_LIST : &str = "image_list.txt";
 
 /// MediaWiki's target is not a file but server loaded page
-pub(crate) fn render(config: &Config, test: bool) -> Result<Option<PathBuf>, GdeError> {
-    check_prerequisites(config)?;
+pub(crate) fn render(test: bool) -> Result<Option<PathBuf>, GdeError> {
+    check_prerequisites()?;
     let source_file = utils::middle_file_path()?;
 
-    let request = MediaWikiRequest::new(config.get_env_string("mediawiki_url").unwrap(),config, &source_file)?;
+    let request = MediaWikiRequest::new(&source_file)?;
 
     if test { request.login()?; } 
     else { request.exec()?; }
@@ -19,12 +18,12 @@ pub(crate) fn render(config: &Config, test: bool) -> Result<Option<PathBuf>, Gde
     Ok(Some(source_file))
 }
 
-fn check_prerequisites(config: &Config) -> Result<(), GdeError> {
+fn check_prerequisites() -> Result<(), GdeError> {
     // Check if necessary config values are present.
-    if let None = config.get_env_string("mediawiki_url") { return Err(GdeError::ConfigError(String::from("No mediawiki_url in config file"))); }
-    if let None = config.get_env_string("bot_id") { return Err(GdeError::ConfigError(String::from("No bot_id in config file"))); }
-    if let None = config.get_env_string("bot_pwd") { return Err(GdeError::ConfigError(String::from("No bot_pwd in config file"))); }
-    if let None = config.get_env_string("page_title") { return Err(GdeError::ConfigError(String::from("No page_title in config file"))); }
+    if let Err(_) = std::env::var("MW_URL") { return Err(GdeError::ConfigError(String::from("No \"MW_URL\" in env file"))); }
+    if let Err(_) = std::env::var("MW_ID") { return Err(GdeError::ConfigError(String::from("No \"MW_ID\" in env file"))); }
+    if let Err(_) = std::env::var("MW_PWD") { return Err(GdeError::ConfigError(String::from("No \"MW_PWD\" in env file"))); }
+    if let Err(_) = std::env::var("MW_TITLE") { return Err(GdeError::ConfigError(String::from("No \"MW_TITLE\" in env file"))); }
 
     Ok(())
 }
@@ -38,15 +37,15 @@ struct MediaWikiRequest<'a> {
     target_file : &'a Path,
 }
 impl<'a> MediaWikiRequest<'a> {
-    pub fn new(url : String, config: &Config, target_file: &'a Path) -> Result<Self, GdeError> {
+    pub fn new(target_file: &'a Path) -> Result<Self, GdeError> {
         let client = Client::builder().cookie_store(true).build()?;
 
         Ok(Self {
             client,
-            url,
-            bot_id : config.get_env_string("bot_id").unwrap(),
-            bot_pwd : config.get_env_string("bot_pwd").unwrap(),
-            page_title : config.get_env_string("page_title").unwrap(),
+            url        : std::env::var("MW_ULR").unwrap(),
+            bot_id     : std::env::var("MW_ID").unwrap(),
+            bot_pwd    : std::env::var("MW_PWD").unwrap(),
+            page_title : std::env::var("MW_TITLE").unwrap(),
             target_file,
         })
     }
@@ -56,7 +55,13 @@ impl<'a> MediaWikiRequest<'a> {
         self.post_login(&login_token)?;
         let csrf_token = self.get_csrf_token()?;
         self.edit_page(&csrf_token)?;
-        self.upload_images(&csrf_token)?;
+        // It is ok that evn var is not set
+        if let Ok(value) = std::env::var("MW_UPLOAD") {
+            // If true then upload images
+            if let Ok(true) = value.to_lowercase().parse::<bool>() {
+                self.upload_images(&csrf_token)?;
+            }
+        }
         Ok(())
     }
 
