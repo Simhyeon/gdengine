@@ -1,13 +1,14 @@
-use std::path::PathBuf;
+use std::path::{PathBuf, Path};
 use crate::utils;
 use crate::error::GdeError;
 use std::ffi::OsStr;
 
 pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeError> {
-    // Change name to out.md
-    let mut source_file = utils::middle_file_path()?;
-    source_file.set_extension("md");
-    std::fs::rename(utils::middle_file_path()?, &source_file)?;
+
+    // Marp expects markdown file so, source file should be markdown
+    let source_file = Path::new("out.md");
+    // Copy file to root directory
+    std::fs::copy(utils::middle_file_path()?, source_file)?;
 
     let format = if let Some(format) = format {
         format.to_owned()
@@ -55,8 +56,8 @@ pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Res
         out_file.as_os_str()
     ])?;
 
-    // Revert name back to out.md
-    std::fs::rename(source_file, utils::middle_file_path()?)?;
+    // Source file is not necessary
+    std::fs::remove_file(source_file)?;
 
     Ok(Some(out_file))
 }
