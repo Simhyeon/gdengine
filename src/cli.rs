@@ -38,6 +38,7 @@ impl Cli {
                     // Create new files and directories
                     Init::new_gddt_file()?;
                     Init::new_config_file()?;
+                    Init::new_env_file()?;
                     Init::new_macro_file()?;
                     Init::new_directories()?;
                     // Git option
@@ -57,13 +58,11 @@ impl Cli {
                     if let Some(module) = args.value_of("module") {
                         // Set module
                         let render_option = self.parse_exec_options(args)?;
-                        let config = Config::from(&utils::CONFIG_PATH)?;
 
                         // Execute 
                         Executor::new(
                             module,
                             render_option,
-                            config
                         )?.exec()?;
                     } else {
                         eprintln!("No proper render module was provided");
