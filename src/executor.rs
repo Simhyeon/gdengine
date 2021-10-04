@@ -67,6 +67,11 @@ impl Executor {
             ]))?
             .build();
 
+        // Add optional test mod
+        if self.options.test {
+            processor.add_custom_rules(vec![("mod_test","","")])
+        }
+
         processor.from_file(Path::new(&self.options.input))?;
 
         if self.options.test {
