@@ -682,8 +682,8 @@ dependencies = [
 
 [[package]]
 name = "r4d"
-version = "0.9.4"
-source = "git+https://github.com/simhyeon/r4d#16706d4f272ff8e190b515015a40e1dc9b16ba7a"
+version = "0.10.1"
+source = "git+https://github.com/simhyeon/r4d#4879436f34bcd403b9d28d3303644bc342b77aee"
 dependencies = [
  "bincode",
  "chrono",
