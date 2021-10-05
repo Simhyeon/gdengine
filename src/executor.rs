@@ -133,13 +133,15 @@ impl Executor {
             RenderType::MediaWiki => {
                 let image_list = std::env::current_dir()?.join(mediawiki::IMAGE_LIST);
                 // Test reseve image list file
-                if self.options.test {
-                    std::fs::rename(
-                        image_list,
-                        &*utils::CACHE_PATH.join(mediawiki::IMAGE_LIST)
-                    )?;
-                } else {
-                    std::fs::remove_file(image_list)?;
+                if image_list.exists() {
+                    if self.options.test {
+                        std::fs::rename(
+                            image_list,
+                            &*utils::CACHE_PATH.join(mediawiki::IMAGE_LIST)
+                        )?;
+                    } else {
+                        std::fs::remove_file(image_list)?;
+                    }
                 }
             }
             _ => ()
