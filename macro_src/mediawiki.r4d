@@ -48,7 +48,7 @@ $define(upload_image=$define(UPLOAD_IMAGE=)
 $fileout(true,image_list.txt,))
 
 # Image Link
-$define(image,a_src=[[File:$a_src()|alt=Image file]]
+$define(image,a_src=[[File:$name($a_src())|alt=Image file]]
 $if($ifdef(UPLOAD_IMAGE),\*$fileout(false,image_list.txt,$a_src()$nl())*\))
 
 # Text with font size macro
