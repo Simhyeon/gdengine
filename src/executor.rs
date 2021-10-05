@@ -56,6 +56,7 @@ impl Executor {
             .purge(true)
             .strict(self.options.strict)
             .greedy(true)
+            .unix_new_line(true)
             .allow(Some(vec!(AuthType::ENV, AuthType::FIN, AuthType::FOUT, AuthType::CMD)))
             .write_to_file(Some(utils::middle_file_path().expect("Failed to get path")))?
             .custom_rules(Some(vec![

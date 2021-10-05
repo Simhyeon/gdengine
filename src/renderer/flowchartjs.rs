@@ -22,6 +22,7 @@ fn rad(out_file : &PathBuf) -> Result<(), RadError> {
     Processor::new()
         .greedy(true)
         .allow(Some(vec!(AuthType::FIN, AuthType::ENV)))
+        .unix_new_line(true)
         .write_to_file(Some(out_file.to_owned()))?
         .from_file(&utils::renderer_path("flowchartjs").expect("Failed to get path").join("index.html"))?;
 

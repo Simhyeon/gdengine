@@ -22,6 +22,7 @@ fn rad(out_file : &PathBuf) -> Result<(), RadError> {
     Processor::new()
         .greedy(true)
         .write_to_file(Some(out_file.to_owned()))?
+        .unix_new_line(true)
         .allow(Some(vec!(AuthType::FIN, AuthType::ENV)))
         .custom_rules(Some(
                 vec![utils::module_path("webuibts").expect("Failed to get module path")]
