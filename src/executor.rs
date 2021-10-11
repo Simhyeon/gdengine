@@ -54,7 +54,6 @@ impl Executor {
     fn macro_expansion(&self) -> Result<(), RadError> {
         let mut processor = Processor::new()
             .purge(true)
-            .strict(self.options.strict)
             .greedy(true)
             .unix_new_line(true)
             .allow(Some(vec!(AuthType::ENV, AuthType::FIN, AuthType::FOUT, AuthType::CMD)))
@@ -159,7 +158,7 @@ impl Executor {
 
 pub struct ExecOptions {
     // Option used by rad
-    strict: bool,
+    lenient: bool,
     input: String,
     test: bool,
     // Used by post process
@@ -173,7 +172,7 @@ pub struct ExecOptions {
 impl ExecOptions {
     pub fn new(
         preserve:bool,
-        strict:bool,
+        lenient:bool,
         test:bool,
         copy: Option<PathBuf>,
         format: Option<String>,
@@ -188,7 +187,7 @@ impl ExecOptions {
 
         Ok(Self { 
             preserve,
-            strict,
+            lenient,
             test,
             copy,
             format,

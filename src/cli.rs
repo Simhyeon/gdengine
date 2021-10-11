@@ -102,10 +102,10 @@ impl Cli {
                 .about("Preserve temporary files")
                 .short('p')
                 .long("preserve"))
-            .arg(Arg::new("strict")
-                .about("Strict macro")
-                .short('s')
-                .long("strict"))
+            .arg(Arg::new("lenient")
+                .about("Disable strict mode")
+                .short('l')
+                .long("lenient"))
             .arg(Arg::new("input")
                 .about("Input file to process")
                 .short('i')
@@ -139,7 +139,7 @@ impl Cli {
     fn parse_exec_options(&self,matches: &clap::ArgMatches) -> Result<ExecOptions, GdeError> {
         Ok(ExecOptions::new(
                 matches.is_present("preserve"),
-                matches.is_present("strict"),
+                matches.is_present("lenient"),
                 matches.is_present("test"),
                 matches.value_of("copy").map(|s| PathBuf::from(s)),
                 matches.value_of("format").map(|s| s.to_owned()),
