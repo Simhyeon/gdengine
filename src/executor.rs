@@ -56,6 +56,7 @@ impl Executor {
             .purge(true)
             .greedy(true)
             .lenient(!self.options.strict)
+            .log(self.options.log)
             .unix_new_line(true)
             .allow(Some(vec!(AuthType::ENV, AuthType::FIN, AuthType::FOUT, AuthType::CMD)))
             .write_to_file(Some(utils::middle_file_path().expect("Failed to get path")))?
@@ -132,18 +133,7 @@ impl Executor {
         // Renderer specific files
         match self.render_type {
             RenderType::MediaWiki => {
-                let image_list = std::env::current_dir()?.join(mediawiki::IMAGE_LIST);
-                // Test reseve image list file
-                if image_list.exists() {
-                    if self.options.test {
-                        std::fs::rename(
-                            image_list,
-                            &*utils::CACHE_PATH.join(mediawiki::IMAGE_LIST)
-                        )?;
-                    } else {
-                        std::fs::remove_file(image_list)?;
-                    }
-                }
+                mediawiki::clear_files(self.options.test)?;
             }
             _ => ()
         }
@@ -162,6 +152,7 @@ pub struct ExecOptions {
     strict: bool,
     input: String,
     test: bool,
+    log: bool,
     // Used by post process
     copy: Option<PathBuf>,
     // Used by renderer
@@ -173,8 +164,9 @@ pub struct ExecOptions {
 impl ExecOptions {
     pub fn new(
         preserve:bool,
-        lenient:bool,
+        strict:bool,
         test:bool,
+        log:bool,
         copy: Option<PathBuf>,
         format: Option<String>,
         input: Option<PathBuf>,
@@ -188,8 +180,9 @@ impl ExecOptions {
 
         Ok(Self { 
             preserve,
-            lenient,
+            strict,
             test,
+            log,
             copy,
             format,
             input : input.to_str().unwrap().to_owned(),

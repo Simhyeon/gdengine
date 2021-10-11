@@ -134,6 +134,9 @@ impl Cli {
             .arg(Arg::new("test")
                 .about("Render yields extra information about process")
                 .long("test"))
+            .arg(Arg::new("log")
+                .about("Log macro invocations")
+                .long("log"))
     }
 
     fn parse_exec_options(&self,matches: &clap::ArgMatches) -> Result<ExecOptions, GdeError> {
@@ -141,6 +144,7 @@ impl Cli {
                 matches.is_present("preserve"),
                 matches.is_present("strict"),
                 matches.is_present("test"),
+                matches.is_present("log"),
                 matches.value_of("copy").map(|s| PathBuf::from(s)),
                 matches.value_of("format").map(|s| s.to_owned()),
                 matches.value_of("input").map(|s| PathBuf::from(s) ),
