@@ -55,6 +55,7 @@ impl Executor {
         let mut processor = Processor::new()
             .purge(true)
             .greedy(true)
+            .lenient(!self.options.strict)
             .unix_new_line(true)
             .allow(Some(vec!(AuthType::ENV, AuthType::FIN, AuthType::FOUT, AuthType::CMD)))
             .write_to_file(Some(utils::middle_file_path().expect("Failed to get path")))?
@@ -158,7 +159,7 @@ impl Executor {
 
 pub struct ExecOptions {
     // Option used by rad
-    lenient: bool,
+    strict: bool,
     input: String,
     test: bool,
     // Used by post process
