@@ -28,6 +28,22 @@ fn check_prerequisites() -> Result<(), GdeError> {
     Ok(())
 }
 
+pub fn clear_files(test: bool) -> Result<(), GdeError> {
+    let image_list = std::env::current_dir()?.join(IMAGE_LIST);
+    // Test reseve image list file
+    if image_list.exists() {
+        if test {
+            std::fs::rename(
+                image_list,
+                &*utils::CACHE_PATH.join(IMAGE_LIST)
+            )?;
+        } else {
+            std::fs::remove_file(image_list)?;
+        }
+    }
+    Ok(())
+}
+
 struct MediaWikiRequest<'a> {
     client : Client,
     url : String,
@@ -36,6 +52,7 @@ struct MediaWikiRequest<'a> {
     page_title : String,
     target_file : &'a Path,
 }
+
 impl<'a> MediaWikiRequest<'a> {
     pub fn new(target_file: &'a Path) -> Result<Self, GdeError> {
         let client = Client::builder().cookie_store(true).build()?;
@@ -167,9 +184,6 @@ impl<'a> MediaWikiRequest<'a> {
                 .query(&form_params)
                 .multipart(file_part)
                 .build()?;
-
-            // For DEBUG purpose
-            // _print_ln!("REQ : {}", request.url());
 
             let response = self.client.execute(request)?.text()?;
 
