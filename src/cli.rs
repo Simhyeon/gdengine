@@ -55,6 +55,14 @@ impl Cli {
                     Orchestrator::run(&config)?;
                 }
                 "render" => {
+                    // Set environment variables
+                    if let Some(envs) = args.value_of("env") {
+                        let envs = envs.split(',').collect::<Vec<&str>>();
+                        for env in envs {
+                            std::env::set_var(env, "");
+                        }
+                    }
+
                     if let Some(module) = args.value_of("module") {
                         // Set module
                         let render_option = self.parse_exec_options(args)?;
@@ -86,7 +94,7 @@ impl Cli {
 
     fn args_builder() -> clap::App<'static> {
         App::new("gde")
-            .version("0.3.2")
+            .version("0.4.0")
             .author("Simon creek <simoncreek@tutanota.com>")
             .about("Gdengine is a document automation program.")
             .setting(clap::AppSettings::ArgRequiredElseHelp)
@@ -137,6 +145,11 @@ impl Cli {
             .arg(Arg::new("log")
                 .about("Log macro invocations")
                 .long("log"))
+            .arg(Arg::new("env")
+                .about("Set environment variables")
+                .short('e')
+                .long("env")
+                .takes_value(true))
     }
 
     fn parse_exec_options(&self,matches: &clap::ArgMatches) -> Result<ExecOptions, GdeError> {
