@@ -1,9 +1,16 @@
 use std::path::{PathBuf, Path};
 use crate::error::GdeError;
 use crate::utils;
+use rad::Processor;
 use reqwest::blocking::{Client, multipart};
 
 pub const IMAGE_LIST : &str = "image_list.txt";
+
+pub(crate) fn rad_setup(processor : &mut Processor) {
+    processor.from_string(
+        r#"$ifenv(MW_UPLOAD,$fileout(true,image_list.txt,))"#
+    ).expect("Failed to setup mediawiki");
+}
 
 /// MediaWiki's target is not a file but server loaded page
 pub(crate) fn render(test: bool) -> Result<Option<PathBuf>, GdeError> {
@@ -28,7 +35,7 @@ fn check_prerequisites() -> Result<(), GdeError> {
     Ok(())
 }
 
-pub fn clear_files(test: bool) -> Result<(), GdeError> {
+pub(crate) fn clear_files(test: bool) -> Result<(), GdeError> {
     let image_list = std::env::current_dir()?.join(IMAGE_LIST);
     // Test reseve image list file
     if image_list.exists() {
