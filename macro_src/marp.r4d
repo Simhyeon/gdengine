@@ -77,8 +77,8 @@ $define(newpage=
 # Usage :
 # styles(image,layout)
 $define(styles,a_styles=<style>
-$foreach($a_styles*(),
-\*$include($path($env(GDE_MODULE),$:.css))*\)
+$foreach($a_styles(),
+$include($path($env(GDE_MODULE),$:.css)))
 </style>
 )
 
