@@ -750,8 +750,8 @@ dependencies = [
 
 [[package]]
 name = "r4d"
-version = "0.11.0"
-source = "git+https://github.com/simhyeon/r4d#607c1e6f2e34435640a8847447f199cf5116a924"
+version = "0.11.3"
+source = "git+https://github.com/simhyeon/r4d#ff96a64a05ac4a422f1fa064ab995649691f1cf9"
 dependencies = [
  "bincode",
  "chrono",
