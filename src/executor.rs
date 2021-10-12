@@ -18,8 +18,9 @@ impl Executor {
     }
 
     pub fn exec(&self) -> Result<(), GdeError> {
-        self.preprocess()?;
-        if let Err(err) = self.macro_expansion() {
+        let mut processor = self.build_processor()?;
+        self.preprocess(&mut processor)?;
+        if let Err(err) = self.macro_expansion(&mut processor) {
             eprintln!("{}", err);
             if self.options.test {
                 eprintln!("{}", err);
@@ -46,13 +47,22 @@ impl Executor {
         Ok(())
     }
 
-    fn preprocess(&self) -> Result<(), GdeError> {
+    fn preprocess(&self, processor : &mut Processor) -> Result<(), GdeError> {
         std::env::set_var("GDE_MODULE", utils::renderer_path(self.render_type.to_string())?);
+
+        // Specific pre-processing
+        match self.render_type {
+            RenderType::MediaWiki => {
+                mediawiki::rad_setup(processor);
+            }
+            _ =>()
+        }
+
         Ok(())
     }
 
-    fn macro_expansion(&self) -> Result<(), RadError> {
-        let mut processor = Processor::new()
+    fn build_processor(&self) -> Result<Processor, RadError> {
+        let processor = Processor::new()
             .purge(true)
             .greedy(true)
             .lenient(!self.options.strict)
@@ -65,7 +75,10 @@ impl Executor {
                     utils::module_path(self.render_type.to_string()).expect("Failed to get path")
             ]))?
             .build();
+        Ok(processor)
+    }
 
+    fn macro_expansion(&self,processor : &mut Processor) -> Result<(), RadError> {
         // Add optional test mod
         if self.options.test {
             processor.add_custom_rules(vec![("mod_test","","")])
