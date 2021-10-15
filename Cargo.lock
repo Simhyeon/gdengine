@@ -325,7 +325,7 @@ dependencies = [
 
 [[package]]
 name = "gdengine"
-version = "0.3.2"
+version = "0.4.0"
 dependencies = [
  "clap",
  "dotenv",
@@ -750,8 +750,8 @@ dependencies = [
 
 [[package]]
 name = "r4d"
-version = "0.11.3"
-source = "git+https://github.com/simhyeon/r4d#ff96a64a05ac4a422f1fa064ab995649691f1cf9"
+version = "0.11.4"
+source = "git+https://github.com/simhyeon/r4d#8b7e532dda66c670f5b5fe9dc03dd767e51f5a9f"
 dependencies = [
  "bincode",
  "chrono",
