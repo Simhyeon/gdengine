@@ -1,21 +1,9 @@
 ### Todos
 
-* [ ] Mediaikwi image macro needs change
-- Image upload needs absolute path but file link needs only filename which is a bummer
-
 * [ ] Vim snippets
-    * [ ] FLowchart name changes
-	* [ ] Upload\_image
-
-* [x] Saving bot password in config.json is not necessarily a good idea, utilslize .env file
-* [ ] Path ergonomics is hard to resolve
-- For example, image file is based on current workingg diretory and in normal
-scenarios, it is in root directory however some cases, index file may not be in
-root directory. And image's source directory is hard to catch, especially in marp page
-
-* [ ] Flowchart
-    * [x] Make yes distinguishable
-	* [ ] Make horizontal variation
+    * [ ] Flowchart name changes
+	* [-] Upload\_image
+	- To think again, is this really necessary? Well sadly yes
 
 * [ ] Font supports
     * [x] Flowchartgvz 
@@ -26,37 +14,49 @@ root directory. And image's source directory is hard to catch, especially in mar
 
 * [ ] Wikitext previewer
     * [ ] Somehow find a way to mimick wikipedia for testing
+	- First use convert wikitext to markdown or simply make markdown in the first place.
+	- Generate html file
+	- Apply some custom css to the file
 
-* [ ] Consider adding debug flags
+* [ ] Debugging
+    * [ ] Diff
+	* [ ] Miscellaenous rad flags
 
 * [ ] Easily distributable renderer
 	* [ ] DOCX + domain specific language
 	* [ ] PPTX + dms
+
 * [ ] Find a way to decrease external dependencies
 	* [ ] Possibly reqwest crate
 
-* [ ] run and test
-  * [x] Test
-	* [ ] Maybe send test flag to each renderer 
-	* [ ] File diff output
+* [ ] Good documentations
+    * [ ] Gdlogue
+	* [ ] Flowchart
+	* [ ] Webui
+	* [ ] Of course others
 
 * [ ] Basic utilies
-  * [ ] Render
-    * [ ] pandoc(docx)
-	  * [x] At least make it work
-	  * [ ] Make pure rust implementation
-	    * [ ] This needs new language 
     * [ ] Web UI
-	  * [x] Port macro file
 	  * [ ] Make webui documentations
     * [ ] Flowchart
       * [ ] flowchart-js -> Not fully tested
 	    * [ ] Interactive flowchart with given json chunk functionality
-      * [ ] Graphviz -> Not fully tested
-  * [ ] gdlogue
-	* [ ] Make documentations of gdlogue types
+
+---
+
+* [-] Path ergonomics is hard to resolve
+- For example, image file is based on current workingg diretory and in normal
+scenarios, it is in root directory however some cases, index file may not be in
+root directory. And image's source directory is hard to catch, especially in marp page
+- However there are no gold magic for this, keep it well documented.
 
 ## DONE
+
+* [x] Remove env from config and utilize .env file
+
+* [x] Flowchart
+    * [x] Make yes distinguishable
+	* [x] Make horizontal variation
 
 * [x] Renderpath is not set right
 * [x] Purge was not default -> Fixed
