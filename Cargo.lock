@@ -750,8 +750,9 @@ dependencies = [
 
 [[package]]
 name = "r4d"
-version = "0.11.4"
-source = "git+https://github.com/simhyeon/r4d#8b7e532dda66c670f5b5fe9dc03dd767e51f5a9f"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0cf96680667a25f7f18622911b7df415c2706392af90f37278591e95b50d116d"
 dependencies = [
  "bincode",
  "chrono",
