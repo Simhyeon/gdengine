@@ -17,9 +17,15 @@ impl Executor {
         })
     }
 
+    /// Main execution logic
     pub fn exec(&self) -> Result<(), GdeError> {
+        // Make files if not present
+        self.path_fallback()?;
+
         let mut processor = self.build_processor()?;
         self.preprocess(&mut processor)?;
+
+        // Macro expansion
         if let Err(err) = self.macro_expansion(&mut processor) {
             eprintln!("{}", err);
             if self.options.test {
@@ -29,6 +35,8 @@ impl Executor {
                 return Err(GdeError::Raderror(err));
             }
         }
+
+        // Post process
         let out_file = match self.render() {
             Result::Ok(value) => value,
             Err(err) => {
@@ -47,10 +55,24 @@ impl Executor {
         Ok(())
     }
 
+    // Crate file and directories if not existent
+    fn path_fallback(&self) -> Result<(), GdeError> {
+        // Crate build directory
+        if !utils::BUILD_PATH.exists() {
+            std::fs::create_dir(&*utils::BUILD_PATH)?;
+        }
+        // Crate cache directory
+        if !utils::CACHE_PATH.exists() {
+            std::fs::create_dir(&*utils::CACHE_PATH)?;
+        }
+        Ok(())
+    }
+
+    /// Preprocess necessary information
     fn preprocess(&self, processor : &mut Processor) -> Result<(), GdeError> {
         std::env::set_var("GDE_MODULE", utils::renderer_path(self.render_type.to_string())?);
 
-        // Specific pre-processing
+        // Render type specific pre-processing logics
         match self.render_type {
             RenderType::MediaWiki => {
                 mediawiki::rad_setup(processor);
@@ -61,10 +83,12 @@ impl Executor {
         Ok(())
     }
 
+    /// Build rad processor with options
     fn build_processor(&self) -> Result<Processor, RadError> {
         let processor = Processor::new()
             .purge(true)
             .greedy(true)
+            .comment(true)
             .lenient(!self.options.strict)
             .log(self.options.log)
             .unix_new_line(true)
@@ -78,6 +102,7 @@ impl Executor {
         Ok(processor)
     }
 
+    /// Expand macros from target source file
     fn macro_expansion(&self,processor : &mut Processor) -> Result<(), RadError> {
         // Add optional test mod
         if self.options.test {
@@ -93,6 +118,7 @@ impl Executor {
         Ok(())
     }
 
+    /// Render with a designated renderer
     fn render(&self) -> Result<Option<PathBuf>, GdeError> {
         let out_file = match self.render_type {
             RenderType::Marp =>{
@@ -121,7 +147,7 @@ impl Executor {
         Ok(out_file)
     }
 
-    // Copy output file to designated file
+    // Copy output file to a designated path
     // Remove cached file
     fn postprocess(&self, final_file: Option<PathBuf>) -> Result<(), GdeError> {
         if let Some(final_file) = final_file {
