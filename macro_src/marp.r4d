@@ -121,11 +121,11 @@ $define(tend=</table>)
 $define(url,a_src a_text=[$a_text()]($a_src())) # $2 is alternate text, $1 is image url
 
 # Image substitue macros
-$define(image,a_url=
-![Image not found]($a_url())
-)
-# Make Set img's max-width with given arguments 
-$define(simage,a_src a_max_width=<div style="text-align: inherit; flex: 1;"><img src="$a_src()" style="width: 100%; max-width: $a_max_width(); max-height: auto;"></img></div>)
+$define(image,a_src=
+<img src="$a_src()" style="object-fit: scale-down; max-height: 100%;"/>)
+
+# Make Set img's size with given arguments 
+$define(simage,a_src a_max_size=<img src="$a_src()" style="max-width: $a_max_size(); max-height: $a_max_size()%;"/>)
 
 # MACRO >>> Text macro that also sets font size for the text
 # Example :
