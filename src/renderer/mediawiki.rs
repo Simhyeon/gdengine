@@ -80,11 +80,8 @@ impl<'a> MediaWikiRequest<'a> {
         let csrf_token = self.get_csrf_token()?;
         self.edit_page(&csrf_token)?;
         // It is ok that evn var is not set
-        if let Ok(value) = std::env::var("MW_UPLOAD") {
-            // If true then upload images
-            if let Ok(true) = value.to_lowercase().parse::<bool>() {
-                self.upload_images(&csrf_token)?;
-            }
+        if let Ok(_) = std::env::var("MW_UPLOAD") {
+            self.upload_images(&csrf_token)?;
         }
         Ok(())
     }
@@ -170,6 +167,17 @@ impl<'a> MediaWikiRequest<'a> {
         Ok(())
     }
 
+// Should receive Jsonvalue[error][code]
+fn upload_error_fallback(&self, error: &serde_json::Value, target: &path) -> Result<(), GdeError> {
+    match error.as_str().unwrap() {
+        "fileexists-no-change" => {
+            println!("No upload for duplicate files {}", target.dipslay())
+        }
+        _ => eprintln!("Failed to upload image"),
+    }
+    Ok(())
+}
+
     fn upload_images(&self, csrf_token: &str) -> Result<(), GdeError> {
 
         let images = String::from_utf8(std::fs::read(Path::new(IMAGE_LIST))?).expect("");
@@ -198,9 +206,7 @@ impl<'a> MediaWikiRequest<'a> {
             if let serde_json::Value::String(content) = &json["upload"]["result"] {
                 println!("Edit page : {}", content)
             } else {
-                eprintln!("Failed to upload images");
-            eprintln!(r#"Error
-{}"#, json);
+                self.upload_error_fallback(&json["error"]["code"], &path_buf)?;
             }
         }
 
