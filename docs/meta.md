@@ -1,46 +1,65 @@
+### Changed
+
+* [x] Mkdir cache or build if not existent
+* [x] Read env file with option because setting all env files all the way is
+very inefficient
+
+* [x] Mediawiki functionality
+  * [x] Cannot add duplicate image, just ignore in this case
+  * [-] This can be improved but temporarily it's fine 
+
 ### Todos
+
+* [ ] Remove duplicate lines for specific renderers
+
+* [ ] Multiple target for test and run
+- Because you have to feed multiple commands and it is kinda very annoyting to
+  run for multiple target one by one
+* [ ] mediawiki test option is really necessary
+* [ ] Maybe some other wiki render options (e.g. xwiki)
 
 * [ ] Vim snippets
     * [ ] Flowchart name changes
-	* [-] Upload\_image
-	- To think again, is this really necessary? Well sadly yes
+    * [-] Upload\_image
+    - To think again, is this really necessary? Well sadly yes
+	- However you can 
 
 * [ ] Font supports
     * [x] Flowchartgvz 
-	* [ ] Flowchartjs 
-	- It is not so intuitive to make it, because only data(dms) is given to html file
-	* [-] Marp
-	- NOt yet tested
+    * [ ] Flowchartjs 
+    - It is not so intuitive to make it, because only data(dms) is given to html file
+    * [-] Marp
+    - NOt yet tested
 
 * [ ] Wikitext previewer
     * [ ] Somehow find a way to mimick wikipedia for testing
-	- First use convert wikitext to markdown or simply make markdown in the first place.
-	- Generate html file
-	- Apply some custom css to the file
+    - First use convert wikitext to markdown or simply make markdown in the first place.
+    - Generate html file
+    - Apply some custom css to the file
 
 * [ ] Debugging
     * [ ] Diff
-	* [ ] Miscellaenous rad flags
+    * [ ] Miscellaenous rad flags
 
 * [ ] Easily distributable renderer
-	* [ ] DOCX + domain specific language
-	* [ ] PPTX + dms
+    * [ ] DOCX + domain specific language
+    * [ ] PPTX + dms
 
 * [ ] Find a way to decrease external dependencies
-	* [ ] Possibly reqwest crate
+    * [ ] Possibly reqwest crate
 
 * [ ] Good documentations
     * [ ] Gdlogue
-	* [ ] Flowchart
-	* [ ] Webui
-	* [ ] Of course others
+    * [ ] Flowchart
+    * [ ] Webui
+    * [ ] Of course others
 
 * [ ] Basic utilies
     * [ ] Web UI
-	  * [ ] Make webui documentations
+      * [ ] Make webui documentations
     * [ ] Flowchart
       * [ ] flowchart-js -> Not fully tested
-	    * [ ] Interactive flowchart with given json chunk functionality
+        * [ ] Interactive flowchart with given json chunk functionality
 
 ---
 
@@ -56,7 +75,7 @@ root directory. And image's source directory is hard to catch, especially in mar
 
 * [x] Flowchart
     * [x] Make yes distinguishable
-	* [x] Make horizontal variation
+    * [x] Make horizontal variation
 
 * [x] Renderpath is not set right
 * [x] Purge was not default -> Fixed
