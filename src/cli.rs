@@ -1,4 +1,5 @@
 use clap::{Arg,App};
+use std::path::Path;
 use crate::error::GdeError;
 use crate::orchestrator::Orchestrator;
 use std::path::PathBuf;
@@ -56,12 +57,7 @@ impl Cli {
                 }
                 "render" => {
                     // Set environment variables
-                    if let Some(envs) = args.value_of("env") {
-                        let envs = envs.split(',').collect::<Vec<&str>>();
-                        for env in envs {
-                            std::env::set_var(env, "");
-                        }
-                    }
+                    Self::set_env_vars(args)?;
 
                     if let Some(module) = args.value_of("module") {
                         // Set module
@@ -84,6 +80,28 @@ impl Cli {
 
     fn get_arg_matches() -> clap::ArgMatches {
         Self::args_builder().get_matches()
+    }
+
+    pub fn set_env_vars(matches : &clap::ArgMatches) -> Result<(), GdeError> {
+        if let Some(envs) = matches.value_of("env") {
+            let envs = envs.split(',').collect::<Vec<&str>>();
+            for env in envs {
+                println!("Setting env: {}", env);
+                std::env::set_var(env, "");
+            }
+        }
+
+        if let Some(file) = matches.value_of("envfile") {
+            let path = Path::new(file);
+            // Path doesn't exist
+            if !path.exists() {
+                return Err(GdeError::NoSuchPath(file.to_owned()));
+            }
+
+            dotenv::from_path(path).expect("Failed to parse env file");
+        }
+
+        Ok(())
     }
 
     pub fn get_string_matches(input: &str) -> clap::ArgMatches {
@@ -149,6 +167,11 @@ impl Cli {
                 .about("Set environment variables")
                 .short('e')
                 .long("env")
+                .takes_value(true))
+            .arg(Arg::new("envfile")
+                .about("Set environment variables from a file")
+                .short('E')
+                .long("envfile")
                 .takes_value(true))
     }
 
