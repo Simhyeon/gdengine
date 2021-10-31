@@ -3,6 +3,8 @@ use rad::RadError;
 
 #[derive(Debug, Error)]
 pub enum GdeError {
+    #[error("No such file : {0}")]
+    NoSuchPath(String),
     #[error("IO Error : {0}")]
     IoError(std::io::Error),
     #[error("Renderer error : {0}")]
