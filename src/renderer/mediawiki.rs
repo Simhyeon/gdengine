@@ -25,8 +25,8 @@ pub(crate) fn render() -> Result<Option<PathBuf>, GdeError> {
 }
 
 pub(crate) fn render_preview() -> Result<Option<PathBuf>, GdeError> {
-    preprocess(&source_file)?;
     let source_file = utils::middle_file_path()?;
+    preprocess(&source_file)?;
 
     // Create preview html file
     Processor::new()
