@@ -15,7 +15,7 @@ impl Init {
         Ok(())
     }
     pub fn new_config_file() -> Result<(), GdeError> {
-        fs::write(Path::new("config.json"), Config::new_file())?;
+        fs::write(Path::new("gde_config.json"), Config::new_file())?;
         Ok(())
     }
 
