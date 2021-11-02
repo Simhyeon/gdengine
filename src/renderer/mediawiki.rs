@@ -1,7 +1,7 @@
 use std::path::{PathBuf, Path};
 use crate::error::GdeError;
 use crate::utils;
-use rad::Processor;
+use rad::{Processor,AuthType};
 use reqwest::blocking::{Client, multipart};
 
 pub const IMAGE_LIST : &str = "image_list.txt";
@@ -13,14 +13,28 @@ pub(crate) fn rad_setup(processor : &mut Processor) {
 }
 
 /// MediaWiki's target is not a file but server loaded page
-pub(crate) fn render(test: bool) -> Result<Option<PathBuf>, GdeError> {
+pub(crate) fn render() -> Result<Option<PathBuf>, GdeError> {
     check_prerequisites()?;
     let source_file = utils::middle_file_path()?;
+    preprocess(&source_file)?;
 
     let request = MediaWikiRequest::new(&source_file)?;
+    request.exec()?; 
 
-    if test { request.login()?; } 
-    else { request.exec()?; }
+    Ok(Some(source_file))
+}
+
+pub(crate) fn render_preview() -> Result<Option<PathBuf>, GdeError> {
+    preprocess(&source_file)?;
+    let source_file = utils::middle_file_path()?;
+
+    // Create preview html file
+    Processor::new()
+        .greedy(true)
+        .write_to_file(Some(utils::BUILD_PATH.join("out.html")))?
+        .unix_new_line(true)
+        .allow(Some(vec!(AuthType::FIN, AuthType::ENV)))
+        .from_file(&utils::renderer_path("mediawiki")?.join("preview.html"))?;
 
     Ok(Some(source_file))
 }
@@ -35,11 +49,16 @@ fn check_prerequisites() -> Result<(), GdeError> {
     Ok(())
 }
 
-pub(crate) fn clear_files(test: bool) -> Result<(), GdeError> {
+fn preprocess(path: &Path) -> Result<(), GdeError> {
+    utils::chomp_file(path)?;
+    Ok(())
+}
+
+pub(crate) fn clear_files(test: bool, preserve: bool) -> Result<(), GdeError> {
     let image_list = std::env::current_dir()?.join(IMAGE_LIST);
     // Test reseve image list file
     if image_list.exists() {
-        if test {
+        if test || preserve {
             std::fs::rename(
                 image_list,
                 &*utils::CACHE_PATH.join(IMAGE_LIST)
@@ -83,11 +102,6 @@ impl<'a> MediaWikiRequest<'a> {
         if let Ok(_) = std::env::var("MW_UPLOAD") {
             self.upload_images(&csrf_token)?;
         }
-        Ok(())
-    }
-
-    fn login(&self) -> Result<(), GdeError> {
-        self.get_login_token()?;
         Ok(())
     }
 
@@ -167,16 +181,16 @@ impl<'a> MediaWikiRequest<'a> {
         Ok(())
     }
 
-// Should receive Jsonvalue[error][code]
-fn upload_error_fallback(&self, error: &serde_json::Value, target: &path) -> Result<(), GdeError> {
-    match error.as_str().unwrap() {
-        "fileexists-no-change" => {
-            println!("No upload for duplicate files {}", target.dipslay())
+    // Should receive Jsonvalue[error][code]
+    fn upload_error_fallback(&self, error: &serde_json::Value, target: &Path) -> Result<(), GdeError> {
+        match error.as_str().unwrap() {
+            "fileexists-no-change" => {
+                println!("No upload for duplicate files {}", target.display())
+            }
+            _ => eprintln!("Failed to upload image"),
         }
-        _ => eprintln!("Failed to upload image"),
+        Ok(())
     }
-    Ok(())
-}
 
     fn upload_images(&self, csrf_token: &str) -> Result<(), GdeError> {
 
