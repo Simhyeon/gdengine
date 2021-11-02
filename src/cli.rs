@@ -49,11 +49,13 @@ impl Cli {
                 },
                 "test" => {
                     let config = Config::from(&utils::CONFIG_PATH)?;
-                    Orchestrator::test(&config)?;
+                    let target = args.value_of("target");
+                    Orchestrator::test(&config, target)?;
                 }
                 "run" => {
                     let config = Config::from(&utils::CONFIG_PATH)?;
-                    Orchestrator::run(&config)?;
+                    let target = args.value_of("target");
+                    Orchestrator::run(&config,target)?;
                 }
                 "render" => {
                     // Set environment variables
@@ -160,6 +162,11 @@ impl Cli {
             .arg(Arg::new("test")
                 .about("Render yields extra information about process")
                 .long("test"))
+            .arg(Arg::new("target")
+                .about("Script target to execute")
+                .short('t')
+                .long("target")
+                .takes_value(true))
             .arg(Arg::new("log")
                 .about("Log macro invocations")
                 .long("log"))
