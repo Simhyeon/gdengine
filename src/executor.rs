@@ -18,9 +18,10 @@ impl Executor {
     }
 
     /// Main execution logic
-    pub fn exec(&self) -> Result<(), GdeError> {
+    pub fn exec(&mut self) -> Result<(), GdeError> {
         // Make files if not present
         self.path_fallback()?;
+        self.setup()?;
 
         let mut processor = self.build_processor()?;
         self.preprocess(&mut processor)?;
@@ -68,10 +69,24 @@ impl Executor {
         Ok(())
     }
 
-    /// Preprocess necessary information
-    fn preprocess(&self, processor : &mut Processor) -> Result<(), GdeError> {
+    /// Setup necessary information
+    fn setup(&mut self) -> Result<(), GdeError> {
         std::env::set_var("GDE_MODULE", utils::renderer_path(self.render_type.to_string())?);
 
+        // Render type specific pre-processing logics
+        match self.render_type {
+            RenderType::MediaWiki => {
+                if self.options.test {
+                    self.render_type = RenderType::MWPreview;
+                }
+            }
+            _ =>()
+        }
+
+        Ok(())
+    }
+
+    fn preprocess(&self, processor : &mut Processor) -> Result<(), GdeError> {
         // Render type specific pre-processing logics
         match self.render_type {
             RenderType::MediaWiki => {
@@ -125,7 +140,10 @@ impl Executor {
                 marp::render( &self.options.format, &self.options.out_file)?
             }
             RenderType::MediaWiki => {
-                mediawiki::render(self.options.test)?
+                mediawiki::render()?
+            }
+            RenderType::MWPreview => {
+                mediawiki::render_preview()?
             }
             RenderType::Pandoc => {
                 pandoc::render(&self.options.out_file)?
@@ -172,7 +190,7 @@ impl Executor {
         // Renderer specific files
         match self.render_type {
             RenderType::MediaWiki => {
-                mediawiki::clear_files(self.options.test)?;
+                mediawiki::clear_files(self.options.test, self.options.preserve)?;
             }
             _ => ()
         }
@@ -233,6 +251,7 @@ impl ExecOptions {
 pub enum RenderType {
     Marp,
     MediaWiki,
+    MWPreview,
     Pandoc,
     Gdlogue,
     FlowchartJs,
@@ -263,6 +282,7 @@ impl fmt::Display for RenderType {
         let string = match self {
             &RenderType::Marp => "marp",
             &RenderType::MediaWiki => "mediawiki",
+            &RenderType::MWPreview => "mediawiki_preview",
             &RenderType::Gdlogue => "gdlogue",
             &RenderType::Webuibts => "webuibts",
             &RenderType::Pandoc => "pandoc",
