@@ -1,12 +1,17 @@
-use std::path::PathBuf;
+use std::path::{PathBuf, Path};
 use crate::error::GdeError;
 use lazy_static::lazy_static;
+use regex::Regex;
 use std::process::Command;
 use std::ffi::OsStr;
+
+const REG_CHOMP_REPL: &str = "\n\n";
 
 // Paths
 lazy_static! {
     pub static ref BUILD_PATH: PathBuf = std::env::current_dir().expect("Failed to get path").join("build");
+
+    static ref REG_CHOMP_MATCH : Regex = Regex::new(r#"[\n\r]+^\s*[\r\n]+"#).expect("Failed to crate chomp regex");
 
     pub static ref LIB_PATH: PathBuf = {
         let mut pb;
@@ -56,6 +61,16 @@ pub fn renderer_path(name : impl AsRef<str>) -> Result<PathBuf, GdeError> {
 /// out.gddt
 pub fn middle_file_path() -> Result<PathBuf, GdeError> {
     Ok(CACHE_PATH.join("out.gddt"))
+}
+
+// Chomp file save contents into memory in a belief that file sizes would not be that big...
+// I mean come on, every file is a human readable text file. It should not be gigabytes
+// sized
+pub fn chomp_file(path: &Path) -> Result<(), GdeError> {
+    let content = &std::fs::read_to_string(path)?;
+    let replaced = REG_CHOMP_MATCH.replace(content, REG_CHOMP_REPL);
+    std::fs::write(path, replaced.as_bytes())?;
+    Ok(())
 }
 
 // Cross platform command call
