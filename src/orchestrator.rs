@@ -6,8 +6,8 @@ use serde_json::Value;
 pub struct Orchestrator;
 
 impl Orchestrator {
-    pub fn run(config: &Config) -> Result<(), GdeError> {
-        let values = config.get_value_as_array("run").unwrap_or(vec![]);
+    pub fn run(config: &Config, name: Option<&str>) -> Result<(), GdeError> {
+        let values = config.get_run_script(name)?.unwrap_or(vec![]);
         for value in values {
             if let Value::String(content) = value {
                 println!("Running : {:?}", content);
@@ -17,8 +17,8 @@ impl Orchestrator {
         }
         Ok(())
     }
-    pub fn test(config: &Config) -> Result<(), GdeError> {
-        let values = config.get_value_as_array("run").unwrap_or(vec![]);
+    pub fn test(config: &Config, name: Option<&str>) -> Result<(), GdeError> {
+        let values = config.get_test_script(name)?.unwrap_or(vec![]);
         for value in values {
             if let Value::String(content) = value {
                 println!("Running test : {:?}", content);
