@@ -8,21 +8,21 @@ very inefficient
   * [x] Cannot add duplicate image, just ignore in this case
   * [-] This can be improved but temporarily it's fine 
 
+* [x] Multiple target for test and run
+
+* [-] Remove duplicate lines for specific renderers
+- But carriage return doesn't work
+
 ### Todos
 
-* [ ] Remove duplicate lines for specific renderers
+* [ ] Chomp doesn't remove carriage return
 
-* [ ] Multiple target for test and run
-- Because you have to feed multiple commands and it is kinda very annoyting to
-  run for multiple target one by one
 * [ ] mediawiki test option is really necessary
-* [ ] Maybe some other wiki render options (e.g. xwiki)
+    * [ ] Make it work at least
+	* [ ] Apply proper css
 
 * [ ] Vim snippets
-    * [ ] Flowchart name changes
-    * [-] Upload\_image
-    - To think again, is this really necessary? Well sadly yes
-	- However you can 
+* [ ] Vs code extension
 
 * [ ] Font supports
     * [x] Flowchartgvz 
@@ -31,22 +31,13 @@ very inefficient
     * [-] Marp
     - NOt yet tested
 
-* [ ] Wikitext previewer
-    * [ ] Somehow find a way to mimick wikipedia for testing
-    - First use convert wikitext to markdown or simply make markdown in the first place.
-    - Generate html file
-    - Apply some custom css to the file
-
-* [ ] Debugging
+* [ ] Debugging(Test option)
     * [ ] Diff
     * [ ] Miscellaenous rad flags
 
 * [ ] Easily distributable renderer
     * [ ] DOCX + domain specific language
     * [ ] PPTX + dms
-
-* [ ] Find a way to decrease external dependencies
-    * [ ] Possibly reqwest crate
 
 * [ ] Good documentations
     * [ ] Gdlogue

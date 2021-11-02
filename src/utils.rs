@@ -68,12 +68,7 @@ pub fn middle_file_path() -> Result<PathBuf, GdeError> {
 // sized
 pub fn chomp_file(path: &Path) -> Result<(), GdeError> {
     let content = &std::fs::read_to_string(path)?;
-    println!("Before chomp---");
-    println!("{}", content);
-    println!("AFTER CHOMP---");
     let replaced = REG_CHOMP_MATCH.replace(content, REG_CHOMP_REPL);
-    println!("{}",replaced);
-    println!("---");
     std::fs::write(path, replaced.as_bytes())?;
     Ok(())
 }
