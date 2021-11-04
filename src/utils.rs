@@ -11,6 +11,7 @@ const REG_CHOMP_REPL: &str = "\n\n";
 lazy_static! {
     pub static ref BUILD_PATH: PathBuf = std::env::current_dir().expect("Failed to get path").join("build");
 
+    static ref CRLF_MATCH : Regex = Regex::new(r#"\r\n"#).unwrap();
     static ref REG_CHOMP_MATCH : Regex = Regex::new(r#"\n\s*\n"#).expect("Failed to crate chomp regex");
 
     pub static ref LIB_PATH: PathBuf = {
@@ -68,7 +69,8 @@ pub fn middle_file_path() -> Result<PathBuf, GdeError> {
 // sized
 pub fn chomp_file(path: &Path) -> Result<(), GdeError> {
     let content = &std::fs::read_to_string(path)?;
-    let replaced = REG_CHOMP_MATCH.replace(content, REG_CHOMP_REPL);
+    let sanitized = CRLF_MATCH.replace(content, r#"\n"#);
+    let replaced = REG_CHOMP_MATCH.replace(&sanitized, REG_CHOMP_REPL);
     std::fs::write(path, replaced.as_bytes())?;
     Ok(())
 }
