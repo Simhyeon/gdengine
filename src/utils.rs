@@ -48,7 +48,7 @@ lazy_static! {
 
     pub static ref DEFAULT_ENTRY_PATH: PathBuf = std::env::current_dir().expect("Failed to get path").join("index.gddt");
 
-    pub static ref CONFIG_PATH: PathBuf = std::env::current_dir().expect("Failed to get path").join("config.json");
+    pub static ref CONFIG_PATH: PathBuf = std::env::current_dir().expect("Failed to get path").join("gde_config.json");
 }
 
 pub fn module_path(name : impl AsRef<str>) -> Result<PathBuf, GdeError> {
