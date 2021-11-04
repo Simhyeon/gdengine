@@ -1,11 +1,23 @@
-### Gde, game design engine
+### Gdengine, a game design engine
 
 This is a new cross platform implementation of previous
 [gdmarp](https://github.com/Simhyeon/gdmarp/) program.
 
+[한글](docs/korean.md)
+
 ### Install
 
 Refer [release page](https://github.com/Simhyeon/gdengine/releases/new) for installation.
+
+### What it does
+
+Gdengine is a tool for game design documents creation. Gdengine does two jobs.
+First process macros in index file. Secondly, render index file into a target
+format.
+
+There are various predefined macros built in gdengine for easier documents
+creation. Also macros lets user to create multiple formats without modifying
+index file.
 
 ### Dependencies
 
@@ -29,9 +41,28 @@ Refer [release page](https://github.com/Simhyeon/gdengine/releases/new) for inst
 
 ### Usage
 
+```bash
+# Init project 
+gde init --git
+
+# Render with marp backend 
+gde render -m marp
 ```
-gde render -m marp -p -c ../build
-```
+
+### Usage
+
+Gdengine specific macros, [Usage](docs/usage.md)
+
+Gdengine uses r4d macro processor inside, [r4d built in
+macros](https://github.com/Simhyeon/r4d/blob/master/docs/basic_macros.md). You
+can utilize every r4d macros inside gdengine project.
+
+Plus, Gdengine opens all permissions so you don't have to configure any authorization
+yourself.
+
+### Macros
+
+[Macros](docs/macro.md)
 
 ### Yet to come
 

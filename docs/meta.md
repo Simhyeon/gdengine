@@ -7,15 +7,13 @@ very inefficient
 * [x] Mediawiki functionality
   * [x] Cannot add duplicate image, just ignore in this case
   * [-] This can be improved but temporarily it's fine 
-
 * [x] Multiple target for test and run
-
-* [-] Remove duplicate lines for specific renderers
-- But carriage return doesn't work
+* [x] Util function to squueze newliens into a single one
 
 ### Todos
 
-* [ ] Chomp doesn't remove carriage return
+* [ ] Create documentation
+* [ ] Test css
 
 * [ ] mediawiki test option is really necessary
     * [ ] Make it work at least
@@ -29,11 +27,10 @@ very inefficient
     * [ ] Flowchartjs 
     - It is not so intuitive to make it, because only data(dms) is given to html file
     * [-] Marp
-    - NOt yet tested
+    - Not yet tested
 
 * [ ] Debugging(Test option)
-    * [ ] Diff
-    * [ ] Miscellaenous rad flags
+    * [ ] Show diff on test 
 
 * [ ] Easily distributable renderer
     * [ ] DOCX + domain specific language
