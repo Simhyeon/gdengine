@@ -9,7 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
     document.getElementById('content').innerHTML =
-      marked(`$include($path($env(PWD),cache,out.gddt))`);
+      marked.parse(`$include($path($env(PWD),cache,out.gddt))`);
   </script>
 </body>
 </html>
