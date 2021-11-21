@@ -4,7 +4,14 @@ use crate::error::GdeError;
 use std::ffi::OsStr;
 
 pub(crate) fn render(format: &Option<String>,out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeError> {
+    // NOTE
+    // Source_file may fail because source file is created only if flowchart macro was invoked.
     let source_file = utils::CACHE_PATH.join("flowchartgvz_source.gvz");
+
+    // No source file, return proper error
+    if !source_file.exists() {
+        return Err(GdeError::NoSuchPath(format!("Dot file : {} doesn't exit. Did you call flowchart macro?",source_file.display())));
+    }
 
     // Set default format, which is png
     let format = if let Some(format) = format {
