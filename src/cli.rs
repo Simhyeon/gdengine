@@ -162,6 +162,9 @@ impl Cli {
             .arg(Arg::new("test")
                 .about("Render yields extra information about process")
                 .long("test"))
+            .arg(Arg::new("diff")
+                .about("Show diff result")
+                .long("diff"))
             .arg(Arg::new("target")
                 .about("Script target to execute")
                 .short('t')
@@ -187,6 +190,7 @@ impl Cli {
                 matches.is_present("preserve"),
                 matches.is_present("strict"),
                 matches.is_present("test"),
+                matches.is_present("diff"),
                 matches.is_present("log"),
                 matches.value_of("copy").map(|s| PathBuf::from(s)),
                 matches.value_of("format").map(|s| s.to_owned()),
