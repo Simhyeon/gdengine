@@ -2,6 +2,7 @@ use std::path::{PathBuf, Path};
 use crate::error::GdeError;
 use crate::utils;
 use crate::renderer::*;
+use rad::CommentType;
 use rad::{Processor, RadError, AuthType};
 
 pub struct Executor {
@@ -103,7 +104,7 @@ impl Executor {
         let processor = Processor::new()
             .purge(true)
             .greedy(true)
-            .comment(true)
+            .set_comment_type(CommentType::Start)
             .lenient(!self.options.strict)
             .log(self.options.log)
             .unix_new_line(true)
@@ -113,6 +114,7 @@ impl Executor {
                     utils::STD_MACRO_PATH.to_owned(),
                     utils::module_path(self.render_type.to_string()).expect("Failed to get path")
             ]))?
+            .diff(self.options.diff)?
             .build();
         Ok(processor)
     }
@@ -121,12 +123,12 @@ impl Executor {
     fn macro_expansion(&self,processor : &mut Processor) -> Result<(), RadError> {
         // Add optional test mod
         if self.options.test {
-            processor.add_custom_rules(vec![("mod_test","","")])
+            processor.add_custom_rules(vec![("mod_test","","")])?
         }
 
         processor.from_file(Path::new(&self.options.input))?;
 
-        if self.options.test {
+        if self.options.test | self.options.diff {
              processor.print_result()?;
         }
 
@@ -209,6 +211,7 @@ pub struct ExecOptions {
     strict: bool,
     input: String,
     test: bool,
+    diff: bool,
     log: bool,
     // Used by post process
     copy: Option<PathBuf>,
@@ -223,6 +226,7 @@ impl ExecOptions {
         preserve:bool,
         strict:bool,
         test:bool,
+        diff:bool,
         log:bool,
         copy: Option<PathBuf>,
         format: Option<String>,
@@ -239,6 +243,7 @@ impl ExecOptions {
             preserve,
             strict,
             test,
+            diff,
             log,
             copy,
             format,
