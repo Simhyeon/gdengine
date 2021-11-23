@@ -6,10 +6,11 @@ use reqwest::blocking::{Client, multipart};
 
 pub const IMAGE_LIST : &str = "image_list.txt";
 
-pub(crate) fn rad_setup(processor : &mut Processor) {
+pub(crate) fn rad_setup(processor : &mut Processor) -> Result<(),GdeError> {
     processor.from_string(
         r#"$ifenv(MW_UPLOAD,$fileout(true,image_list.txt,))"#
-    ).expect("Failed to setup mediawiki");
+    )?;
+    Ok(())
 }
 
 /// MediaWiki's target is not a file but server loaded page

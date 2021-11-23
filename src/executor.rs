@@ -3,7 +3,7 @@ use crate::error::GdeError;
 use crate::utils;
 use crate::renderer::*;
 use rad::CommentType;
-use rad::{Processor, RadError, AuthType};
+use rad::{Processor, RadError, AuthType, DiffOption};
 
 pub struct Executor {
     render_type: RenderType,
@@ -91,7 +91,7 @@ impl Executor {
         // Render type specific pre-processing logics
         match self.render_type {
             RenderType::MediaWiki => {
-                mediawiki::rad_setup(processor);
+                mediawiki::rad_setup(processor)?;
             }
             _ =>()
         }
@@ -101,6 +101,7 @@ impl Executor {
 
     /// Build rad processor with options
     fn build_processor(&self) -> Result<Processor, RadError> {
+        let diff_option = if self.options.diff { DiffOption::Change } else { DiffOption::None };
         let processor = Processor::new()
             .purge(true)
             .greedy(true)
@@ -114,7 +115,7 @@ impl Executor {
                     utils::STD_MACRO_PATH.to_owned(),
                     utils::module_path(self.render_type.to_string()).expect("Failed to get path")
             ]))?
-            .diff(self.options.diff)?
+            .diff(diff_option)?
             .build();
         Ok(processor)
     }
