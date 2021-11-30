@@ -1,92 +1,99 @@
-# mod
+% mod
 $define(mod_marp=)
 
-# Environment variables 
+% Environment variables 
 $define(v_basis_height=500)
 $define(v_font_default=24)
 $define(v_thead_default=18)
 $define(v_tbody_default=14)
 
-# Macros 
+% Macros 
 
-# Set font family
+% Set font family
 $define(font,a_font_names=<style>
 section {
   font-family: $a_font_names();
 }
 </style>)
 
-# Substitue class name with marp compatible class form 
-# white space between _class: and $1 is necessary 
+% Substitue class name with marp compatible class form 
+% white space between _class: and $1 is necessary 
 $define(m_class,a_class=<!-- _class: $a_class() -->)
-# Subsitue with markdown compatible image form 
-# Convert contents into single lined html
-# This was intended for multi line support in csv table
-# TODO
-# This is a crude conversion, not real conversion
+% Subsitue with markdown compatible image form 
+% Convert contents into single lined html
+% This was intended for multi line support in csv table
+% TODO
+% This is a crude conversion, not real conversion
 $define(m_newline_to_br,a_scell=$regex($a_scell(),$nl(),<br>))
 
-# ==========
-# User interface macros 
+% ==========
+% User interface macros 
 
-# Basic syntax macros
-# Headers
+% Basic syntax macros
+% Headers
 $define(h1,a_content=# $a_content())
 $define(h2,a_content=## $a_content())
 $define(h3,a_content=### $a_content())
 $define(h4,a_content=#### $a_content())
 $define(h5,a_content=##### $a_content())
 
-# Bold 
+% Bold 
 $define(b,a_content=**$a_content()**)
 
-# Italic 
+% Italic 
 $define(i,a_content=*$a_content()*)
 
-# ItalicBold 
+% ItalicBold 
 $define(bi,a_content=***$a_content()***)
 
-# Strike through
+% Strike through
 $define(st,a_content=~~$a_content()~~)
 
-# Underline
+% Underline
 $define(ud,a_content=__$a_content()__)
 
-# Indentation
-# WARNING : Single spaces between if else bracket end and macro define bracket end
-# is necessary, do not erase it.
+% Indentation
+% WARNING : Single spaces between if else bracket end and macro define bracket end
+% is necessary, do not erase it.
 $define(idt,a_count=$forloop(2,$a_count(),    ))
 
-# Lists
-# Unordered List
-# Emtpry ul is same with level 1 
+% Lists
+% Unordered List
+% Emtpry ul is same with level 1 
 $define(ul,a_count=$forloop(2,$a_count(),    )*)
 
-# Ordered list
+% Ordered list
 $define(ol,a_count=$forloop(2,$a_count(),    )1.)
 
-# Paragraph
+% Paragraph
 $define(p,a_content=<p>$a_content()</p>)
 
-# New page
+% New page
+% Compatible macros
 $define(newpage=
 ---
 )
 
-# MACRO >>> Get style files' name and paste the content
-# Usage :
-# styles(image,layout)
+% Split page
+% Marp only split page macro
+$define(splitpage=
+---
+)
+
+% MACRO >>> Get style files' name and paste the content
+% Usage :
+% styles(image,layout)
 $define(styles,a_styles=<style>
 $foreach($a_styles(),
 $include($path($env(GDE_MODULE),$:.css)))
 </style>
 )
 
-# Multiline support csv table related macros
-# Refer macro.md for general usage
-# Start table
+% Multiline support csv table related macros
+% Refer macro.md for general usage
+% Start table
 $define(tstart=<table>)
-# Set table font size
+% Set table font size
 $define(tfont,a_header_size a_body_size=<style scoped>
 	thead > tr > td { 
 	    $ifelse(
@@ -105,74 +112,74 @@ $define(tfont,a_header_size a_body_size=<style scoped>
 		$-() 
 	}
 </style>)
-# Set table header
+% Set table header
 $define(theader,a_content=<thead>
 $foreach($a_content*(),    <td>$:</td>)
 </thead>
 )
-# Set table row
+% Set table row
 $define(trow,a_content=<tr>
 $foreach($a_content*(),\*    $m_newline_to_br(<td>$:</td>)*\)
 </tr>)
-# end table
+% end table
 $define(tend=</table>)
 
-# URL
+% URL
 $define(url,a_src a_text=[$a_text()]($a_src())) # $2 is alternate text, $1 is image url
 
-# Image substitue macros
+% Image substitue macros
 $define(image,a_src=
 <img src="$a_src()" style="object-fit: scale-down; max-height: 100%;"/>)
 
-# Make Set img's size with given arguments 
+% Make Set img's size with given arguments 
 $define(simage,a_src a_max_size=<img src="$a_src()" style="max-width: $a_max_size(); max-height: $a_max_size()%;"/>)
 
-# MACRO >>> Text macro that also sets font size for the text
-# Example :
-# text(26, yatti yatta)
+% MACRO >>> Text macro that also sets font size for the text
+% Example :
+% text(26, yatti yatta)
 $define(text,a_font_size a_content=<div style="font-size : $ifelse($eval($a_font_size() != 0),$a_font_size(),$a_font_size())px;">
 $trim($a_content())
 </div>)
 
-# MACRO >>> Flex box macro that makes div a flex display
-# Intended for usage with split screen
+% MACRO >>> Flex box macro that makes div a flex display
+% Intended for usage with split screen
 $define(fbox,a_content=<div style="flex:1;">
 $trim($a_content())
 </div>)
 
-# MACRO >>> Flex box with given font size
+% MACRO >>> Flex box with given font size
 $define(ffbox,a_font_size a_content=<div style="flex:1; font-size: $a_font_size()px;">
 $trim($a_content())
 </div>)
 
-# Class related macros
+% Class related macros
 
-# Macro >>> set table of contents
+% Macro >>> set table of contents
 $define(toc,a_text a_goto=<ol><a href="#$a_goto()">$a_text()</a></ol>)
 
-# MACRO >>> Set title class into slide and type title, author text at the same time
+% MACRO >>> Set title class into slide and type title, author text at the same time
 $define(title,a_title a_subtitle=$m_class(title)
 # $a_title()
 ## $a_subtitle()
 )
 
-# MACRO >>> Set any class of given arguments
+% MACRO >>> Set any class of given arguments
 $define(class,a_class=$m_class($regex($a_class*(),\*,*\, )))
 
-# Split screen related macros
-# MACRO >>> Start left pane
+% Split screen related macros
+% MACRO >>> Start left pane
 $define(left=<div class="ldiv">
 )
-# MACRO >>> Start right pane
+% MACRO >>> Start right pane
 $define(right=
 </div>
 <div class="rdiv">
 )
-# MACRO >>> End split screen
+% MACRO >>> End split screen
 $define(end=
 </div>)
 
-# Center macro
+% Center macro
 $define(center,a_content=<div style="text-align:center; display:block; margin: 0 auto;">
 $a_content()
 </div>)
