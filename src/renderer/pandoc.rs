@@ -1,9 +1,9 @@
 use std::path::PathBuf;
 use std::ffi::OsStr;
 use crate::utils;
-use crate::error::GdeError;
+use crate::models::GdeResult;
 
-pub(crate) fn render(out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeError> {
+pub(crate) fn render(out_file: &Option<PathBuf>) -> GdeResult<Option<PathBuf>> {
     // Set default outfile
     let out_file = if let Some(name) = out_file {
         name.to_owned()

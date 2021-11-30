@@ -1,9 +1,10 @@
 use std::path::{PathBuf, Path};
 use crate::error::GdeError;
+use crate::models::GdeResult;
 use crate::utils;
 use crate::renderer::*;
 use rad::CommentType;
-use rad::{Processor, RadError, AuthType, DiffOption};
+use rad::{Processor, AuthType, DiffOption, RadError};
 
 pub struct Executor {
     render_type: RenderType,
@@ -11,7 +12,7 @@ pub struct Executor {
 }
 
 impl Executor {
-    pub fn new(render_type: &str, options: ExecOptions) -> Result<Self,GdeError> {
+    pub fn new(render_type: &str, options: ExecOptions) -> GdeResult<Self> {
         Ok(Self { 
             render_type : RenderType::from(render_type)?,
             options,
@@ -19,7 +20,7 @@ impl Executor {
     }
 
     /// Main execution logic
-    pub fn exec(&mut self) -> Result<(), GdeError> {
+    pub fn exec(&mut self) -> GdeResult<()> {
         // Make files if not present
         self.path_fallback()?;
         self.setup()?;
@@ -58,7 +59,7 @@ impl Executor {
     }
 
     // Crate file and directories if not existent
-    fn path_fallback(&self) -> Result<(), GdeError> {
+    fn path_fallback(&self) -> GdeResult<()> {
         // Crate build directory
         if !utils::BUILD_PATH.exists() {
             std::fs::create_dir(&*utils::BUILD_PATH)?;
@@ -71,7 +72,7 @@ impl Executor {
     }
 
     /// Setup necessary information
-    fn setup(&mut self) -> Result<(), GdeError> {
+    fn setup(&mut self) -> GdeResult<()> {
         std::env::set_var("GDE_MODULE", utils::renderer_path(self.render_type.to_string())?);
 
         // Render type specific pre-processing logics
@@ -87,7 +88,7 @@ impl Executor {
         Ok(())
     }
 
-    fn preprocess(&self, processor : &mut Processor) -> Result<(), GdeError> {
+    fn preprocess(&self, processor : &mut Processor) -> GdeResult<()> {
         // Render type specific pre-processing logics
         match self.render_type {
             RenderType::MediaWiki => {
@@ -100,7 +101,7 @@ impl Executor {
     }
 
     /// Build rad processor with options
-    fn build_processor(&self) -> Result<Processor, RadError> {
+    fn build_processor(&self) -> GdeResult<Processor> {
         let diff_option = if self.options.diff { DiffOption::Change } else { DiffOption::None };
         let processor = Processor::new()
             .purge(true)
@@ -127,6 +128,11 @@ impl Executor {
             processor.add_custom_rules(vec![("mod_test","","")])?
         }
 
+        if utils::INDEX_RAD.exists() {
+            // TODO
+            processor.from_file(&*utils::INDEX_RAD)?;
+        }
+
         processor.from_file(Path::new(&self.options.input))?;
 
         if self.options.test | self.options.diff {
@@ -137,7 +143,7 @@ impl Executor {
     }
 
     /// Render with a designated renderer
-    fn render(&self) -> Result<Option<PathBuf>, GdeError> {
+    fn render(&self) -> GdeResult<Option<PathBuf>> {
         let out_file = match self.render_type {
             RenderType::Marp =>{
                 marp::render( &self.options.format, &self.options.out_file)?
@@ -170,7 +176,7 @@ impl Executor {
 
     // Copy output file to a designated path
     // Remove cached file
-    fn postprocess(&self, final_file: Option<PathBuf>) -> Result<(), GdeError> {
+    fn postprocess(&self, final_file: Option<PathBuf>) -> GdeResult<()> {
         if let Some(final_file) = final_file {
 
             // Change middle name to Test_out.gddt
@@ -233,7 +239,7 @@ impl ExecOptions {
         format: Option<String>,
         input: Option<PathBuf>,
         output: Option<PathBuf>
-    ) -> Result<Self,GdeError> {
+    ) -> GdeResult<Self> {
         let input = if let Some(content) = input {
             content
         } else {
@@ -266,7 +272,7 @@ pub enum RenderType {
 }
 
 impl RenderType {
-    pub fn from(render_type : &str) -> Result<Self, GdeError> {
+    pub fn from(render_type : &str) -> GdeResult<Self> {
         let render_type = match render_type.to_lowercase().as_str() {
             "marp" => Self::Marp,
             "mediawiki" => Self::MediaWiki,

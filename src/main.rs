@@ -1,9 +1,10 @@
 mod cli;
 mod config;
 mod error;
-mod init;
-mod orchestrator;
 mod executor;
+mod init;
+mod models;
+mod orchestrator;
 mod renderer;
 mod utils;
 

@@ -1,10 +1,11 @@
 use std::path::{PathBuf, Path};
+use crate::models::GdeResult;
 use crate::error::GdeError;
 use crate::utils;
-use rad::{Processor, RadError, AuthType};
+use rad::{Processor, RadResult, AuthType};
 use gdlogue::*;
 
-pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeError> {
+pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> GdeResult<Option<PathBuf>> {
 
     // Source file
     let source_file = utils::CACHE_PATH.join("out.json");
@@ -51,7 +52,7 @@ pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Res
     Ok(Some(out_file))
 }
 
-fn html_dialogue(out_file : &PathBuf) -> Result<(), RadError> {
+fn html_dialogue(out_file : &PathBuf) -> RadResult<()> {
     if let Err(err) = dot_file(&utils::CACHE_PATH.join("out.json")) {
         eprintln!("Err : {}", err);
     }

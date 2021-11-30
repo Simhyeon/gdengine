@@ -1,5 +1,5 @@
 use std::path::{PathBuf, Path};
-use crate::error::GdeError;
+use crate::models::GdeResult;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::process::Command;
@@ -49,25 +49,27 @@ lazy_static! {
     pub static ref DEFAULT_ENTRY_PATH: PathBuf = std::env::current_dir().expect("Failed to get path").join("index.gddt");
 
     pub static ref CONFIG_PATH: PathBuf = std::env::current_dir().expect("Failed to get path").join("gde_config.json");
+
+    pub static ref INDEX_RAD: PathBuf = std::env::current_dir().expect("Failed to get path").join("index.r4d");
 }
 
-pub fn module_path(name : impl AsRef<str>) -> Result<PathBuf, GdeError> {
+pub fn module_path(name : impl AsRef<str>) -> GdeResult<PathBuf> {
     Ok(LIB_PATH.join(format!("{}.r4f", name.as_ref())).to_owned())
 }
 
-pub fn renderer_path(name : impl AsRef<str>) -> Result<PathBuf, GdeError> {
+pub fn renderer_path(name : impl AsRef<str>) -> GdeResult<PathBuf> {
     Ok(RENDERER_PATH.join(name.as_ref()))
 }
 
 /// out.gddt
-pub fn middle_file_path() -> Result<PathBuf, GdeError> {
+pub fn middle_file_path() -> GdeResult<PathBuf> {
     Ok(CACHE_PATH.join("out.gddt"))
 }
 
 // Chomp file save contents into memory in a belief that file sizes would not be that big...
 // I mean come on, every file is a human readable text file. It should not be gigabytes
 // sized
-pub fn chomp_file(path: &Path) -> Result<(), GdeError> {
+pub fn chomp_file(path: &Path) -> GdeResult<()> {
     let content = &std::fs::read_to_string(path)?;
     let sanitized = CRLF_MATCH.replace(content, r#"\n"#);
     let replaced = REG_CHOMP_MATCH.replace(&sanitized, REG_CHOMP_REPL);
@@ -76,7 +78,7 @@ pub fn chomp_file(path: &Path) -> Result<(), GdeError> {
 }
 
 // Cross platform command call
-pub fn command(program: &str, args: Vec<impl AsRef<OsStr>>) -> Result<(), GdeError> {
+pub fn command(program: &str, args: Vec<impl AsRef<OsStr>>) -> GdeResult<()> {
 
     let output = if cfg!(target_os = "windows") {
         Command::new("cmd")

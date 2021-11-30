@@ -1,9 +1,9 @@
 use std::path::{PathBuf, Path};
 use crate::utils;
-use crate::error::GdeError;
+use crate::models::GdeResult;
 use std::ffi::OsStr;
 
-pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Result<Option<PathBuf>, GdeError> {
+pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> GdeResult<Option<PathBuf>> {
 
     // Marp expects markdown file so, source file should be markdown
     let source_file = Path::new("out.md");

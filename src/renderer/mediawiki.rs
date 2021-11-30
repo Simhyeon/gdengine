@@ -1,12 +1,13 @@
 use std::path::{PathBuf, Path};
 use crate::error::GdeError;
+use crate::models::GdeResult;
 use crate::utils;
 use rad::{Processor,AuthType};
 use reqwest::blocking::{Client, multipart};
 
 pub const IMAGE_LIST : &str = "image_list.txt";
 
-pub(crate) fn rad_setup(processor : &mut Processor) -> Result<(),GdeError> {
+pub(crate) fn rad_setup(processor : &mut Processor) -> GdeResult<()> {
     processor.from_string(
         r#"$ifenv(MW_UPLOAD,$fileout(true,image_list.txt,))"#
     )?;
@@ -14,7 +15,7 @@ pub(crate) fn rad_setup(processor : &mut Processor) -> Result<(),GdeError> {
 }
 
 /// MediaWiki's target is not a file but server loaded page
-pub(crate) fn render() -> Result<Option<PathBuf>, GdeError> {
+pub(crate) fn render() -> GdeResult<Option<PathBuf>> {
     check_prerequisites()?;
     let source_file = utils::middle_file_path()?;
     preprocess(&source_file)?;
@@ -25,7 +26,7 @@ pub(crate) fn render() -> Result<Option<PathBuf>, GdeError> {
     Ok(Some(source_file))
 }
 
-pub(crate) fn render_preview() -> Result<Option<PathBuf>, GdeError> {
+pub(crate) fn render_preview() -> GdeResult<Option<PathBuf>> {
     let source_file = utils::middle_file_path()?;
     preprocess(&source_file)?;
 
@@ -40,7 +41,7 @@ pub(crate) fn render_preview() -> Result<Option<PathBuf>, GdeError> {
     Ok(Some(source_file))
 }
 
-fn check_prerequisites() -> Result<(), GdeError> {
+fn check_prerequisites() -> GdeResult<()> {
     // Check if necessary config values are present.
     if let Err(_) = std::env::var("MW_URL") { return Err(GdeError::ConfigError(String::from("No \"MW_URL\" in env file"))); }
     if let Err(_) = std::env::var("MW_ID") { return Err(GdeError::ConfigError(String::from("No \"MW_ID\" in env file"))); }
@@ -50,12 +51,12 @@ fn check_prerequisites() -> Result<(), GdeError> {
     Ok(())
 }
 
-fn preprocess(path: &Path) -> Result<(), GdeError> {
+fn preprocess(path: &Path) -> GdeResult<()> {
     utils::chomp_file(path)?;
     Ok(())
 }
 
-pub(crate) fn clear_files(test: bool, preserve: bool) -> Result<(), GdeError> {
+pub(crate) fn clear_files(test: bool, preserve: bool) -> GdeResult<()> {
     let image_list = std::env::current_dir()?.join(IMAGE_LIST);
     // Test reseve image list file
     if image_list.exists() {
@@ -81,7 +82,7 @@ struct MediaWikiRequest<'a> {
 }
 
 impl<'a> MediaWikiRequest<'a> {
-    pub fn new(target_file: &'a Path) -> Result<Self, GdeError> {
+    pub fn new(target_file: &'a Path) -> GdeResult<Self> {
         let client = Client::builder().cookie_store(true).build()?;
 
         Ok(Self {
@@ -94,7 +95,7 @@ impl<'a> MediaWikiRequest<'a> {
         })
     }
 
-    fn exec(&self) -> Result<(), GdeError> {
+    fn exec(&self) -> GdeResult<()> {
         let login_token = self.get_login_token()?;
         self.post_login(&login_token)?;
         let csrf_token = self.get_csrf_token()?;
@@ -106,7 +107,7 @@ impl<'a> MediaWikiRequest<'a> {
         Ok(())
     }
 
-    fn get_login_token(&self) -> Result<String, GdeError> {
+    fn get_login_token(&self) -> GdeResult<String> {
         let params = [("action", "query"), ("meta", "tokens"), ("type", "login"), ("format", "json") ];
         let response = self.client.post(&self.url)
             .form(&params)
@@ -122,7 +123,7 @@ impl<'a> MediaWikiRequest<'a> {
         }
     }
 
-    fn post_login(&self, login_token : &str) -> Result<(), GdeError> {
+    fn post_login(&self, login_token : &str) -> GdeResult<()> {
         let params = [ ("action", "login"), ("lgname", self.bot_id.as_str()), ("lgpassword", self.bot_pwd.as_str()), ("lgtoken", login_token), ("format", "json") ];
         self.client.post(&self.url)
             .form(&params)
@@ -134,7 +135,7 @@ impl<'a> MediaWikiRequest<'a> {
         Ok(())
     }
 
-    fn get_csrf_token(&self) -> Result<String, GdeError> {
+    fn get_csrf_token(&self) -> GdeResult<String> {
         let params = [
             ("action","query"),
             ("meta","tokens"),
@@ -154,7 +155,7 @@ impl<'a> MediaWikiRequest<'a> {
         }
     }
 
-    fn edit_page(&self, csrf_token: &str) -> Result<(), GdeError> {
+    fn edit_page(&self, csrf_token: &str) -> GdeResult<()> {
         let content = std::fs::read_to_string(&self.target_file)?;
         let params = [ 
             ("action", "edit"),
@@ -183,7 +184,7 @@ impl<'a> MediaWikiRequest<'a> {
     }
 
     // Should receive Jsonvalue[error][code]
-    fn upload_error_fallback(&self, error: &serde_json::Value, target: &Path) -> Result<(), GdeError> {
+    fn upload_error_fallback(&self, error: &serde_json::Value, target: &Path) -> GdeResult<()> {
         match error.as_str().unwrap() {
             "fileexists-no-change" => {
                 println!("No upload for duplicate files {}", target.display())
@@ -193,7 +194,7 @@ impl<'a> MediaWikiRequest<'a> {
         Ok(())
     }
 
-    fn upload_images(&self, csrf_token: &str) -> Result<(), GdeError> {
+    fn upload_images(&self, csrf_token: &str) -> GdeResult<()> {
 
         let images = String::from_utf8(std::fs::read(Path::new(IMAGE_LIST))?).expect("");
 

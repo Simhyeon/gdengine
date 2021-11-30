@@ -1,7 +1,8 @@
 use clap::{Arg,App};
 use std::path::Path;
-use crate::error::GdeError;
 use crate::orchestrator::Orchestrator;
+use crate::error::GdeError;
+use crate::models::GdeResult;
 use std::path::PathBuf;
 use crate::init::Init;
 use crate::utils;
@@ -26,18 +27,19 @@ impl Cli {
         }
     }
 
-    pub fn parse(&self) -> Result<(), GdeError>{
+    pub fn parse(&self) -> GdeResult<()>{
         let cli_args = Cli::get_arg_matches();
         self.parse_options(&cli_args)?;
         Ok(())
     }
 
-    pub fn parse_options(&self, args: &clap::ArgMatches) -> Result<(), GdeError> {
+    pub fn parse_options(&self, args: &clap::ArgMatches) -> GdeResult<()> {
         if let Some(action) = args.value_of("ACTION") {
             match action {
                 "init" => {
                     // Create new files and directories
                     Init::new_gddt_file()?;
+                    Init::new_rad_file()?;
                     Init::new_config_file()?;
                     Init::new_env_file()?;
                     Init::new_macro_file()?;
@@ -84,7 +86,7 @@ impl Cli {
         Self::args_builder().get_matches()
     }
 
-    pub fn set_env_vars(matches : &clap::ArgMatches) -> Result<(), GdeError> {
+    pub fn set_env_vars(matches : &clap::ArgMatches) -> GdeResult<()> {
         if let Some(envs) = matches.value_of("env") {
             let envs = envs.split(',').collect::<Vec<&str>>();
             for env in envs {
@@ -185,7 +187,7 @@ impl Cli {
                 .takes_value(true))
     }
 
-    fn parse_exec_options(&self,matches: &clap::ArgMatches) -> Result<ExecOptions, GdeError> {
+    fn parse_exec_options(&self,matches: &clap::ArgMatches) -> GdeResult<ExecOptions> {
         Ok(ExecOptions::new(
                 matches.is_present("preserve"),
                 matches.is_present("strict"),

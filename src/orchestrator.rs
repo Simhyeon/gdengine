@@ -1,4 +1,4 @@
-use crate::error::GdeError;
+use crate::models::GdeResult;
 use crate::config::Config;
 use crate::cli::{Cli, Variant};
 use serde_json::Value;
@@ -6,7 +6,7 @@ use serde_json::Value;
 pub struct Orchestrator;
 
 impl Orchestrator {
-    pub fn run(config: &Config, name: Option<&str>) -> Result<(), GdeError> {
+    pub fn run(config: &Config, name: Option<&str>) -> GdeResult<()> {
         let values = config.get_run_script(name)?.unwrap_or(vec![]);
         for value in values {
             if let Value::String(content) = value {
@@ -17,7 +17,7 @@ impl Orchestrator {
         }
         Ok(())
     }
-    pub fn test(config: &Config, name: Option<&str>) -> Result<(), GdeError> {
+    pub fn test(config: &Config, name: Option<&str>) -> GdeResult<()> {
         let values = config.get_test_script(name)?.unwrap_or(vec![]);
         for value in values {
             if let Value::String(content) = value {

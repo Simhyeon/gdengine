@@ -1,4 +1,5 @@
 use crate::error::GdeError;
+use crate::models::GdeResult;
 use std::path::Path;
 use serde_json::Value;
 
@@ -7,7 +8,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn from(path: &Path) -> Result<Self,GdeError> {
+    pub fn from(path: &Path) -> GdeResult<Self> {
 
         // Given config file doesn't exist
         if !path.exists() {
@@ -32,15 +33,15 @@ impl Config {
 }"#)
     }
 
-    pub fn get_run_script(&self, name:Option<&str>) -> Result<Option<Vec<Value>>, GdeError> {
+    pub fn get_run_script(&self, name:Option<&str>) -> GdeResult<Option<Vec<Value>>> {
         self.get_script("run", name)
     }
 
-    pub fn get_test_script(&self, name:Option<&str>) -> Result<Option<Vec<Value>>, GdeError> {
+    pub fn get_test_script(&self, name:Option<&str>) -> GdeResult<Option<Vec<Value>>> {
         self.get_script("test", name)
     }
 
-    fn get_script(&self, script_type:&str, name: Option<&str>) -> Result<Option<Vec<Value>>, GdeError> {
+    fn get_script(&self, script_type:&str, name: Option<&str>) -> GdeResult<Option<Vec<Value>>> {
         if let Some(value) =self.content.get(script_type) {
             let new_name :&str = if let None = name {
                 let vec = value
