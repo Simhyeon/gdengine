@@ -125,7 +125,7 @@ impl Executor {
     fn macro_expansion(&self,processor : &mut Processor) -> Result<(), RadError> {
         // Add optional test mod
         if self.options.test {
-            processor.add_custom_rules(vec![("mod_test","","")])?
+            processor.add_static_rules(vec![("mod_test","")])?
         }
 
         if utils::INDEX_RAD.exists() {
