@@ -5,7 +5,7 @@ use crate::error::GdeError;
 use crate::models::GdeResult;
 use std::path::PathBuf;
 use crate::init::Init;
-use crate::utils;
+use crate::utils::{self, BUILD_PATH};
 use crate::config::Config;
 use crate::executor::{Executor, ExecOptions};
 
@@ -197,7 +197,15 @@ impl Cli {
                 matches.value_of("copy").map(|s| PathBuf::from(s)),
                 matches.value_of("format").map(|s| s.to_owned()),
                 matches.value_of("input").map(|s| PathBuf::from(s) ),
-                matches.value_of("output").map(|s| if let Variant::Test = self.variant { PathBuf::from("TEST").join(s) } else { PathBuf::from(s) }),
+                matches
+                    .value_of("output")
+                    .map(|s| {
+                        if let Variant::Test = self.variant { 
+                            BUILD_PATH.join(&format!("test_{}",s))
+                        } else { 
+                            PathBuf::from(s) 
+                        }
+                    }),
         )?)
     }
 }
