@@ -44,8 +44,8 @@ $define(
 	fnode,
 	a_id a_label a_nextId
 	=
-	$bind+(id,n$a_id())
-	$bind+(nextId,n$a_nextId())
+	$let+(id,n$a_id())
+	$let+(nextId,n$a_nextId())
 	$tempout($id() [label="$a_label()" shape=rect];$nl())
 	$append(DIRS,$id() -> $nextId() [weight=8];$nl())
 )
@@ -55,8 +55,8 @@ $define(
 	fnodea,
 	a_id a_label a_nextId
 	=
-	$bind+(id,n$a_id())
-	$bind+(nextId,n$a_nextId())
+	$let+(id,n$a_id())
+	$let+(nextId,n$a_nextId())
 	$tempout($id() [label="$a_label()" shape=rect];
 	$nextId()_right [shape=point; width=0];
 	{rank=same; $nextId(); $nextId()_right;}$nl())
@@ -70,9 +70,9 @@ $define(
 	fcond,
 	a_id a_label a_yesId a_noId
 	=
-	$bind+(id,n$a_id())
-	$bind+(yes_id,n$a_yesId())
-	$bind+(no_id,n$a_noId())
+	$let+(id,n$a_id())
+	$let+(yes_id,n$a_yesId())
+	$let+(no_id,n$a_noId())
 	$tempout($id() [label="$a_label()" shape=diamond];$nl(){ rank=same; $id(); $no_id(); }$nl())
 	$append(DIRS,$id() -> $yes_id()[xlabel="yes"; weight=8; color="firebrick3"];$nl()$id() -> $no_id() [xlabel="no"; color="dodgerblue3"];$nl())
 )
@@ -81,8 +81,8 @@ $define(
 $define(finput,
 	a_id a_label a_nextId
 	=
-	$bind+(id,n$a_id())
-	$bind+(nextId,n$a_nextId())
+	$let+(id,n$a_id())
+	$let+(nextId,n$a_nextId())
 	$tempout($id() [label="$a_label()" shape=parallelogram];$nl())
 	$append(DIRS, $id() -> $nextId()[weight=8;]$nl())
 )

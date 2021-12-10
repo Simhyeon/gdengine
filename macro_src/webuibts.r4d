@@ -66,14 +66,14 @@ $header|(a)
 
 # content(id, width, ...)
 # _vcontent(id, height, ...)
-$define(content,a_id a_width a_content=$bind+(flex_grow,$if($eval("$a_width()" == "0"),flexGrow))
+$define(content,a_id a_width a_content=$let+(flex_grow,$if($eval("$a_width()" == "0"),flexGrow))
 <div id="$a_id()" class="gdContent rowFlex fullSize hiddenFlow $flex_grow()" style="width: $a_width();">
 $a_content()
 </div>)
 $content|(1,0,a)
 $content|(1,10px,a)
 
-$define(content_center,a_id a_width a_content=$bind+(flex_grow,$if($eval("$a_width()" == "0"),flexGrow))
+$define(content_center,a_id a_width a_content=$let+(flex_grow,$if($eval("$a_width()" == "0"),flexGrow))
 <div id="$a_id()" class="gdContent rowFlex fullSize flexCenter hiddenFlow $flex_grow()" style="width: $a_width();">
 $a_content()
 </div>)
@@ -81,7 +81,7 @@ $content_center|(1,0,a)
 $content_center|(1,10px,a)
 
 $define(vcontent,a_id a_height a_content=
-$bind+(flex_grow,$if($eval("$a_height()" == "0"),flexGrow))
+$let+(flex_grow,$if($eval("$a_height()" == "0"),flexGrow))
 <div id="$a_id()" class="gdContent colFlex fullSize hiddenFlow $flex_grow()" style="height: $a_height();">
 $a_content()
 </div>)
@@ -89,7 +89,7 @@ $vcontent|(1,0,a)
 $vcontent|(1,10px,a)
 
 $define(vcontent_center,a_id a_height a_content=
-$bind+(flex_grow,$if($eval("$a_height()" == "0"),flexGrow))
+$let+(flex_grow,$if($eval("$a_height()" == "0"),flexGrow))
 <div id="$a_id()" class="gdContent colFlex flexCenter fullSize hiddenFlow $flex_grow()" style="height: $a_height();">
 $a_content()
 </div>)
