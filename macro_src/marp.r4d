@@ -184,6 +184,7 @@ $define(center,a_content=<div style="text-align:center; display:block; margin: 0
 $a_content()
 </div>)
 
+% Colored texts
 $define(text_color,a_color a_content=<span style="color:$a_color()">$a_content()</span>)
 
 % Content should not be evalued twice, thus should be escaped

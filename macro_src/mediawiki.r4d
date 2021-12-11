@@ -54,3 +54,15 @@ $define(text,a_font_size a_content=<div style="font-size : $a_font_size();">$a_c
 
 # HR
 $define(hr=----$nl())
+
+$define(text_color,a_color a_content=<span style="color:$a_color()">$a_content()</span>)
+
+% Content should not be evalued twice, thus should be escaped
+$define(black,a_content=$text_color($COLOR_BLACK(),$a_content*()))
+$define(red,a_content=$text_color($COLOR_RED(),$a_content*()))
+$define(green,a_content=$text_color($COLOR_GREEN(),$a_content*()))
+$define(blue,a_content=$text_color($COLOR_BLUE(),$a_content*()))
+$define(yellow,a_content=$text_color($COLOR_YELLOW(),$a_content*()))
+$define(magenta,a_content=$text_color($COLOR_MAGENTA(),$a_content*()))
+$define(cyan,a_content=$text_color($COLOR_CYAN(),$a_content*()))
+$define(white,a_content=$text_color($COLOR_WHITE(),$a_content*()))
