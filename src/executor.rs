@@ -116,8 +116,8 @@ impl Executor {
                     utils::STD_MACRO_PATH.to_owned(),
                     utils::module_path(self.render_type.to_string()).expect("Failed to get path")
             ]))?
-            .diff(diff_option)?
-            .build();
+            .diff(diff_option)?;
+
         Ok(processor)
     }
 
