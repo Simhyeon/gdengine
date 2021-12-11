@@ -1,2 +1,13 @@
 $define(tp,a_row=$regex($a_row*(),\*,*\,$nl()))
 $define(ifmod,a_mod a_content=$ifdef(mod_$a_mod(),$a_content()))
+$define(ifmodel,a_mod a_content a_content_else=$ifdefel(mod_$a_mod(),$a_content(),$a_content_else()))
+
+% Color settings
+$static(COLOR_BLACK,#000000)
+$static(COLOR_RED,#ff0000)
+$static(COLOR_GREEN,#00ff00)
+$static(COLOR_BLUE,#0000ff)
+$static(COLOR_YELLOW,#ffff00)
+$static(COLOR_MAGENTA,#ff00ff)
+$static(COLOR_CYAN,#00ffff)
+$static(COLOR_WHITE,#ffffff)

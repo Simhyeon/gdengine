@@ -38,19 +38,19 @@ $define(h4,a_content=#### $a_content())
 $define(h5,a_content=##### $a_content())
 
 % Bold 
-$define(b,a_content=**$a_content()**)
+$define(b,a_content=<span style="font-weight:bold;">$a_content()</span>)
 
 % Italic 
-$define(i,a_content=*$a_content()*)
+$define(i,a_content=<span style="font-style:italic;">$a_content()</span>)
 
 % ItalicBold 
-$define(bi,a_content=***$a_content()***)
+$define(bi,a_content=<span style="font-style:italic;font-weight:bold;">$a_content()</span>)
 
 % Strike through
-$define(st,a_content=~~$a_content()~~)
+$define(st,a_content=<span style="text-decoration:line-through;">$a_content()</span>)
 
 % Underline
-$define(ud,a_content=__$a_content()__)
+$define(ud,a_content=<span style="text-decoration:underline;">$a_content()</span>)
 
 % Indentation
 % WARNING : Single spaces between if else bracket end and macro define bracket end
@@ -183,3 +183,15 @@ $define(end=
 $define(center,a_content=<div style="text-align:center; display:block; margin: 0 auto;">
 $a_content()
 </div>)
+
+$define(text_color,a_color a_content=<span style="color:$a_color()">$a_content()</span>)
+
+% Content should not be evalued twice, thus should be escaped
+$define(black,a_content=$text_color($COLOR_BLACK(),$*a_content()))
+$define(red,a_content=$text_color($COLOR_RED(),$*a_content()))
+$define(green,a_content=$text_color($COLOR_GREEN(),$*a_content()))
+$define(blue,a_content=$text_color($COLOR_BLUE(),$*a_content()))
+$define(yellow,a_content=$text_color($COLOR_YELLOW(),$*a_content()))
+$define(magenta,a_content=$text_color($COLOR_MAGENTA(),$*a_content()))
+$define(cyan,a_content=$text_color($COLOR_CYAN(),$*a_content()))
+$define(white,a_content=$text_color($COLOR_WHITE(),$*a_content()))
