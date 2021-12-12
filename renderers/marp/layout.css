@@ -80,3 +80,17 @@ section.tnc h1 {
 	height: var(--area-height);
 	line-height: var(--area-height);
 }
+
+section .marp-container {
+	display: flex;
+	max-width: 100%;
+	/* Flex-grow doesn't affect container,
+	 * but it is useful when container is nested */
+	flex-grow : 1; 
+	flex-direction: row;
+}
+
+img {
+	min-width: 0;
+	min-height: 0;
+}
