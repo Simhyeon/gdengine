@@ -114,12 +114,12 @@ $define(tfont,a_header_size a_body_size=<style scoped>
 </style>)
 % Set table header
 $define(theader,a_content=<thead>
-$foreach($a_content*(),    <td>$:</td>)
+$foreach($a_content(),    <td>$:</td>)
 </thead>
 )
 % Set table row
 $define(trow,a_content=<tr>
-$foreach($a_content*(),\*    $m_newline_to_br(<td>$:</td>)*\)
+$foreach($a_content(),    $m_newline_to_br(<td>$:</td>))
 </tr>)
 % end table
 $define(tend=</table>)
