@@ -74,6 +74,8 @@ section.tnc {
 }
 
 section.tnc h1 {
+	--area-height: 130px;
+
 	margin: 0;
 	padding: 0;
 	grid-area: heading;
@@ -82,12 +84,21 @@ section.tnc h1 {
 }
 
 section .marp-container {
+	/* This was hard-coded and I don't know what it is specifically 435px, kekw*/
+	--area-height: 435px;
+
 	display: flex;
+	margin: 0;
+	padding: 0;
 	max-width: 100%;
+	max-height: var(--area-height);
+	grid-area: content;
+	height: var(--area-height);
 	/* Flex-grow doesn't affect container,
 	 * but it is useful when container is nested */
 	flex-grow : 1; 
 	flex-direction: row;
+	justify-content: space-evenly;
 }
 
 img {
