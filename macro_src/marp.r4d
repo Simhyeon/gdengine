@@ -196,3 +196,6 @@ $define(yellow,a_content=$text_color($COLOR_YELLOW(),$a_content*()))
 $define(magenta,a_content=$text_color($COLOR_MAGENTA(),$a_content*()))
 $define(cyan,a_content=$text_color($COLOR_CYAN(),$a_content*()))
 $define(white,a_content=$text_color($COLOR_WHITE(),$a_content*()))
+
+% Container macro
+$define(container,a_content=<div class="marp-container">$a_content()</div>)
