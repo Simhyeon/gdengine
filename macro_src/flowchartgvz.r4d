@@ -16,7 +16,10 @@ $define(
 )
 
 # Font
-$define(font,a_font_name=$tempout(fontname="$a_font_name()"$nl() ))
+$define(font,a_font_name=$tempout(graph [fontname="$a_font_name()"]
+node [fontname="$a_font_name()"]
+edge [fontname="$a_font_name()"]
+))
 
 # Set orientation as "from left to right"
 # flr()
