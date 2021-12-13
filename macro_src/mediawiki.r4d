@@ -1,58 +1,61 @@
-# mod
+% mod
 $define(mod_mediawiki=)
 
-# Purpose of wikitext macro is not about making all macros compliant with
-# wikitext, rather it is about making markdown compatible wikitext macro
+% Convert newline to br tag
+$define(m_newline_to_br,a_scell=$regex($a_scell*(),$nl(),<br>))
 
-# Headers
-# H1 is actually page title and should be downgraded to h2
-# = is body indicator so somewhat confusing
+% Purpose of wikitext macro is not about making all macros compliant with
+% wikitext, rather it is about making markdown compatible wikitext macro
+%
+% Headers
+% H1 is actually page title and should be downgraded to h2
+% = is body indicator so somewhat confusing
 $define(h1,a_content===$a_content()==)
 $define(h2,a_content===$a_content()==)
 $define(h3,a_content====$a_content()===)
 $define(h4,a_content=====$a_content()====)
 $define(h5,a_content======$a_content()=====)
 
-# Bold triple quotes
+% Bold triple quotes
 $define(b,a_content='''$a_content()''')
 
-# Italic double quotes
+% Italic double quotes
 $define(i,a_content=''$a_content()'')
 
-# ItalicBold five quotes
+% ItalicBold five quotes
 $define(bi,a_content='''''$a_content()''''')
 
-# Strike through
+% Strike through
 $define(st,a_content=<s>$a_content()</s>)
 
-# Underline
+% Underline
 $define(ud,a_content=<u>$a_content</u>)
 
-# Other wiki page link 
+% Other wiki page link 
 $define(wiki_page,a_url=[[$a_url()]])
 $define(wiki_page_alt,a_url a_alt=wikipage($a_url()|$a_alt())) # Wikipage link with alternative text
 
-# Unordered List
+% Unordered List
 $define(ul,a_count=$forloop(1,$a_count(),*))
 
-# Ordered list
+% Ordered list
 $define(ol,a_count=$forloop(1,$a_count(),#))
 
-# Indentation
+% Indentation
 $define(idt,a_count=$forloop(1,$a_count(),:))
 
-# URL Link (Same functionality wit markdown link)
+% URL Link (Same functionality wit markdown link)
 $define(url,a_src a_text=[$a_src() $a_text()])
 
-# Image Link
+% Image Link
 $define(image,a_src=[[File:$name($a_src())|alt=Image file]]
-$ifenv(MW_UPLOAD,\*$fileout(false,image_list.txt,$a_src()$nl())*\))
+$ifenv(MW_UPLOAD,$fileout(false,image_list.txt,$a_src()$nl())))
 
-# Text with font size macro
-# No font size if value 0, which is automatic in marp
+% Text with font size macro
+% No font size if value 0, which is automatic in marp
 $define(text,a_font_size a_content=<div style="font-size : $a_font_size();">$a_content()</div>)
 
-# HR
+% HR
 $define(hr=----$nl())
 
 $define(text_color,a_color a_content=<span style="color:$a_color()">$a_content()</span>)
@@ -66,3 +69,22 @@ $define(yellow,a_content=$text_color($COLOR_YELLOW(),$a_content*()))
 $define(magenta,a_content=$text_color($COLOR_MAGENTA(),$a_content*()))
 $define(cyan,a_content=$text_color($COLOR_CYAN(),$a_content*()))
 $define(white,a_content=$text_color($COLOR_WHITE(),$a_content*()))
+
+% ----
+% Multiline support csv table related macros
+% Refer macro.md for general usage
+
+% Start table
+% Newline is needed because <table> tag should start from the first character
+$define(tstart=
+$ifdef(TABLE_CONTENT,$undef(TABLE_CONTENT))
+$static(TABLE_CONTENT,))
+
+% Set table header
+$define(theader,a_content=$append(TABLE_CONTENT,$a_content()$nl()))
+
+% Set table row
+$define(trow,a_content=$append(TABLE_CONTENT,$m_newline_to_br($a_content())$nl()))
+
+% end table
+$define(tend=$table(wikitext,$TABLE_CONTENT()))
