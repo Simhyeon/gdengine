@@ -94,6 +94,9 @@ impl Executor {
             RenderType::MediaWiki => {
                 mediawiki::rad_setup(processor)?;
             }
+            RenderType::Marp => {
+                marp::rad_setup(processor)?;
+            }
             _ =>()
         }
 
