@@ -2,6 +2,23 @@ use std::path::{PathBuf, Path};
 use crate::utils;
 use crate::models::GdeResult;
 use std::ffi::OsStr;
+use rad::{Processor, RadResult, MacroType};
+use comrak::{markdown_to_html, ComrakOptions};
+
+pub(crate) fn rad_setup(processor : &mut Processor) -> GdeResult<()> {
+    processor.add_basic_rules(vec![("mdtohtml",md_to_html as MacroType)]);
+
+    Ok(())
+}
+
+// Always greedy for consistency No need to utilzile processor
+fn md_to_html(args: &str, _: bool, _ : &mut Processor) -> RadResult<Option<String>> {
+    let mut comrak_option = ComrakOptions::default();
+    // Enable raw html rendering
+    comrak_option.render.unsafe_ = true;
+    let converted = markdown_to_html(args, &comrak_option);
+    Ok(Some(converted))
+}
 
 pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> GdeResult<Option<PathBuf>> {
 
