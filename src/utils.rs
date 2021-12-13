@@ -71,8 +71,8 @@ pub fn middle_file_path() -> GdeResult<PathBuf> {
 // sized
 pub fn chomp_file(path: &Path) -> GdeResult<()> {
     let content = &std::fs::read_to_string(path)?;
-    let sanitized = CRLF_MATCH.replace(content, r#"\n"#);
-    let replaced = REG_CHOMP_MATCH.replace(&sanitized, REG_CHOMP_REPL);
+    let sanitized = CRLF_MATCH.replace_all(content, "\n");
+    let replaced = REG_CHOMP_MATCH.replace_all(&sanitized, REG_CHOMP_REPL);
     std::fs::write(path, replaced.as_bytes())?;
     Ok(())
 }
