@@ -16,8 +16,9 @@ pub(crate) fn rad_setup(processor : &mut Processor) -> GdeResult<()> {
 
 /// MediaWiki's target is not a file but server loaded page
 pub(crate) fn render() -> GdeResult<Option<PathBuf>> {
-    check_prerequisites()?;
     let source_file = utils::middle_file_path()?;
+    compress_file(&source_file)?;
+    check_prerequisites()?;
     preprocess(&source_file)?;
 
     let request = MediaWikiRequest::new(&source_file)?;
@@ -39,6 +40,11 @@ pub(crate) fn render_preview() -> GdeResult<Option<PathBuf>> {
         .from_file(&utils::renderer_path("mediawiki")?.join("preview.html"))?;
 
     Ok(Some(source_file))
+}
+
+fn compress_file(source_file: &Path) -> GdeResult<()> {
+    utils::chomp_file(source_file)?;
+    Ok(())
 }
 
 fn check_prerequisites() -> GdeResult<()> {
@@ -99,11 +105,12 @@ impl<'a> MediaWikiRequest<'a> {
         let login_token = self.get_login_token()?;
         self.post_login(&login_token)?;
         let csrf_token = self.get_csrf_token()?;
-        self.edit_page(&csrf_token)?;
-        // It is ok that evn var is not set
+        // This should come first
         if let Ok(_) = std::env::var("MW_UPLOAD") {
             self.upload_images(&csrf_token)?;
         }
+        self.edit_page(&csrf_token)?;
+        // It is ok that evn var is not set
         Ok(())
     }
 
@@ -200,6 +207,12 @@ impl<'a> MediaWikiRequest<'a> {
 
         for line in images.lines().into_iter() {
             let path_buf = PathBuf::from(line);
+
+            if !path_buf.exists() {
+                eprintln!("Given image file  \"{}\" doesn't exit and cannot be sent.", path_buf.display());
+                return Err(GdeError::RendererError("Failed to send images to mediawiki server"));
+            }
+
             let form_params = [
                 ("action".to_owned(), "upload".to_owned()),
                 ("ignorewarnings".to_owned(), "1".to_owned()),
@@ -220,7 +233,7 @@ impl<'a> MediaWikiRequest<'a> {
 
             let json: serde_json::Value = serde_json::from_str(&response)?;
             if let serde_json::Value::String(content) = &json["upload"]["result"] {
-                println!("Edit page : {}", content)
+                println!("Upload image \"{}\" : {}", path_buf.display(), content)
             } else {
                 self.upload_error_fallback(&json["error"]["code"], &path_buf)?;
             }
