@@ -1,5 +1,9 @@
 /* Original source: https://github.com/marp-team/marpit/issues/137#issuecomment-522006274 */
 
+section {
+	font-family: $v_font_family(), sans-serif;
+}
+
 section.title {
   --title-height: 130px;
   --subtitle-height: 70px;
@@ -83,7 +87,7 @@ section.tnc h1 {
 	line-height: var(--area-height);
 }
 
-section .marp-container {
+section.tnc .marp-container {
 	/* This was hard-coded and I don't know what it is specifically 435px, kekw*/
 	--area-height: 435px;
 
@@ -104,4 +108,18 @@ section .marp-container {
 img {
 	min-width: 0;
 	min-height: 0;
+}
+
+/* Remove indentation of list items */
+ol, ul { 
+	padding-left: 1.2em; 
+}
+
+.fbox {
+	align-items: center;
+	flex: 1;
+	min-width: 0;
+	min-height: 0;
+	justify-content: center;
+	display: flex;
 }

@@ -25,7 +25,7 @@ thead tr {
 /*}*/
 
 section.gdtable table td:last-child{
-	width:100%;
+	width:80%;
 }
 
 section.gdtable table td:first-child{
