@@ -51,7 +51,7 @@ img {
 }
 
 .img {
-	padding : v_img_padding();
+	padding : $v_img_padding();
 	width: 100%;
 }
 
@@ -112,7 +112,7 @@ img {
 	/*flex-grow: 1;*/
 	padding : v_content_padding();
 	/*Add border only when given such option*/
-	border : ifdef(`v_content_border',`1px', `0px') solid black;
+	border : $ifdefel(v_content_border,1px,0px) solid black;
 }
 
 .topSpace {
@@ -142,8 +142,8 @@ img {
 .botSpace {
 	display: flex;
 	justify-content: space-between; 
-	margin : v_bot_space_margin();
-	padding : v_bot_space_padding();
+	margin : $v_bot_space_margin();
+	padding : $v_bot_space_padding();
 	flex-grow: 0;
 	flex-basis: 10%;
 }
