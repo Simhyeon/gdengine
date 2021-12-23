@@ -2,6 +2,7 @@
 
 section {
 	font-family: $v_font_family(), sans-serif;
+	font-size: $v_font_default(); /* Default font size */
 }
 
 section.title {
@@ -89,6 +90,7 @@ section.tnc h1 {
 
 section.tnc .marp-container {
 	/* This was hard-coded and I don't know what it is specifically 435px, kekw*/
+	/* Maybe utilize v_basis_height? */
 	--area-height: 435px;
 
 	display: flex;
