@@ -45,10 +45,10 @@ $define(ol,a_count=$forloop(1,$a_count(),#))
 $define(idt,a_count=$forloop(1,$a_count(),:))
 
 % URL Link (Same functionality wit markdown link)
-$define(url,a_src a_text=[$a_src() $a_text()])
+$define(url,a_src=[$a_src() Url_not_found])
 
 % Image Link
-$define(image,a_src=[[File:$name($a_src())|alt=Image file]]
+$define(image,a_src=[[File:$name($a_src())|alt=Image_file]]
 $ifenv(MW_UPLOAD,$fileout(false,image_list.txt,$a_src()$nl())))
 
 % Text with font size macro

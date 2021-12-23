@@ -2,11 +2,11 @@
 $define(mod_marp=)
 
 % Environment variables 
-$define(v_basis_height=500)
-$define(v_font_default=24)
-$define(v_thead_default=18)
-$define(v_tbody_default=14)
-$define(v_font_family=sans-serif)
+$static(v_basis_height,500)
+$static(v_font_default,24)
+$static(v_thead_default,18)
+$static(v_tbody_default,14)
+$static(v_font_family,sans-serif)
 
 % Macros 
 
@@ -219,5 +219,7 @@ $define(magenta,a_content=$text_color($COLOR_MAGENTA(),$a_content*()))
 $define(cyan,a_content=$text_color($COLOR_CYAN(),$a_content*()))
 $define(white,a_content=$text_color($COLOR_WHITE(),$a_content*()))
 
+% TODO
+% This is still experimental
 % Container macro
 $define(container,a_content=<div class="marp-container">$a_content()</div>)

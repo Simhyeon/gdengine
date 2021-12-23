@@ -34,20 +34,20 @@ $define(idt,a_count=$forloop(2,$a_count(),    ))
 # Emtpry ul is same with level 1 
 $define(ul,a_count=$forloop(2,$a_count(),    )*)
 
-# Ordered list
+% Ordered list
 $define(ol,a_count=$forloop(2,$a_count(),    )1.)
 
-# URL
-$define(url,a_src a_text=[$a_text()]($a_src())) # $2 is alternate text, $1 is image url
+% URL
+$define(url,a_src=[Image not found]($a_src())) 
 
-# Image substitue macros
+% Image substitue macros
 $define(image,a_url=
 ![Image not found]($a_url())
 )
 
-# ==========
-# DOCX specific macros
-# New page
+% ==========
+% DOCX specific macros
+% New page
 $define(newpage=```{=openxml}
 <w:p>
   <w:r>

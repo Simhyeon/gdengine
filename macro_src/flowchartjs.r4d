@@ -12,20 +12,20 @@ $define(fstart,a_label a_goto=
 	$append(DIRS,start->$a_goto()$nl())
 )
 
-# End
-# fend(label)
+% End
+% fend(label)
 $define(fend,a_label=
 	$tempout(end=>end: $a_label()$nl())
 )
 
-# Flowchart node
-# fnode_cond(id,label,yesId,noId)
+% Flowchart node
+% fcond(id,label,yesId,noId)
 $define(fcond,a_id a_label a_yesId a_noId=
 	$tempout($a_id()=>condition: $a_label()$nl())
 	$append(DIRS,$a_id()(yes)->$a_yesId()$nl()$a_id()(no)->$a_noId()$nl())
 )
 
-# fnode(id,label,nextId)
+% fnode(id,label,nextId)
 $define(fnode,a_id a_label a_nextId=
 	$tempout($a_id()=>operation: $a_label()$nl())
 	$append(DIRS,$a_id()->$a_nextId()$nl())
