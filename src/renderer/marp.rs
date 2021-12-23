@@ -39,30 +39,24 @@ pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> Gde
         utils::BUILD_PATH.join(format!("out.{}", format)).to_owned()
     };
 
-    // Set local chrome path for marp
-    let chrome_name: &str;
-    if cfg!(debug_assertions) {
-        chrome_name = "chrome";
-    } else {
-        if cfg!(target_os = "windows") {
-            chrome_name= "chrome.exe";
-        } else {
-            chrome_name= "chrome";
-        }
-    }
-    let chrome_path = utils::renderer_path("marp")?.join("bin").join("chrome").join(chrome_name);
-    std::env::set_var("CHROME_PATH", chrome_path);
+    // If chrome path is not defined
+    // Try setting new one
+    if let Err(_) = std::env::var("CHROME_PATH") {
+        let chrome_path = 
+            // If chromium exists in env use it first
+            if let Ok(path) = utils::renderer_bin_path("marp", "chromium") {
+                path
+            } else {
+                // Else find chrome in path 
+                // and finally find chrome(chromium)
+                utils::renderer_bin_path("marp", Path::new("chrome").join("chrome"))?
+            };
 
-    let marp_path: PathBuf;
-    if cfg!(debug_assertions) {
-        marp_path = utils::renderer_path("marp")?.join("bin").join("marp");
-    } else {
-        if cfg!(target_os = "windows") {
-            marp_path = utils::renderer_path("marp")?.join("bin").join("marp.exe");
-        } else {
-            marp_path = utils::renderer_path("marp")?.join("bin").join("marp");
-        }
-    }
+        // Update var only if it was not defined before
+        std::env::set_var("CHROME_PATH", chrome_path);
+    } 
+
+    let marp_path: PathBuf = utils::renderer_bin_path("marp", "marp")?;
 
     utils::command(marp_path.to_str().unwrap(), vec![
         source_file.as_os_str(),

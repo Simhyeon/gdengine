@@ -11,16 +11,7 @@ pub(crate) fn render(out_file: &Option<PathBuf>) -> GdeResult<Option<PathBuf>> {
         utils::BUILD_PATH.join("out.docx").to_owned()
     };
 
-    let pandoc_path: PathBuf;
-    if cfg!(debug_assertions) {
-        pandoc_path = utils::renderer_path("pandoc")?.join("bin").join("pandoc");
-    } else {
-        if cfg!(target_os = "windows") {
-            pandoc_path = utils::renderer_path("pandoc")?.join("bin").join("pandoc.exe");
-        } else {
-            pandoc_path = utils::renderer_path("pandoc")?.join("bin").join("pandoc");
-        }
-    }
+    let pandoc_path: PathBuf = utils::renderer_bin_path("pandoc", "pandoc")?;
 
     utils::command(pandoc_path.to_str().unwrap(), vec![
         utils::middle_file_path()?.as_os_str(),

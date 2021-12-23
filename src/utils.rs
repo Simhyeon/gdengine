@@ -1,4 +1,5 @@
 use std::path::{PathBuf, Path};
+use crate::error::GdeError;
 use crate::models::GdeResult;
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -59,6 +60,38 @@ pub fn module_path(name : impl AsRef<str>) -> GdeResult<PathBuf> {
 
 pub fn renderer_path(name : impl AsRef<str>) -> GdeResult<PathBuf> {
     Ok(RENDERER_PATH.join(name.as_ref()))
+}
+
+// TODO 
+// Add exe at the end if windows
+// Check debug features
+pub fn renderer_bin_path(renderer: impl AsRef<str>, bin_path: impl AsRef<Path>) -> GdeResult<PathBuf> {
+    let mut static_bin : PathBuf;
+
+    // If binary already exists in environment paths, simply use it.
+    // If not, use statically contained binary
+    static_bin = match which::which(bin_path.as_ref().file_name().unwrap()) {
+        Ok(path) => path,
+        Err(_) => {
+            let static_bin = RENDERER_PATH
+                .join(renderer.as_ref())
+                .join("bin") // This is fixed path
+                .join(bin_path.as_ref());
+
+            // File should exists
+            if !static_bin.exists() {
+                return Err(GdeError::NoSuchPath(format!("Renderer \"{}\" doesn't exist.", static_bin.display())));
+            }
+
+            static_bin
+        },
+    };
+
+    // Set extension for windows version
+    if cfg!(target_os = "windows") {
+        static_bin.set_extension("exe");
+    }
+    Ok(static_bin)
 }
 
 /// out.gddt
