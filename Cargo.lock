@@ -483,6 +483,7 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror",
+ "which",
 ]
 
 [[package]]
