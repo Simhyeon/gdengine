@@ -1,15 +1,18 @@
-# Command options
+## Command options
 
 ```
 # Show help message
-gde help
+gde --help
 
 # Inititiate project
 gde init
 # Also initiate with git 
 gde init --git
 
-# Render with marp renderer
+# Render with renderer module
+gde render -m <RENDERER_MODULE>
+
+# e.g. render with marp renderer
 gde render -m marp
 
 # Available renderers are,
@@ -43,7 +46,7 @@ gde run -t marp      // run marp process
 gde test --target mw // run mw process
 ```
 
-# Config example
+## Config example
 
 ```json
 {
@@ -56,4 +59,10 @@ gde test --target mw // run mw process
 	},
     "test": {"mw": ["render -m mediawiki --test --preserve"]}
 }
+```
+
+```bash
+# gde run -t second is equivalent to 
+gde render -m flowchartjs -e UPLOAD_JS 
+gde render -m marp
 ```
