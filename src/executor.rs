@@ -1,9 +1,12 @@
 use std::path::{PathBuf, Path};
 use crate::error::GdeError;
 use crate::models::GdeResult;
+use crate::renderer::plot::PlotModel;
 use crate::utils;
 use crate::renderer::*;
+use crate::renderer::mediawiki::ImageList;
 use rad::CommentType;
+use rad::StorageOutput;
 use rad::{Processor, AuthType, DiffOption, RadError};
 
 pub struct Executor {
@@ -40,7 +43,7 @@ impl Executor {
         }
 
         // Post process
-        let out_file = match self.render() {
+        let out_file = match self.render(&mut processor) {
             Result::Ok(value) => value,
             Err(err) => {
                 // On test environment, it is fine to fail 
@@ -97,6 +100,9 @@ impl Executor {
             RenderType::Marp => {
                 marp::rad_setup(processor)?;
             }
+            RenderType::Plotter => {
+                plot::rad_setup(processor)?;
+            }
             _ =>()
         }
 
@@ -115,7 +121,7 @@ impl Executor {
             .unix_new_line(true)
             .allow(Some(vec!(AuthType::ENV, AuthType::FIN, AuthType::FOUT, AuthType::CMD)))
             .write_to_file(Some(utils::middle_file_path().expect("Failed to get path")))?
-            .custom_rules(Some(vec![
+            .rule_files(Some(vec![
                     utils::STD_MACRO_PATH.to_owned(),
                     utils::module_path(self.render_type.to_string()).expect("Failed to get path")
             ]))?
@@ -146,13 +152,20 @@ impl Executor {
     }
 
     /// Render with a designated renderer
-    fn render(&self) -> GdeResult<Option<PathBuf>> {
+    fn render(&self, processor: &mut Processor) -> GdeResult<Option<PathBuf>> {
         let out_file = match self.render_type {
             RenderType::Marp =>{
                 marp::render( &self.options.format, &self.options.out_file)?
             }
             RenderType::MediaWiki => {
-                mediawiki::render()?
+                let output = processor.extract_storage(true).unwrap().unwrap();
+                let image_list: ImageList;
+                if let StorageOutput::Binary(bytes) = output {
+                    image_list = ImageList::from_bytes(bytes)?;
+                } else {
+                    return Err(GdeError::RendererError("Image list cannot be constructed from StorageOutput::Text"));
+                }
+                mediawiki::render(image_list)?
             }
             RenderType::MWPreview => {
                 mediawiki::render_preview()?
@@ -171,6 +184,20 @@ impl Executor {
             }
             RenderType::Webuibts => {
                 webuibts::render(&self.options.out_file)?
+            }
+            RenderType::Plotter => {
+                // Extract storage method should always return Some
+                // unless, it is a logic error
+                let plot_model = if let Ok(Some(output)) = processor.extract_storage(true) {
+                    if let StorageOutput::Binary(bytes) = output {
+                        PlotModel::from_bytes(&bytes)?
+                    } else {
+                        return Err(GdeError::RendererError("Plotmodel cannot be constructed from StorageOutput::Text"));
+                    }
+                } else { 
+                    return Err(GdeError::RendererError("Plot needs porper macro setup to work. Failed to created plot map"));
+                };
+                plot::render(&self.options.out_file, plot_model).expect("DEBUG")
             }
         };
         
@@ -199,11 +226,9 @@ impl Executor {
                 }
             }
         }
+
         // Renderer specific files
         match self.render_type {
-            RenderType::MediaWiki => {
-                mediawiki::clear_files(self.options.test, self.options.preserve)?;
-            }
             _ => ()
         }
 
@@ -271,7 +296,8 @@ pub enum RenderType {
     Gdlogue,
     FlowchartJs,
     FlowchartGvz,
-    Webuibts
+    Webuibts,
+    Plotter,
 }
 
 impl RenderType {
@@ -284,6 +310,7 @@ impl RenderType {
             "flowchartjs" => Self::FlowchartJs,
             "flowchartgvz" => Self::FlowchartGvz,
             "webuibts" => Self::Webuibts,
+            "plotter" => Self::Plotter,
             _ => return Err(GdeError::InvalidCommand(format!("{} is not valid render type",render_type))),
         };
         Ok(render_type)
@@ -303,6 +330,7 @@ impl fmt::Display for RenderType {
             &RenderType::Pandoc => "pandoc",
             &RenderType::FlowchartGvz => "flowchartgvz",
             &RenderType::FlowchartJs => "flowchartjs",
+            &RenderType::Plotter => "plotter",
         };
         fmt.write_str(string)?;
         Ok(())
