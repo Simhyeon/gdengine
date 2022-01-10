@@ -24,7 +24,7 @@ fn rad(out_file : &PathBuf) -> RadResult<()> {
         .write_to_file(Some(out_file.to_owned()))?
         .unix_new_line(true)
         .allow(Some(vec!(AuthType::FIN, AuthType::ENV)))
-        .custom_rules(Some(
+        .rule_files(Some(
                 vec![utils::module_path("webuibts").expect("Failed to get module path")]
         ))?
         .from_file(&utils::renderer_path("webuibts").expect("Failed to get renderer path").join("index.html"))?;
