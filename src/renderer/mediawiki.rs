@@ -2,27 +2,46 @@ use std::path::{PathBuf, Path};
 use crate::error::GdeError;
 use crate::models::GdeResult;
 use crate::utils;
-use rad::{Processor,AuthType};
+use rad::{Processor,AuthType, RadStorage, StorageResult, StorageOutput};
 use reqwest::blocking::{Client, multipart};
+use serde::{Serialize, Deserialize};
 
-pub const IMAGE_LIST : &str = "image_list.txt";
+#[derive(Serialize, Deserialize)]
+pub(crate) struct ImageList {
+    pub images: Vec<String>,
+}
+
+impl RadStorage for ImageList {
+    fn update(&mut self, args : &Vec<String>) -> StorageResult<()> {
+        self.images.push(args[0].to_owned());
+        Ok(())
+    }
+
+    fn extract(&mut self, _: bool) -> StorageResult<Option<StorageOutput>> {
+        Ok(Some(StorageOutput::Text(self.images.join("\n"))))
+    }
+}
+
+impl ImageList {
+    pub fn from_bytes(bytes: Vec<u8>) -> GdeResult<Self> {
+        Ok(bincode::deserialize::<Self>(&bytes).expect("F"))
+    }
+}
 
 pub(crate) fn rad_setup(processor : &mut Processor) -> GdeResult<()> {
-    processor.from_string(
-        r#"$ifenv(MW_UPLOAD,$fileout(true,image_list.txt,))"#
-    )?;
+    processor.set_storage(Box::new(ImageList{ images: Vec::new() }));
     Ok(())
 }
 
 /// MediaWiki's target is not a file but server loaded page
-pub(crate) fn render() -> GdeResult<Option<PathBuf>> {
+pub(crate) fn render(image_list: ImageList) -> GdeResult<Option<PathBuf>> {
     let source_file = utils::middle_file_path()?;
     compress_file(&source_file)?;
     check_prerequisites()?;
     preprocess(&source_file)?;
 
     let request = MediaWikiRequest::new(&source_file)?;
-    request.exec()?; 
+    request.exec(image_list)?; 
 
     Ok(Some(source_file))
 }
@@ -62,22 +81,6 @@ fn preprocess(path: &Path) -> GdeResult<()> {
     Ok(())
 }
 
-pub(crate) fn clear_files(test: bool, preserve: bool) -> GdeResult<()> {
-    let image_list = std::env::current_dir()?.join(IMAGE_LIST);
-    // Test reseve image list file
-    if image_list.exists() {
-        if test || preserve {
-            std::fs::rename(
-                image_list,
-                &*utils::CACHE_PATH.join(IMAGE_LIST)
-            )?;
-        } else {
-            std::fs::remove_file(image_list)?;
-        }
-    }
-    Ok(())
-}
-
 struct MediaWikiRequest<'a> {
     client : Client,
     url : String,
@@ -101,13 +104,13 @@ impl<'a> MediaWikiRequest<'a> {
         })
     }
 
-    fn exec(&self) -> GdeResult<()> {
+    fn exec(&self, image_list: ImageList) -> GdeResult<()> {
         let login_token = self.get_login_token()?;
         self.post_login(&login_token)?;
         let csrf_token = self.get_csrf_token()?;
         // This should come first
         if let Ok(_) = std::env::var("MW_UPLOAD") {
-            self.upload_images(&csrf_token)?;
+            self.upload_images(&csrf_token, image_list)?;
         }
         self.edit_page(&csrf_token)?;
         // It is ok that evn var is not set
@@ -201,11 +204,8 @@ impl<'a> MediaWikiRequest<'a> {
         Ok(())
     }
 
-    fn upload_images(&self, csrf_token: &str) -> GdeResult<()> {
-
-        let images = String::from_utf8(std::fs::read(Path::new(IMAGE_LIST))?).expect("");
-
-        for line in images.lines().into_iter() {
+    fn upload_images(&self, csrf_token: &str, image_list: ImageList) -> GdeResult<()> {
+        for line in image_list.images.iter() {
             let path_buf = PathBuf::from(line);
 
             if !path_buf.exists() {
