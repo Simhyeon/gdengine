@@ -11,6 +11,7 @@ pub(crate) fn rad_setup(processor : &mut Processor) -> GdeResult<()> {
     Ok(())
 }
 
+/// Additional basic macro for md conversion
 // Always greedy for consistency No need to utilzile processor
 fn md_to_html(args: &str, _: bool, _ : &mut Processor) -> RadResult<Option<String>> {
     let mut comrak_option = ComrakOptions::default();
@@ -21,7 +22,6 @@ fn md_to_html(args: &str, _: bool, _ : &mut Processor) -> RadResult<Option<Strin
 }
 
 pub(crate) fn render(format: &Option<String>, out_file: &Option<PathBuf>) -> GdeResult<Option<PathBuf>> {
-
     // Marp expects markdown file so, source file should be markdown
     let source_file = Path::new("out.md");
     // Copy file to root directory
