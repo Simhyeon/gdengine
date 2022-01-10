@@ -1,0 +1,3 @@
+$static(mod,plotter)
+
+$define(plot_image,Arguments=Body)
