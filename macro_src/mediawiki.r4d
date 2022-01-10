@@ -49,7 +49,7 @@ $define(url,a_src=[$a_src() Url_not_found])
 
 % Image Link
 $define(image,a_src=[[File:$name($a_src())|alt=Image_file]]
-$ifenv(MW_UPLOAD,$fileout(false,image_list.txt,$a_src()$nl())))
+$ifenv(MW_UPLOAD,$update($a_src())))
 
 % Text with font size macro
 % No font size if value 0, which is automatic in marp
