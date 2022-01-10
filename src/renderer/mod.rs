@@ -5,3 +5,4 @@ pub mod marp;
 pub mod mediawiki;
 pub mod webuibts;
 pub mod pandoc;
+pub mod plot;
