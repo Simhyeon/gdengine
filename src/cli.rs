@@ -63,6 +63,8 @@ impl Cli {
                     // Set environment variables
                     Self::set_env_vars(args)?;
 
+                    let variable_list = Self::set_variables(args)?;
+
                     if let Some(module) = args.value_of("module") {
                         // Set module
                         let render_option = self.parse_exec_options(args)?;
@@ -71,6 +73,7 @@ impl Cli {
                         Executor::new(
                             module,
                             render_option,
+                            variable_list
                         )?.exec()?;
                     } else {
                         eprintln!("No proper render module was provided");
@@ -86,7 +89,7 @@ impl Cli {
         Self::args_builder().get_matches()
     }
 
-    pub fn set_env_vars(matches : &clap::ArgMatches) -> GdeResult<()> {
+    fn set_env_vars(matches : &clap::ArgMatches) -> GdeResult<()> {
         if let Some(envs) = matches.value_of("env") {
             let envs = envs.split(',').collect::<Vec<&str>>();
             for env in envs {
@@ -106,6 +109,28 @@ impl Cli {
         }
 
         Ok(())
+    }
+
+    fn set_variables(matches: &clap::ArgMatches) -> GdeResult<Option<Vec<(String,String)>>> {
+        use std::io::BufRead;
+
+        if let Some(file) = matches.value_of("varfile") {
+            let file = std::fs::File::open(file)?;
+            let buf = std::io::BufReader::new(file);
+            let variables : Result<Vec<(String,String)>, GdeError> = buf.lines()
+                .map(|l| {
+                    let line = l.expect("Failed to read line from variable file");
+                    let splitted: Vec<&str> = line.splitn(2,'=').collect();
+                    if splitted.len() < 2 {
+                        return Err(GdeError::VarFileError(format!("\n{}\n is not a valid variable syntax", line)));
+                    }
+                    Ok((splitted[0].to_owned(),splitted[1].to_owned()))
+                })
+                .collect();
+            Ok(Some(variables?))
+        } else {
+            Ok(None)
+        }
     }
 
     pub fn get_string_matches(input: &str) -> clap::ArgMatches {
@@ -184,6 +209,11 @@ impl Cli {
                 .help("Set environment variables from a file")
                 .short('E')
                 .long("envfile")
+                .takes_value(true))
+            .arg(Arg::new("varfile")
+                .help("Set static macros from varaible file")
+                .short('V')
+                .long("varfile")
                 .takes_value(true))
     }
 
