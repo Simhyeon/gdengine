@@ -23,6 +23,8 @@ pub enum GdeError {
     InvalidCommand(String),
     #[error("Invalid variable file : {0}")]
     VarFileError(String),
+    #[error("Failed plotting operation : {0}")]
+    PlotError(String),
 }
 
 impl From<std::io::Error> for GdeError {
