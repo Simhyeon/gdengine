@@ -1,3 +1,17 @@
 $static(mod,plotter)
 
-$define(plot_image,Arguments=Body)
+$define(plot_type,a_type=$update(plot_type,$a_type()))
+$define(caption,a_text=$update(caption,$a_text()))
+$define(caption_style,a_font a_font_size=$update(caption_style,$a_font() $a_font_size()))
+$define(x_desc,a_text=$update(x_desc,$a_text()))
+$define(x_label_size,a_size=$update(x_label_size,$a_size()))
+$define(y_desc,a_text=$update(y_desc,$a_text()))
+$define(y_label_size,a_label_size=$update(y_label_size,$a_label_size()))
+$define(desc_style,a_font a_font_size=$update(desc_style,$a_font() $a_font_size()))
+% This implementation looks suspicious but define cannot set optional argument thus, this hack is necessary
+$define(plot_data,a_data1=$update(data,$a_data1*()))
+$define(background,a_r a_g a_b=$update(background,$a_r() $a_g() $a_b()))
+$define(row_offset,a_offset=$update(row_offset,$a_offset()))
+$define(column_offset,a_offset=$update(column_offset,$a_offset()))
+$define(img_size,a_x_width a_y_width=$update(img_size,$a_x_width() $a_y_width()))
+$define(margin,a_size=$update(margin,$a_size()))
