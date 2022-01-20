@@ -1,3 +1,9 @@
+/// Plotter crate use struct based implementation which makes it so hard to make plot rendering
+/// very discrete.
+/// 
+/// The reason render processes doesn't look DRY is because creating generic chartcontext over
+/// various chart types are not so easy and doesn't worth the hassle.
+
 use crate::models::GdeResult;
 use rad::{Processor, RadStorage, StorageResult, StorageOutput};
 use plotters::prelude::*;
@@ -18,7 +24,10 @@ pub fn render(out_file: &Option<PathBuf>, plot_model: PlotModel) -> Result<Optio
 
     match plot_type {
         PlotType::BarV => {
-            bar_chart(out_file, plot_model)?;
+            bar_chart_vertical(out_file, plot_model)?;
+        }
+        PlotType::BarH => {
+            bar_chart_horizontal(out_file, plot_model)?;
         }
         PlotType::Line => {
             line_chart(out_file, plot_model)?;
@@ -49,11 +58,6 @@ fn line_chart(out_file: PathBuf, plot_model: PlotModel) -> Result<(), Box<dyn st
         .y_label_area_size(plot_model.y_label_size)
         .margin(plot_model.margin)
         .caption(&plot_model.caption, (caption_font.as_str(), caption_size))
-        // Into_segmented makes number match column's center position
-        //.build_cartesian_2d(
-            //(0..column_count).into_segmented(), 
-            //0.0..row_count as f64
-        //)? 
         .build_cartesian_2d(0..column_count, 0f64..row_line_end )?;
 
     // Mesh configuration
@@ -77,7 +81,7 @@ fn line_chart(out_file: PathBuf, plot_model: PlotModel) -> Result<(), Box<dyn st
     Ok(())
 }
 
-fn bar_chart(out_file: PathBuf, plot_model: PlotModel) -> Result<(), Box<dyn std::error::Error>>{
+fn bar_chart_vertical(out_file: PathBuf, plot_model: PlotModel) -> Result<(), Box<dyn std::error::Error>>{
     let root_area = BitMapBackend::new(&out_file, plot_model.img_size).into_drawing_area();
     root_area.fill(&WHITE).unwrap();
 
@@ -90,7 +94,7 @@ fn bar_chart(out_file: PathBuf, plot_model: PlotModel) -> Result<(), Box<dyn std
         .unwrap();
 
     let row_count = plot_model.row_offset as u32 + max.ceil() as u32;
-    let column_count = plot_model.column_offset as usize + plot_model.data.len() - 1;
+    let column_count = plot_model.column_offset as u32 + plot_model.data.len() as u32 - 1;
 
     let mut chart = ChartBuilder::on(&root_area)
         .x_label_area_size(plot_model.x_label_size)
@@ -116,20 +120,79 @@ fn bar_chart(out_file: PathBuf, plot_model: PlotModel) -> Result<(), Box<dyn std
         .draw()?;
 
     let data = plot_model.data.iter().map(|f| *f as u32).collect::<Vec<u32>>();
-
-    chart.draw_series((0..).zip(data.iter()).map(|(x, y)| {
-        let x0 = SegmentValue::Exact(x);
-        let x1 = SegmentValue::Exact(x + 1);
-        let mut bar = Rectangle::new([(x0, 0), (x1, *y)], RED.filled());
-        bar.set_margin(0, 0, 5, 5);
-        bar
-    }))
-    .unwrap();
+    chart.draw_series((0..).zip(data.iter()).map(draw_bar_v)).unwrap();
 
     // To avoid the IO failure being ignored silently, we manually call the present function
     root_area.present().expect("Unable to write result to file");
 
     Ok(())
+}
+
+fn bar_chart_horizontal(out_file: PathBuf, plot_model: PlotModel) -> Result<(), Box<dyn std::error::Error>>{
+    let root_area = BitMapBackend::new(&out_file, plot_model.img_size).into_drawing_area();
+    root_area.fill(&WHITE).unwrap();
+
+    let (caption_font, caption_size) = plot_model.caption_style;
+    let (desc_font, desc_size) = plot_model.desc_style;
+
+    let max = plot_model.data
+        .iter()
+        .max_by(|&x, &y| x.partial_cmp(&y).unwrap())
+        .unwrap();
+
+    let row_count = plot_model.row_offset as u32 + max.ceil() as u32;
+    let column_count = plot_model.column_offset as u32 + plot_model.data.len() as u32 - 1;
+
+    let mut chart = ChartBuilder::on(&root_area)
+        .x_label_area_size(plot_model.x_label_size)
+        .y_label_area_size(plot_model.y_label_size)
+        .margin(plot_model.margin)
+        .caption(&plot_model.caption, (caption_font.as_str(), caption_size))
+        // Into_segmented makes number match column's center position
+        .build_cartesian_2d(
+            0u32..row_count,
+            (0..column_count).into_segmented()
+        )?; 
+
+    // Mesh configuration
+    chart.configure_mesh()
+        // Remove x lines
+        .disable_x_mesh()
+        // Remove y lines
+        .disable_y_mesh()
+        .bold_line_style(&WHITE.mix(0.3))
+        .y_desc(plot_model.y_desc)
+        .x_desc(plot_model.x_desc)
+        .axis_desc_style((desc_font.as_str(), desc_size))
+        .draw()?;
+
+    let data = plot_model.data.iter().map(|f| *f as u32).collect::<Vec<u32>>();
+
+    chart.draw_series((0..).zip(data.iter()).map(draw_bar_h)).unwrap();
+
+    // To avoid the IO failure being ignored silently, we manually call the present function
+    root_area.present().expect("Unable to write result to file");
+
+    Ok(())
+}
+
+fn draw_bar_v(tup : (u32, &u32)) -> Rectangle<(plotters::prelude::SegmentValue<u32>, u32)> {
+    let (x,y) = tup;
+    let x0 = SegmentValue::Exact(x);
+    let x1 = SegmentValue::Exact(x + 1);
+    let mut bar = Rectangle::new([(x0, 0), (x1, *y)], RED.filled());
+    bar.set_margin(0, 0, 5, 5);
+    bar
+}
+
+fn draw_bar_h(tup: (u32, &u32)) -> Rectangle<(u32, plotters::prelude::SegmentValue<u32>)> {
+    let (y,x) = tup;
+    let mut bar = Rectangle::new([
+        (0, SegmentValue::Exact(y)), 
+        (*x, SegmentValue::Exact(y + 1))
+    ], RED.filled());
+    bar.set_margin(5, 5, 0, 0);
+    bar
 }
 
 #[derive(Serialize, Deserialize, Default, Debug)]
@@ -170,7 +233,7 @@ impl RadStorage for PlotModel {
                 self.caption = value.to_owned();
             }
             "caption_style" => {
-                let style = value.split(' ').collect::<Vec<&str>>();
+                let style = value.split_whitespace().collect::<Vec<&str>>();
                 if style.len() != 2 {
                     eprintln!("Description style is not valid");
                     panic!();
@@ -193,13 +256,13 @@ impl RadStorage for PlotModel {
                 self.y_label_size = value.trim().parse().expect("Failed to parse y label size");
             }
             "data"  => {
-                self.data = value.split(' ')
+                self.data = value.split(',')
                     .map(|datum| { 
                         datum.trim().parse().expect("Failed to parse datum") 
                     }).collect::<Vec<f64>>();
             }
             "background" => {
-                let bg = value.split(' ')
+                let bg = value.split_whitespace()
                     .map(|color_code| {
                         color_code.trim().parse().expect("Failed to parse background color code")
                     }).collect::<Vec<u8>>();
@@ -218,7 +281,7 @@ impl RadStorage for PlotModel {
                 self.column_offset = value.trim().parse().expect("Failed to parse column offset");
             }
             "desc_style" => {
-                let style = value.split(' ').collect::<Vec<&str>>();
+                let style = value.split_whitespace().collect::<Vec<&str>>();
                 if style.len() != 2 {
                     eprintln!("Description style is not valid");
                     panic!();
@@ -229,7 +292,7 @@ impl RadStorage for PlotModel {
                 );
             }
             "img_size" => {
-                let size = value.split(' ')
+                let size = value.split_whitespace()
                     .map(|num| num.trim().parse().expect("Failed to parse img size"))
                     .collect::<Vec<u32>>();
                 if size.len() != 2 {
