@@ -110,7 +110,7 @@ impl Cli {
 
     pub fn get_string_matches(input: &str) -> clap::ArgMatches {
         let mut args = vec!["gde"];
-        args.extend(input.split(' '));
+        args.extend(input.split_whitespace());
         Self::args_builder().get_matches_from(args)
     }
 
