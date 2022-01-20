@@ -20,7 +20,9 @@ pub enum GdeError {
     #[error("Reqwest error : {0}")]
     ReqError(reqwest::Error),
     #[error("Invalid command error : {0}")]
-    InvalidCommand(String)
+    InvalidCommand(String),
+    #[error("Invalid variable file : {0}")]
+    VarFileError(String),
 }
 
 impl From<std::io::Error> for GdeError {
