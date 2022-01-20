@@ -12,13 +12,15 @@ use rad::{Processor, AuthType, DiffOption, RadError};
 pub struct Executor {
     render_type: RenderType,
     options : ExecOptions,
+    variable_list: Option<Vec<(String,String)>>
 }
 
 impl Executor {
-    pub fn new(render_type: &str, options: ExecOptions) -> GdeResult<Self> {
+    pub fn new(render_type: &str, options: ExecOptions, variable_list: Option<Vec<(String,String)>>) -> GdeResult<Self> {
         Ok(Self { 
             render_type : RenderType::from(render_type)?,
             options,
+            variable_list,
         })
     }
 
@@ -112,7 +114,7 @@ impl Executor {
     /// Build rad processor with options
     fn build_processor(&self) -> GdeResult<Processor> {
         let diff_option = if self.options.diff { DiffOption::Change } else { DiffOption::None };
-        let processor = Processor::new()
+        let mut processor = Processor::new()
             .purge(true)
             .greedy(true)
             .set_comment_type(CommentType::Start)
@@ -126,6 +128,11 @@ impl Executor {
                     utils::module_path(self.render_type.to_string()).expect("Failed to get path")
             ]))?
             .diff(diff_option)?;
+
+        // Add variables
+        processor.add_static_rules(
+            self.variable_list.clone().unwrap_or(vec![])
+        )?;
 
         Ok(processor)
     }
