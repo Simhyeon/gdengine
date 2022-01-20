@@ -93,6 +93,9 @@ Caveat: Chrome has higher priority over chromium
 - gdlogue (Dialgoue, html, png, pdf)
 - webuibts (web based ui with bootstrap)
 
+**To be updated**
+- plotter ( Plot chart )
+
 ## Basic usage
 
 ```bash
@@ -113,7 +116,7 @@ gde test --target wiki
 
 ## Macros
 
-[Gdengine specific macros](docs/macro.md)
+[Gdengine specific macros](./docs/macro.md)
 
 Gdengine uses r4d macro processor intenrally and all [r4d built in
 macros](https://github.com/Simhyeon/r4d/blob/master/docs/basic_macros.md) are
