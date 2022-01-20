@@ -4,7 +4,7 @@
 /// The reason render processes doesn't look DRY is because creating generic chartcontext over
 /// various chart types are not so easy and doesn't worth the hassle.
 
-use crate::models::GdeResult;
+use crate::{models::GdeResult, error::GdeError};
 use rad::{Processor, RadStorage, StorageResult, StorageOutput};
 use plotters::prelude::*;
 use std::path::PathBuf;
@@ -15,7 +15,7 @@ pub(crate) fn rad_setup(processor : &mut Processor) -> GdeResult<()> {
     Ok(())
 }
 
-pub fn render(out_file: &Option<PathBuf>, plot_model: PlotModel) -> Result<Option<PathBuf>, Box<dyn std::error::Error>> {
+pub fn render(out_file: &Option<PathBuf>, plot_model: PlotModel) -> GdeResult<Option<PathBuf>> {
     let out_file = if let Some(file) = out_file{
         file.to_owned()
     } else { PathBuf::from("out.png") };
@@ -38,17 +38,21 @@ pub fn render(out_file: &Option<PathBuf>, plot_model: PlotModel) -> Result<Optio
     Ok(None)
 }
 
-fn line_chart(out_file: PathBuf, plot_model: PlotModel) -> Result<(), Box<dyn std::error::Error>> {
+fn line_chart(out_file: PathBuf, plot_model: PlotModel) -> GdeResult<()> {
     let root_area = BitMapBackend::new(&out_file, plot_model.img_size).into_drawing_area();
     root_area.fill(&WHITE).unwrap();
 
     let (caption_font, caption_size) = plot_model.caption_style;
     let (desc_font, desc_size) = plot_model.desc_style;
 
+    if plot_model.data.len() == 0 {
+        return Err(GdeError::RendererError("Plot data is empty"));
+    }
+
     let max = plot_model.data
         .iter()
         .max_by(|&x, &y| x.partial_cmp(&y).unwrap())
-        .unwrap();
+        .unwrap_or(&0f64);
 
     let row_line_end = plot_model.row_offset as f64 + max.ceil() as f64;
     let column_count = plot_model.column_offset as usize + plot_model.data.len() - 1;
@@ -58,7 +62,7 @@ fn line_chart(out_file: PathBuf, plot_model: PlotModel) -> Result<(), Box<dyn st
         .y_label_area_size(plot_model.y_label_size)
         .margin(plot_model.margin)
         .caption(&plot_model.caption, (caption_font.as_str(), caption_size))
-        .build_cartesian_2d(0..column_count, 0f64..row_line_end )?;
+        .build_cartesian_2d(0..column_count, 0f64..row_line_end ).map_err(|_| GdeError::PlotError(format!("Failed to create chart")))?;
 
     // Mesh configuration
     ctx.configure_mesh()
@@ -70,18 +74,18 @@ fn line_chart(out_file: PathBuf, plot_model: PlotModel) -> Result<(), Box<dyn st
         .y_desc(plot_model.y_desc)
         .x_desc(plot_model.x_desc)
         .axis_desc_style((desc_font.as_str(), desc_size))
-        .draw()?;
+        .draw().map_err(|_| GdeError::PlotError(format!("Failed to configure mesh for chart")))?;
 
     // TODO, Ok this works at least
     ctx.draw_series(LineSeries::new(
             (0..).zip(plot_model.data.iter()).map(|(x,y)| { (x,*y) }),
             &RED,
-    ))?;
+    )).map_err(|_| GdeError::PlotError(format!("Failed to embed data into a chart")))?;
 
     Ok(())
 }
 
-fn bar_chart_vertical(out_file: PathBuf, plot_model: PlotModel) -> Result<(), Box<dyn std::error::Error>>{
+fn bar_chart_vertical(out_file: PathBuf, plot_model: PlotModel) -> GdeResult<()>{
     let root_area = BitMapBackend::new(&out_file, plot_model.img_size).into_drawing_area();
     root_area.fill(&WHITE).unwrap();
 
@@ -105,7 +109,7 @@ fn bar_chart_vertical(out_file: PathBuf, plot_model: PlotModel) -> Result<(), Bo
         .build_cartesian_2d(
             (0..column_count).into_segmented(), 
             0u32..row_count
-        )?; 
+        ).map_err(|_| GdeError::PlotError(format!("Failed to create chart")))?; 
 
     // Mesh configuration
     chart.configure_mesh()
@@ -117,7 +121,7 @@ fn bar_chart_vertical(out_file: PathBuf, plot_model: PlotModel) -> Result<(), Bo
         .y_desc(plot_model.y_desc)
         .x_desc(plot_model.x_desc)
         .axis_desc_style((desc_font.as_str(), desc_size))
-        .draw()?;
+        .draw().map_err(|_| GdeError::PlotError(format!("Failed to configure mesh for chart")))?;
 
     let data = plot_model.data.iter().map(|f| *f as u32).collect::<Vec<u32>>();
     chart.draw_series((0..).zip(data.iter()).map(draw_bar_v)).unwrap();
@@ -128,7 +132,7 @@ fn bar_chart_vertical(out_file: PathBuf, plot_model: PlotModel) -> Result<(), Bo
     Ok(())
 }
 
-fn bar_chart_horizontal(out_file: PathBuf, plot_model: PlotModel) -> Result<(), Box<dyn std::error::Error>>{
+fn bar_chart_horizontal(out_file: PathBuf, plot_model: PlotModel) -> GdeResult<()>{
     let root_area = BitMapBackend::new(&out_file, plot_model.img_size).into_drawing_area();
     root_area.fill(&WHITE).unwrap();
 
@@ -152,7 +156,7 @@ fn bar_chart_horizontal(out_file: PathBuf, plot_model: PlotModel) -> Result<(), 
         .build_cartesian_2d(
             0u32..row_count,
             (0..column_count).into_segmented()
-        )?; 
+        ).map_err(|_| GdeError::PlotError(format!("Failed to create chart")))?; 
 
     // Mesh configuration
     chart.configure_mesh()
@@ -164,7 +168,7 @@ fn bar_chart_horizontal(out_file: PathBuf, plot_model: PlotModel) -> Result<(), 
         .y_desc(plot_model.y_desc)
         .x_desc(plot_model.x_desc)
         .axis_desc_style((desc_font.as_str(), desc_size))
-        .draw()?;
+        .draw().map_err(|_| GdeError::PlotError(format!("Failed to configure mesh for chart")))?;
 
     let data = plot_model.data.iter().map(|f| *f as u32).collect::<Vec<u32>>();
 
