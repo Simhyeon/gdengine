@@ -30,7 +30,10 @@ pub fn render(out_file: &Option<PathBuf>, plot_model: PlotModel) -> GdeResult<Op
             bar_chart_horizontal(out_file, plot_model)?;
         }
         PlotType::Line => {
-            line_chart(out_file, plot_model)?;
+            line_chart(out_file, plot_model, false)?;
+        }
+        PlotType::Area => {
+            line_chart(out_file, plot_model, true)?;
         }
         _ => (),
     }
@@ -38,7 +41,7 @@ pub fn render(out_file: &Option<PathBuf>, plot_model: PlotModel) -> GdeResult<Op
     Ok(None)
 }
 
-fn line_chart(out_file: PathBuf, plot_model: PlotModel) -> GdeResult<()> {
+fn line_chart(out_file: PathBuf, plot_model: PlotModel, fill: bool) -> GdeResult<()> {
     let root_area = BitMapBackend::new(&out_file, plot_model.img_size).into_drawing_area();
     root_area.fill(&WHITE).unwrap();
 
@@ -76,11 +79,23 @@ fn line_chart(out_file: PathBuf, plot_model: PlotModel) -> GdeResult<()> {
         .axis_desc_style((desc_font.as_str(), desc_size))
         .draw().map_err(|_| GdeError::PlotError(format!("Failed to configure mesh for chart")))?;
 
-    // TODO, Ok this works at least
-    ctx.draw_series(LineSeries::new(
-            (0..).zip(plot_model.data.iter()).map(|(x,y)| { (x,*y) }),
-            &RED,
-    )).map_err(|_| GdeError::PlotError(format!("Failed to embed data into a chart")))?;
+    // Area series
+    if fill {
+        ctx.draw_series(AreaSeries::new(
+                (0usize..).zip(plot_model.data.iter()).map(|(x,y)| (x,*y)), 
+                0.0,
+                &RED.mix(0.2))
+            .border_style(&RED)
+        ).map_err(|_| GdeError::PlotError(format!("Failed to embed data into a chart")))?;
+    } 
+    // Line series
+    else { 
+        // TODO, Ok this works at least
+        ctx.draw_series(LineSeries::new(
+                (0..).zip(plot_model.data.iter()).map(|(x,y)| { (x,*y) }),
+                &RED,
+        )).map_err(|_| GdeError::PlotError(format!("Failed to embed data into a chart")))?;
+    }
 
     Ok(())
 }
@@ -199,7 +214,7 @@ fn draw_bar_h(tup: (u32, &u32)) -> Rectangle<(u32, plotters::prelude::SegmentVal
     bar
 }
 
-#[derive(Serialize, Deserialize, Default, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct PlotModel {
     plot_type: PlotType,
     caption: String,
@@ -215,6 +230,27 @@ pub struct PlotModel {
     desc_style: (String,f64),
     img_size: (u32,u32),
     margin: i32,
+}
+
+impl Default for PlotModel {
+    fn default() -> Self {
+        Self {
+            plot_type: PlotType::Line,
+            caption: "Plot image".to_owned(),
+            caption_style: ("Helvetica".to_owned(),30.0),
+            x_desc: "X label".to_owned(),
+            x_label_size: 50,
+            y_desc: "Y label".to_owned(),
+            y_label_size: 50,
+            data : vec![],
+            background: None,
+            row_offset: 0,
+            column_offset: 0,
+            desc_style: ("Helvetica".to_owned(),20.0),
+            img_size: (800,500),
+            margin: 30,
+        }
+    }
 }
 
 impl PlotModel {
