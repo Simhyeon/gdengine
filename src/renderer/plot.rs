@@ -58,7 +58,7 @@ fn line_chart(out_file: PathBuf, plot_model: PlotModel, fill: bool) -> GdeResult
         .unwrap_or(&0f64);
 
     let row_line_end = plot_model.row_offset as f64 + max.ceil() as f64;
-    let column_count = plot_model.column_offset as usize + plot_model.data.len() - 1;
+    let column_count = plot_model.column_offset as usize + plot_model.data.len();
 
     let mut ctx = ChartBuilder::on(&root_area)
         .x_label_area_size(plot_model.x_label_size)
@@ -113,7 +113,7 @@ fn bar_chart_vertical(out_file: PathBuf, plot_model: PlotModel) -> GdeResult<()>
         .unwrap();
 
     let row_count = plot_model.row_offset as u32 + max.ceil() as u32;
-    let column_count = plot_model.column_offset as u32 + plot_model.data.len() as u32 - 1;
+    let column_count = plot_model.column_offset as u32 + plot_model.data.len() as u32;
 
     let mut chart = ChartBuilder::on(&root_area)
         .x_label_area_size(plot_model.x_label_size)
@@ -160,7 +160,7 @@ fn bar_chart_horizontal(out_file: PathBuf, plot_model: PlotModel) -> GdeResult<(
         .unwrap();
 
     let row_count = plot_model.row_offset as u32 + max.ceil() as u32;
-    let column_count = plot_model.column_offset as u32 + plot_model.data.len() as u32 - 1;
+    let column_count = plot_model.column_offset as u32 + plot_model.data.len() as u32;
 
     let mut chart = ChartBuilder::on(&root_area)
         .x_label_area_size(plot_model.x_label_size)

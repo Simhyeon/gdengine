@@ -2,39 +2,49 @@ use std::path::{PathBuf, Path};
 use crate::error::GdeError;
 use crate::models::GdeResult;
 use crate::utils;
-use rad::{Processor,AuthType, RadStorage, StorageResult, StorageOutput};
+use rad::{Processor,AuthType, RadStorage, StorageResult, StorageOutput, processor};
 use reqwest::blocking::{Client, multipart};
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize)]
-pub(crate) struct ImageList {
-    pub images: Vec<String>,
+//pub struct MWRenderer; // TODO Not yet
+
+fn preprocess(path: impl AsRef<Path>) -> GdeResult<()> {
+    utils::chomp_file(path.as_ref())?;
+    Ok(())
 }
 
-impl RadStorage for ImageList {
-    fn update(&mut self, args : &Vec<String>) -> StorageResult<()> {
-        self.images.push(args[0].to_owned());
-        Ok(())
-    }
-
-    fn extract(&mut self, _: bool) -> StorageResult<Option<StorageOutput>> {
-        Ok(Some(StorageOutput::Text(self.images.join("\n"))))
-    }
-}
-
-impl ImageList {
-    pub fn from_bytes(bytes: Vec<u8>) -> GdeResult<Self> {
-        Ok(bincode::deserialize::<Self>(&bytes).expect("F"))
+fn get_image_list(processor: &mut Processor) -> GdeResult<ImageList> {
+    let output = processor.extract_storage(false).unwrap().unwrap();
+    if let StorageOutput::Text(texts) = output {
+        return Ok(ImageList::from_text(texts));
+    } else {
+        return Err(GdeError::RendererError("Image list cannot be constructed from StorageOutput::Text"));
     }
 }
 
-pub(crate) fn rad_setup(processor : &mut Processor) -> GdeResult<()> {
+fn compress_file(source_file: &Path) -> GdeResult<()> {
+    utils::chomp_file(source_file)?;
+    Ok(())
+}
+
+fn check_prerequisites() -> GdeResult<()> {
+    // Check if necessary config values are present.
+    if let Err(_) = std::env::var("MW_URL") { return Err(GdeError::ConfigError(String::from("No \"MW_URL\" in env file"))); }
+    if let Err(_) = std::env::var("MW_ID") { return Err(GdeError::ConfigError(String::from("No \"MW_ID\" in env file"))); }
+    if let Err(_) = std::env::var("MW_PWD") { return Err(GdeError::ConfigError(String::from("No \"MW_PWD\" in env file"))); }
+    if let Err(_) = std::env::var("MW_TITLE") { return Err(GdeError::ConfigError(String::from("No \"MW_TITLE\" in env file"))); }
+
+    Ok(())
+}
+
+pub fn rad_setup(processor : &mut Processor) -> GdeResult<()> {
     processor.set_storage(Box::new(ImageList{ images: Vec::new() }));
     Ok(())
 }
 
 /// MediaWiki's target is not a file but server loaded page
-pub(crate) fn render(image_list: ImageList) -> GdeResult<Option<PathBuf>> {
+pub fn render(processor: &mut Processor, _: &Option<PathBuf>, _: Option<String>) -> GdeResult<Option<PathBuf>> {
+    let image_list: ImageList = get_image_list(processor)?;
     let source_file = utils::middle_file_path()?;
     compress_file(&source_file)?;
     check_prerequisites()?;
@@ -59,26 +69,6 @@ pub(crate) fn render_preview() -> GdeResult<Option<PathBuf>> {
         .from_file(&utils::renderer_path("mediawiki")?.join("preview.html"))?;
 
     Ok(Some(source_file))
-}
-
-fn compress_file(source_file: &Path) -> GdeResult<()> {
-    utils::chomp_file(source_file)?;
-    Ok(())
-}
-
-fn check_prerequisites() -> GdeResult<()> {
-    // Check if necessary config values are present.
-    if let Err(_) = std::env::var("MW_URL") { return Err(GdeError::ConfigError(String::from("No \"MW_URL\" in env file"))); }
-    if let Err(_) = std::env::var("MW_ID") { return Err(GdeError::ConfigError(String::from("No \"MW_ID\" in env file"))); }
-    if let Err(_) = std::env::var("MW_PWD") { return Err(GdeError::ConfigError(String::from("No \"MW_PWD\" in env file"))); }
-    if let Err(_) = std::env::var("MW_TITLE") { return Err(GdeError::ConfigError(String::from("No \"MW_TITLE\" in env file"))); }
-
-    Ok(())
-}
-
-fn preprocess(path: &Path) -> GdeResult<()> {
-    utils::chomp_file(path)?;
-    Ok(())
 }
 
 struct MediaWikiRequest<'a> {
@@ -190,55 +180,86 @@ impl<'a> MediaWikiRequest<'a> {
 {}"#, json);
         }
 
+Ok(())
+    }
+
+// Should receive Jsonvalue[error][code]
+fn upload_error_fallback(&self, error: &serde_json::Value, target: &Path) -> GdeResult<()> {
+    match error.as_str().unwrap() {
+        "fileexists-no-change" => {
+            println!("No upload for duplicate files {}", target.display())
+        }
+        _ => eprintln!("Failed to upload image"),
+    }
+    Ok(())
+}
+
+fn upload_images(&self, csrf_token: &str, image_list: ImageList) -> GdeResult<()> {
+    for line in image_list.images.iter() {
+        let path_buf = PathBuf::from(line);
+
+        if !path_buf.exists() {
+            eprintln!("Given image file  \"{}\" doesn't exit and cannot be sent.", path_buf.display());
+            return Err(GdeError::RendererError("Failed to send images to mediawiki server"));
+        }
+
+        let form_params = [
+            ("action".to_owned(), "upload".to_owned()),
+            ("ignorewarnings".to_owned(), "1".to_owned()),
+            ("filename".to_owned(),path_buf.file_name().unwrap().to_str().unwrap().to_string()),
+            ("format".to_owned(), "json".to_owned())
+        ];
+        let file_part = multipart::Form::new()
+            .text("token", csrf_token.to_owned())
+            .file("file", &path_buf)?;
+
+        let request = self.client.post(&self.url)
+            .header(reqwest::header::CONTENT_DISPOSITION, line.to_owned())
+            .query(&form_params)
+            .multipart(file_part)
+            .build()?;
+
+        let response = self.client.execute(request)?.text()?;
+
+        let json: serde_json::Value = serde_json::from_str(&response)?;
+        if let serde_json::Value::String(content) = &json["upload"]["result"] {
+            println!("Upload image \"{}\" : {}", path_buf.display(), content)
+        } else {
+            self.upload_error_fallback(&json["error"]["code"], &path_buf)?;
+        }
+    }
+
+    Ok(())
+}
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub(crate) struct ImageList {
+    pub images: Vec<String>,
+}
+
+impl RadStorage for ImageList {
+    fn update(&mut self, args : &Vec<String>) -> StorageResult<()> {
+        self.images.push(args[0].to_owned());
         Ok(())
     }
 
-    // Should receive Jsonvalue[error][code]
-    fn upload_error_fallback(&self, error: &serde_json::Value, target: &Path) -> GdeResult<()> {
-        match error.as_str().unwrap() {
-            "fileexists-no-change" => {
-                println!("No upload for duplicate files {}", target.display())
-            }
-            _ => eprintln!("Failed to upload image"),
-        }
-        Ok(())
+    fn extract(&mut self, _: bool) -> StorageResult<Option<StorageOutput>> {
+        Ok(Some(StorageOutput::Text(self.images.join("\n"))))
+    }
+}
+
+impl ImageList {
+    #[allow(dead_code)]
+    pub fn from_bytes(bytes: Vec<u8>) -> GdeResult<Self> {
+        Ok(bincode::deserialize::<Self>(&bytes).expect("F"))
     }
 
-    fn upload_images(&self, csrf_token: &str, image_list: ImageList) -> GdeResult<()> {
-        for line in image_list.images.iter() {
-            let path_buf = PathBuf::from(line);
+    pub fn from_text(text: String) -> Self {
+        let images = text.lines()
+            .map(|s| s.to_owned())
+            .collect::<Vec<String>>();
 
-            if !path_buf.exists() {
-                eprintln!("Given image file  \"{}\" doesn't exit and cannot be sent.", path_buf.display());
-                return Err(GdeError::RendererError("Failed to send images to mediawiki server"));
-            }
-
-            let form_params = [
-                ("action".to_owned(), "upload".to_owned()),
-                ("ignorewarnings".to_owned(), "1".to_owned()),
-                ("filename".to_owned(),path_buf.file_name().unwrap().to_str().unwrap().to_string()),
-                ("format".to_owned(), "json".to_owned())
-            ];
-            let file_part = multipart::Form::new()
-                .text("token", csrf_token.to_owned())
-                .file("file", &path_buf)?;
-
-            let request = self.client.post(&self.url)
-                .header(reqwest::header::CONTENT_DISPOSITION, line.to_owned())
-                .query(&form_params)
-                .multipart(file_part)
-                .build()?;
-
-            let response = self.client.execute(request)?.text()?;
-
-            let json: serde_json::Value = serde_json::from_str(&response)?;
-            if let serde_json::Value::String(content) = &json["upload"]["result"] {
-                println!("Upload image \"{}\" : {}", path_buf.display(), content)
-            } else {
-                self.upload_error_fallback(&json["error"]["code"], &path_buf)?;
-            }
-        }
-
-        Ok(())
+        Self{ images, }
     }
 }
