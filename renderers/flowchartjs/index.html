@@ -24,7 +24,9 @@
 			<div id="diagram"></div>
 		</div>
 		<script charset="utf-8">
-			var diagram = flowchart.parse(`$include($path(cache,flowchartjs_source.txt))`);
+			var diagram = flowchart.parse(`$DOT_SRC()`);
+			<!-- Undefine dot src after because why not -->
+			$undef(DOT_SRC)
 			diagram.drawSVG('diagram');
 		</script>
 	</body>
