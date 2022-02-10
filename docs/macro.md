@@ -286,7 +286,6 @@ $fnoda(node1,Label1,node2)
 $end(End node)
 
 $flowchart_end()
-
 ```
 
 ### gdlogue (dialogue)

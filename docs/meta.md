@@ -1,87 +1,87 @@
 ### Changed
 
-* [x] Bug : Copy doesn't work on preserve flag hmm...
-- I don't know what the heck happened. It is somehow fixed... Welp.
-* [-] Bug : Component render may fail if some macros were not provided 
-Now it yield proper and help error message
+* [x] Marp font macro is broken, fix it
+* [x] Add independent font macro variant
+- I made table macro as relay 
+- THus I don't need to make new one
 
-* [x] Make gdtable's header width to be more aesthetically pleasing
-* [x] Image upload should come first
+* [x] Add new global macros
+	* [x] Add table and query in single macro
+	* [x] $npc macro ( new page with class support  )
 
 ### Todos
 
+**Others**
+
+* [ ] Create generic renderer for future
+
+* [-] Copy worked strange in my experience
+- But I cannot reproduce... hell..
+* [ ] Support split images macro
+
+* [ ] Gcalc integration
 * [ ] Make sure marp indentation works
 
 * [ ] Documentation
-	* [ ] Make full usage
+	* [x] Make full usage
 	* [ ] At least include schmeas for each renderer module
 		- Everything except webuibts and flowchart
 	* [ ] Korean version
 
-* [ ] Add demos in master branch
-* [ ] Make cargo branch for cargo push
-* [ ] Make build branch for building
-* [ ] Make dev branch for developing
+* [ ] Project organization
+	* [ ] Add demos in master branch
+	* [ ] Make cargo branch for cargo push
+	* [ ] Make build branch for building
+	* [ ] Make dev branch for developing
 
-* [x] Enable user to override programs (marp, chrome + chromium,)
-- Also set flag to only use contained binary
-- At least it doesn't break existing setting
-- !!But needs test of overriding!!
+* [ ] New global macro
+	* [ ] TOC macro
+	- This reads information into a chunk and creates
+	- Necessary information as another macro
+	for example
+	```
+	When given --toc option gdengine registers macro hook for specific macro that
+	creates toc, such as h1 for marp and h2 for wikipage
+	
+	This yields text into some macro such as GDE_TOC_LIST
+	
+	And re-evalutes the same file.
+	
+	This should also come with END macro of r4d which is not implemented yet to
+	evade extra operational cost.
+	```
 
-* [ ] TOC macro
-- This reads information into a chunk and creates
-- Necessary information as another macro
-for example
-```
-When given --toc option gdengine registers macro hook for specific macro that
-creates toc, such as h1 for marp and h2 for wikipage
+**Renderers**
 
-This yields text into some macro such as GDE_TOC_LIST
-
-And re-evalutes the same file.
-
-This should also come with END macro of r4d which is not implemented yet to
-evade extra operational cost.
-
-```
-
-* [ ] Lengthy readme for presentation and other things.
-
-* [ ] A graph renderer (matplotlib)
-- This would be awesomely cool...
-
-* [ ] Better flowchart pls...
-- Maybe with flou-cli ?
-
-* [ ] Complete docx renderer
-- I dont' if it is possible or not.
-
-I suffered a lot for "ul" and "ol" macro, maybe $ul(level, content) is better I
-guess? I'm just too afraid to ask at this time.
-
-Always prefer builder pattern because it is recoverable by other formats
-
-* [ ] Make split macro set as builder pattern
-
-* [ ] Split class is strange
-- Split class changes total slide behaviour
-- Make this as some split container
-
-* [ ] Make proper horizontal layout ( other than split )
-- This should be recoverable
-- Make it as an builder pattern
-
-* [ ] Color support
-    * [x] With basic syntactic sugar for red,green,blue -> Etcetra (linux term colors) 
-    * [ ] Configure color easily
-
-* [ ] Marp uses strange path... because file exists in root not in build
-- Maybe this is fine but can it be improved?
-
-* [ ] mediawiki test option is really necessary
+1. Github readme renderer
+- This would be really cool
+1. Graph renderer
+	* [x] Make new error type rather than box new error hassle
+	* [x] Plot rendering
+		* [x] Bar chart
+		* [x] Line chart
+		* [x] Area chart
+	* [x] Make plotters builder macros 
+2. Flowchart 
+	* [ ] Better flowchart implementation
+	- Maybe with flou-cli ?
+3. Docx renderer
+	* [ ] Complete docx renderer
+4. MISC
+	* [-] Port ul and ol to contained macro e.g. -> $ul(2,Content goes here) 
+	* [ ] Rather than porting, add enumerate and itemize for concrete listing macros
+5. Improve marp renderer
+	* [x] Make split macro set as builder pattern
+	* [ ] Fix split class
+		- Split class changes total slide behaviour
+		- Make this as some split container
+	* [ ] Make proper horizontal layout ( other than split )
+		- This should be recoverable
+		- Make it as an builder pattern
+6. mediawiki test option
     * [ ] Custom style file support
     * [ ] Should copy images to build directory
-	* [ ] Create table of contents (JS function)
+	* [ ] Create table of contents (Use toc macro)
 	* [ ] Apply proper css
 	  * [ ] TOC style
 	* [ ] Hook is necessary for simulated list elements
@@ -125,15 +125,13 @@ sucks
       * [ ] flowchart-js -> Not fully tested
         * [ ] Interactive flowchart with given json chunk functionality
 
----
-
-* [-] Path ergonomics is hard to resolve
-- For example, image file is based on current workingg diretory and in normal
-scenarios, it is in root directory however some cases, index file may not be in
-root directory. And image's source directory is hard to catch, especially in marp page
-- However there are no gold magic for this, keep it well documented.
-
 ## DONE
+* [x] Utilize r4d storage feature
+	* [x] Remove ImageList file logics
+	* [x] Remove graphviz source file logics
+	- With test function of writing
+
+* [x] Read any file (but mostly for .env format) as static macro list
 
 * [x] Mkdir cache or build if not existent
 * [x] Read env file with option because setting all env files all the way is

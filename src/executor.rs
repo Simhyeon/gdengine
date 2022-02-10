@@ -4,13 +4,13 @@ use crate::models::GdeResult;
 use crate::renderer::plot::PlotModel;
 use crate::utils;
 use crate::renderer::*;
-use crate::renderer::mediawiki::ImageList;
 use rad::CommentType;
 use rad::StorageOutput;
 use rad::{Processor, AuthType, DiffOption, RadError};
 
 pub struct Executor {
     render_type: RenderType,
+    //renderer: Box<dyn GRender>, // TODO NOT YET
     options : ExecOptions,
     variable_list: Option<Vec<(String,String)>>
 }
@@ -96,6 +96,9 @@ impl Executor {
     fn preprocess(&self, processor : &mut Processor) -> GdeResult<()> {
         // Render type specific pre-processing logics
         match self.render_type {
+            RenderType::FlowchartGvz => {
+                flowchartgvz::rad_setup(processor)?;
+            }
             RenderType::MediaWiki => {
                 mediawiki::rad_setup(processor)?;
             }
@@ -165,14 +168,7 @@ impl Executor {
                 marp::render( &self.options.format, &self.options.out_file)?
             }
             RenderType::MediaWiki => {
-                let output = processor.extract_storage(true).unwrap().unwrap();
-                let image_list: ImageList;
-                if let StorageOutput::Binary(bytes) = output {
-                    image_list = ImageList::from_bytes(bytes)?;
-                } else {
-                    return Err(GdeError::RendererError("Image list cannot be constructed from StorageOutput::Text"));
-                }
-                mediawiki::render(image_list)?
+                mediawiki::render(processor, &self.options.out_file, None)?
             }
             RenderType::MWPreview => {
                 mediawiki::render_preview()?
@@ -187,7 +183,14 @@ impl Executor {
                 flowchartjs::render(&self.options.out_file)?
             }
             RenderType::FlowchartGvz => {
-                flowchartgvz::render(&self.options.format,&self.options.out_file)?
+                let output = processor.extract_storage(false).unwrap().unwrap();
+                let dot_src: String;
+                if let StorageOutput::Text(texts) = output {
+                    dot_src = texts;
+                } else {
+                    return Err(GdeError::RendererError("Dot source cannot be constructed from StorageOutput::Text"));
+                }
+                flowchartgvz::render(&self.options.format,&self.options.out_file, &dot_src)?
             }
             RenderType::Webuibts => {
                 webuibts::render(&self.options.out_file)?
