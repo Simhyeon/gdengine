@@ -1,36 +1,37 @@
-# Mod
+% Mod
 $define(mod_flowchartgvz=)
 
-# Directives macro
+% Directives macro
 $define(
 	flowchart_begin
 	=
-	$tempto(fjs.txt)
-	$tempout(digraph G {$nl()graph [splines=ortho; nodesep=0.5]$nl())
+	$define(LINES=digraph G {$nl()graph [splines=ortho; nodesep=0.5]$nl())
 	$define(DIRS=)
 )
+
+% Final } is necessary 
 $define(
 	flowchart_end
 	=
-	$fileout(true,$path(cache,flowchartgvz_source.gvz),$tempin()$nl()$DIRS()$nl()})
+	$update($LINES()$nl()$DIRS()$nl() })
 )
 
 # Font
-$define(font,a_font_name=$tempout(graph [fontname="$a_font_name()"]
+$define(font,a_font_name=$append(LINES,graph [fontname="$a_font_name()"]
 node [fontname="$a_font_name()"]
 edge [fontname="$a_font_name()"]
 ))
 
 # Set orientation as "from left to right"
 # flr()
-$define(flr=$tempout(rankdir=LR$nl()))
+$define(flr=$LINES(LINES,rankdir=LR$nl()))
 
 # Start
 # fstart(label,goto)
 $define(
 	fstart,
 	a_label a_goto
-	=$tempout(start [ label="$a_label()" ];$nl())
+	=$append(LINES,start [ label="$a_label()" ];$nl())
 	$append(DIRS,start -> n$a_goto();$nl())
 )
 
@@ -39,7 +40,7 @@ $define(
 $define(
 	fend,
 	a_label
-	=$tempout(nend [label="$a_label()"];$nl(){rank=sink; nend;}$nl())
+	=$append(LINES,nend [label="$a_label()"];$nl(){rank=sink; nend;}$nl())
 )
 
 # fnode(id,label,nextId)
@@ -49,7 +50,7 @@ $define(
 	=
 	$let+(id,n$a_id())
 	$let+(nextId,n$a_nextId())
-	$tempout($id() [label="$a_label()" shape=rect];$nl())
+	$append(LINES,$id() [label="$a_label()" shape=rect];$nl())
 	$append(DIRS,$id() -> $nextId() [weight=8];$nl())
 )
 # Alternative node
@@ -60,7 +61,7 @@ $define(
 	=
 	$let+(id,n$a_id())
 	$let+(nextId,n$a_nextId())
-	$tempout($id() [label="$a_label()" shape=rect];
+	$append(LINES,$id() [label="$a_label()" shape=rect];
 	$nextId()_right [shape=point; width=0];
 	{rank=same; $nextId(); $nextId()_right;}$nl())
 	$append(DIRS, $nextId() -> $nextId()_right [dir=back];
@@ -76,7 +77,7 @@ $define(
 	$let+(id,n$a_id())
 	$let+(yes_id,n$a_yesId())
 	$let+(no_id,n$a_noId())
-	$tempout($id() [label="$a_label()" shape=diamond];$nl(){ rank=same; $id(); $no_id(); }$nl())
+	$append(LINES,$id() [label="$a_label()" shape=diamond];$nl(){ rank=same; $id(); $no_id(); }$nl())
 	$append(DIRS,$id() -> $yes_id()[xlabel="yes"; weight=8; color="firebrick3"];$nl()$id() -> $no_id() [xlabel="no"; color="dodgerblue3"];$nl())
 )
 
@@ -86,6 +87,6 @@ $define(finput,
 	=
 	$let+(id,n$a_id())
 	$let+(nextId,n$a_nextId())
-	$tempout($id() [label="$a_label()" shape=parallelogram];$nl())
+	$append(LINES,$id() [label="$a_label()" shape=parallelogram];$nl())
 	$append(DIRS, $id() -> $nextId()[weight=8;]$nl())
 )

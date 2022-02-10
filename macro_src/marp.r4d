@@ -73,6 +73,18 @@ $define(newpage=
 ---
 )
 
+% Non-compatible macros
+% New page
+$define(np=
+=newpage()
+)
+
+% New page wich classes
+$define(npc,a_classes=
+newpage()
+$class($a_classes())
+)
+
 % Split page
 % Marp only split page macro
 $define(splitpage=
@@ -97,11 +109,11 @@ $include($path($env(GDE_MODULE),$:.css)))
 $define(tstart=
 $ifdef(TABLE_CONTENT,$undef(TABLE_CONTENT))
 $static(TABLE_CONTENT,)
-$append(TABLE_CONTENT,
-<table>))
+$relay(macro,TABLE_CONTENT)
+<table>)
 
 % Set table font size
-$define(tfont,a_header_size a_body_size=$append(TABLE_CONTENT,
+$define(tfont,a_header_size a_body_size=
 <style scoped>
 	thead > tr > td { 
 	    $ifelse(
@@ -109,7 +121,7 @@ $define(tfont,a_header_size a_body_size=$append(TABLE_CONTENT,
 			$pipe($v_thead_default()),
 			$pipe($a_header_size())
 		) 
-		$-() 
+		font-size : $-()px;
 	}
 	:not(thead) > tr > td { 
 	    $ifelse(
@@ -117,33 +129,34 @@ $define(tfont,a_header_size a_body_size=$append(TABLE_CONTENT,
 			$pipe($v_tbody_default()),
 			$pipe($a_body_size())
 		) 
-		$-() 
+		font-size : $-()px;
 	}
-</style>))
+</style>)
 
 % Set table header
-$define(theader,a_content=$append(TABLE_CONTENT,
+$define(theader,a_content=
 <thead>
 $foreach($a_content(),    <td>$:</td>)
 </thead>
-))
+)
 
 % Set table row
 % <td> should be in a differnt line from values because mdtohtml can't convert
 % inline list
-$define(trow,a_content=$append(TABLE_CONTENT,
+$define(trow,a_content=
 <tr>
 $foreach($a_content(),$m_sanitize(<td>
 
 $:
 </td>
 ))
-</tr>))
+</tr>)
 
 % end table
 % Newline is needed because <table> tag should start from the first character
-$define(tend=$append(TABLE_CONTENT,
-</table>)
+$define(tend=
+</table>
+$halt()
 $triml($TABLE_CONTENT()))
 
 % URL
@@ -190,7 +203,10 @@ $define(class,a_class=$m_class($regex($a_class*(),\*,*\, )))
 
 % Split screen related macros
 % MACRO >>> Start left pane
-$define(left=<div class="ldiv">
+$define(left=
+$ifdef(split_content,$repl(split_content,))
+$relay(macro,split_content)
+<div class="ldiv">
 )
 % MACRO >>> Start right pane
 $define(right=
@@ -199,7 +215,10 @@ $define(right=
 )
 % MACRO >>> End split screen
 $define(end=
-</div>)
+</div>
+$halt()
+$triml($split_content())
+)
 
 % Center macro
 $define(center,a_content=<div style="text-align:center; display:block; margin: 0 auto;">

@@ -1,6 +1,14 @@
 $define(tp,a_row=$regex($a_row*(),\*,*\,$nl()))
-$define(ifmod,a_mod a_content=$ifdef(mod_$a_mod(),$a_content()))
-$define(ifmodel,a_mod a_content a_content_else=$ifdefel(mod_$a_mod(),$a_content(),$a_content_else()))
+$define(instant_query_table,a_file a_format a_statement=
+$regcsv(table,$include($a_file()))
+$table($a_format(),$query($a_statement()))
+$dropcsv(table)
+)
+
+% Make npc compatible with np
+$define(npc=
+=newpage()
+)
 
 % Color settings
 $static(COLOR_BLACK,#000000)

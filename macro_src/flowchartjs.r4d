@@ -1,45 +1,50 @@
-# mod
+% mod
 $define(mod_flowchartjs=)
 
-# Directives macro
-$define(flowchart_begin=$tempto(fjs.txt)$tempout()$define(DIRS=))
-$define(flowchart_end=$fileout(true,$path(cache,flowchartjs_source.txt),$tempin()$nl()$DIRS()))
+% Directives macro
+$define(flowchart_begin=
+	$declare(LINES,DIRS)
+)
+% Following } is necessary
+$define(flowchart_end=
+	$define(DOT_SRC=$LINES()$nl()$DIRS() } )
+)
 
 # Start
 # fstart(label,goto)
 $define(fstart,a_label a_goto=
-	$tempout(start=>start: $a_label()$nl())
+	$append(LINES,start=>start: $a_label()$nl())
 	$append(DIRS,start->$a_goto()$nl())
 )
 
 % End
 % fend(label)
 $define(fend,a_label=
-	$tempout(end=>end: $a_label()$nl())
+	$append(LINES,end=>end: $a_label()$nl())
 )
 
 % Flowchart node
 % fcond(id,label,yesId,noId)
 $define(fcond,a_id a_label a_yesId a_noId=
-	$tempout($a_id()=>condition: $a_label()$nl())
+	$append(LINES,$a_id()=>condition: $a_label()$nl())
 	$append(DIRS,$a_id()(yes)->$a_yesId()$nl()$a_id()(no)->$a_noId()$nl())
 )
 
 % fnode(id,label,nextId)
 $define(fnode,a_id a_label a_nextId=
-	$tempout($a_id()=>operation: $a_label()$nl())
+	$append(LINES,$a_id()=>operation: $a_label()$nl())
 	$append(DIRS,$a_id()->$a_nextId()$nl())
 )
 
 # Alternative node
 # fnodea(id,label,nextId)
 $define(fnodea,a_id a_label a_nextId=
-	$tempout($a_id()=>operation: $a_label()$nl())
+	$append(LINES,$a_id()=>operation: $a_label()$nl())
 	$append(DIRS,$a_id()(right)->$a_nextId()$nl())
 )
 
 # fnode_input(id,label,nextId)
 $define(finput,a_id a_label a_nextId=
-	$tempout($a_id=>inputoutput: $a_label$nl())
+	$append(LINES,$a_id=>inputoutput: $a_label$nl())
 	$append(DIRS,$a_id()->$a_nextId()$nl())
 )
