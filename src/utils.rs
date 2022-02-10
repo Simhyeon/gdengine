@@ -3,8 +3,9 @@ use crate::error::GdeError;
 use crate::models::GdeResult;
 use lazy_static::lazy_static;
 use regex::Regex;
-use std::process::Command;
+use std::process::{Command, Stdio};
 use std::ffi::OsStr;
+use std::io::Write;
 
 const REG_CHOMP_REPL: &str = "\n\n";
 
@@ -112,24 +113,52 @@ pub fn chomp_file(path: &Path) -> GdeResult<()> {
 
 // Cross platform command call
 pub fn command(program: &str, args: Vec<impl AsRef<OsStr>>) -> GdeResult<()> {
+    command_logic(program,args,None)
+}
 
-    let output = if cfg!(target_os = "windows") {
+// Cross platform command call with stdin
+pub fn command_with_stdin(program: &str, args: Vec<impl AsRef<OsStr>>, input_value: &str) -> GdeResult<()> {
+    command_logic(program,args,Some(input_value))
+}
+
+/// Real logic method of command execution
+fn command_logic(program: &str, args: Vec<impl AsRef<OsStr>>, stdin: Option<&str>) -> GdeResult<()> {
+
+    let stdin_type = if let Some(_) = stdin {
+        Stdio::piped()
+    } else {
+        Stdio::inherit()
+    };
+    let mut process = if cfg!(target_os = "windows") { // Windows
         Command::new("cmd")
             .arg("/C")
             .arg(program)
             .args(args)
-            .output()
+            .stdin(stdin_type)
+            .spawn()
             .expect("failed to execute process")
-    } else {
+    } else { // Nix based
         Command::new(program)
+            .stdin(stdin_type)
             .args(args)
-            .output()
+            .spawn()
             .expect("failed to execute process")
     };
+
+    if let Some(input) = stdin {
+        let input = input.to_string();
+        let mut stdin = process.stdin.take().expect("Failed to open stdin");
+        std::thread::spawn(move || {
+            stdin.write_all(input.as_bytes()).expect("Failed to write to stdin");
+        });
+    }
+    let output = process.wait_with_output().expect("Failed to read stdout");
+
     let out_content = String::from_utf8_lossy(&output.stdout);
     let err_content = String::from_utf8_lossy(&output.stderr);
-    if out_content.len() != 0 {println!("{}", out_content);}
-    if err_content.len() != 0 {eprintln!("{}", err_content);}
+
+    if out_content.len() != 0 {writeln!(std::io::stdout(),"{}", out_content)?;}
+    if err_content.len() != 0 {writeln!(std::io::stderr(),"{}", err_content)?;}
 
     Ok(())
 }
