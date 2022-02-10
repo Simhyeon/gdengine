@@ -6,3 +6,4 @@ pub mod mediawiki;
 pub mod webuibts;
 pub mod pandoc;
 pub mod plot;
+pub mod models;
