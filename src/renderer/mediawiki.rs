@@ -1,74 +1,84 @@
 use std::path::{PathBuf, Path};
+use crate::executor::ExecOptions;
 use crate::error::GdeError;
 use crate::models::GdeResult;
 use crate::utils;
-use rad::{Processor,AuthType, RadStorage, StorageResult, StorageOutput, processor};
+use rad::{Processor,AuthType, RadStorage, StorageResult, StorageOutput};
 use reqwest::blocking::{Client, multipart};
 use serde::{Serialize, Deserialize};
+use super::models::GRender;
 
-//pub struct MWRenderer; // TODO Not yet
+pub struct MWRenderer;
 
-fn preprocess(path: impl AsRef<Path>) -> GdeResult<()> {
-    utils::chomp_file(path.as_ref())?;
-    Ok(())
-}
+impl GRender for MWRenderer {
+    fn rad_setup(&self, processor : &mut Processor) -> GdeResult<()> {
+        processor.set_storage(Box::new(ImageList{ images: Vec::new() }));
+        Ok(())
+    }
 
-fn get_image_list(processor: &mut Processor) -> GdeResult<ImageList> {
-    let output = processor.extract_storage(false).unwrap().unwrap();
-    if let StorageOutput::Text(texts) = output {
-        return Ok(ImageList::from_text(texts));
-    } else {
-        return Err(GdeError::RendererError("Image list cannot be constructed from StorageOutput::Text"));
+    /// MediaWiki's target is not a file but server loaded page
+    fn render(&self, processor: &mut Processor, _: &ExecOptions) -> GdeResult<Option<PathBuf>> {
+        let image_list: ImageList = self.get_image_list(processor)?;
+        let source_file = utils::middle_file_path()?;
+        self.compress_file(&source_file)?;
+        self.check_prerequisites()?;
+        chomp_file(&source_file)?;
+
+        let request = MediaWikiRequest::new(&source_file)?;
+        request.exec(image_list)?; 
+
+        Ok(Some(source_file))
     }
 }
 
-fn compress_file(source_file: &Path) -> GdeResult<()> {
-    utils::chomp_file(source_file)?;
-    Ok(())
+impl MWRenderer {
+    fn get_image_list(&self, processor: &mut Processor) -> GdeResult<ImageList> {
+        let output = processor.extract_storage(false).unwrap().unwrap();
+        if let StorageOutput::Text(texts) = output {
+            return Ok(ImageList::from_text(texts));
+        } else {
+            return Err(GdeError::RendererError("Image list cannot be constructed from StorageOutput::Text"));
+        }
+    }
+    fn compress_file(&self,source_file: &Path) -> GdeResult<()> {
+        utils::chomp_file(source_file)?;
+        Ok(())
+    }
+
+    fn check_prerequisites(&self) -> GdeResult<()> {
+        // Check if necessary config values are present.
+        if let Err(_) = std::env::var("MW_URL") { return Err(GdeError::ConfigError(String::from("No \"MW_URL\" in env file"))); }
+        if let Err(_) = std::env::var("MW_ID") { return Err(GdeError::ConfigError(String::from("No \"MW_ID\" in env file"))); }
+        if let Err(_) = std::env::var("MW_PWD") { return Err(GdeError::ConfigError(String::from("No \"MW_PWD\" in env file"))); }
+        if let Err(_) = std::env::var("MW_TITLE") { return Err(GdeError::ConfigError(String::from("No \"MW_TITLE\" in env file"))); }
+
+        Ok(())
+    }
+
 }
 
-fn check_prerequisites() -> GdeResult<()> {
-    // Check if necessary config values are present.
-    if let Err(_) = std::env::var("MW_URL") { return Err(GdeError::ConfigError(String::from("No \"MW_URL\" in env file"))); }
-    if let Err(_) = std::env::var("MW_ID") { return Err(GdeError::ConfigError(String::from("No \"MW_ID\" in env file"))); }
-    if let Err(_) = std::env::var("MW_PWD") { return Err(GdeError::ConfigError(String::from("No \"MW_PWD\" in env file"))); }
-    if let Err(_) = std::env::var("MW_TITLE") { return Err(GdeError::ConfigError(String::from("No \"MW_TITLE\" in env file"))); }
+pub struct PreviewRenderer;
 
-    Ok(())
-}
+impl GRender for PreviewRenderer {
+    fn rad_setup(&self, _ : &mut Processor) -> GdeResult<()> {
+        Ok(())
+    }
 
-pub fn rad_setup(processor : &mut Processor) -> GdeResult<()> {
-    processor.set_storage(Box::new(ImageList{ images: Vec::new() }));
-    Ok(())
-}
+    fn render(&self, _: &mut Processor, _: &ExecOptions) -> GdeResult<Option<PathBuf>> {
+        let source_file = utils::middle_file_path()?;
+        chomp_file(&source_file)?;
 
-/// MediaWiki's target is not a file but server loaded page
-pub fn render(processor: &mut Processor, _: &Option<PathBuf>, _: Option<String>) -> GdeResult<Option<PathBuf>> {
-    let image_list: ImageList = get_image_list(processor)?;
-    let source_file = utils::middle_file_path()?;
-    compress_file(&source_file)?;
-    check_prerequisites()?;
-    preprocess(&source_file)?;
+        // TODO
+        // This is not so good?
+        // You cannot reuse processor
+        Processor::new()
+            .greedy(true)
+            .allow(Some(vec!(AuthType::FIN, AuthType::ENV)))
+            .write_to_file(Some(utils::BUILD_PATH.join("out.html")))?
+            .from_file(&utils::renderer_path("mediawiki")?.join("preview.html"))?;
 
-    let request = MediaWikiRequest::new(&source_file)?;
-    request.exec(image_list)?; 
-
-    Ok(Some(source_file))
-}
-
-pub(crate) fn render_preview() -> GdeResult<Option<PathBuf>> {
-    let source_file = utils::middle_file_path()?;
-    preprocess(&source_file)?;
-
-    // Create preview html file
-    Processor::new()
-        .greedy(true)
-        .write_to_file(Some(utils::BUILD_PATH.join("out.html")))?
-        .unix_new_line(true)
-        .allow(Some(vec!(AuthType::FIN, AuthType::ENV)))
-        .from_file(&utils::renderer_path("mediawiki")?.join("preview.html"))?;
-
-    Ok(Some(source_file))
+        Ok(Some(source_file))
+    }
 }
 
 struct MediaWikiRequest<'a> {
@@ -262,4 +272,10 @@ impl ImageList {
 
         Self{ images, }
     }
+}
+
+// Utils method
+fn chomp_file(path: impl AsRef<Path>) -> GdeResult<()> {
+    utils::chomp_file(path.as_ref())?;
+    Ok(())
 }

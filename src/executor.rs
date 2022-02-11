@@ -1,16 +1,15 @@
 use std::path::{PathBuf, Path};
 use crate::error::GdeError;
 use crate::models::GdeResult;
-use crate::renderer::plot::PlotModel;
 use crate::utils;
 use crate::renderer::*;
 use rad::CommentType;
-use rad::StorageOutput;
 use rad::{Processor, AuthType, DiffOption, RadError};
+use crate::renderer::models::GRender;
 
 pub struct Executor {
-    render_type: RenderType,
-    //renderer: Box<dyn GRender>, // TODO NOT YET
+    render_type: String,
+    renderer: Box<dyn GRender>,
     options : ExecOptions,
     variable_list: Option<Vec<(String,String)>>
 }
@@ -18,7 +17,8 @@ pub struct Executor {
 impl Executor {
     pub fn new(render_type: &str, options: ExecOptions, variable_list: Option<Vec<(String,String)>>) -> GdeResult<Self> {
         Ok(Self { 
-            render_type : RenderType::from(render_type)?,
+            render_type: render_type.to_string(),
+            renderer: Self::get_renderer(render_type,&options)?,
             options,
             variable_list,
         })
@@ -79,38 +79,11 @@ impl Executor {
     /// Setup necessary information
     fn setup(&mut self) -> GdeResult<()> {
         std::env::set_var("GDE_MODULE", utils::renderer_path(self.render_type.to_string())?);
-
-        // Render type specific pre-processing logics
-        match self.render_type {
-            RenderType::MediaWiki => {
-                if self.options.test {
-                    self.render_type = RenderType::MWPreview;
-                }
-            }
-            _ =>()
-        }
-
         Ok(())
     }
 
     fn preprocess(&self, processor : &mut Processor) -> GdeResult<()> {
-        // Render type specific pre-processing logics
-        match self.render_type {
-            RenderType::FlowchartGvz => {
-                flowchartgvz::rad_setup(processor)?;
-            }
-            RenderType::MediaWiki => {
-                mediawiki::rad_setup(processor)?;
-            }
-            RenderType::Marp => {
-                marp::rad_setup(processor)?;
-            }
-            RenderType::Plotter => {
-                plot::rad_setup(processor)?;
-            }
-            _ =>()
-        }
-
+        self.renderer.rad_setup(processor)?;
         Ok(())
     }
 
@@ -163,54 +136,7 @@ impl Executor {
 
     /// Render with a designated renderer
     fn render(&self, processor: &mut Processor) -> GdeResult<Option<PathBuf>> {
-        let out_file = match self.render_type {
-            RenderType::Marp =>{
-                marp::render( &self.options.format, &self.options.out_file)?
-            }
-            RenderType::MediaWiki => {
-                mediawiki::render(processor, &self.options.out_file, None)?
-            }
-            RenderType::MWPreview => {
-                mediawiki::render_preview()?
-            }
-            RenderType::Pandoc => {
-                pandoc::render(&self.options.out_file)?
-            }
-            RenderType::Gdlogue => {
-                gdlogue::render(&self.options.format, &self.options.out_file)?
-            }
-            RenderType::FlowchartJs => {
-                flowchartjs::render(&self.options.out_file)?
-            }
-            RenderType::FlowchartGvz => {
-                let output = processor.extract_storage(false).unwrap().unwrap();
-                let dot_src: String;
-                if let StorageOutput::Text(texts) = output {
-                    dot_src = texts;
-                } else {
-                    return Err(GdeError::RendererError("Dot source cannot be constructed from StorageOutput::Text"));
-                }
-                flowchartgvz::render(&self.options.format,&self.options.out_file, &dot_src)?
-            }
-            RenderType::Webuibts => {
-                webuibts::render(&self.options.out_file)?
-            }
-            RenderType::Plotter => {
-                // Extract storage method should always return Some
-                // unless, it is a logic error
-                let plot_model = if let Ok(Some(output)) = processor.extract_storage(true) {
-                    if let StorageOutput::Binary(bytes) = output {
-                        PlotModel::from_bytes(&bytes)?
-                    } else {
-                        return Err(GdeError::RendererError("Plotmodel cannot be constructed from StorageOutput::Text"));
-                    }
-                } else { 
-                    return Err(GdeError::RendererError("Plot needs porper macro setup to work. Failed to created plot map"));
-                };
-                plot::render(&self.options.out_file, plot_model).expect("DEBUG")
-            }
-        };
-        
+        let out_file = self.renderer.render(processor, &self.options)?;
         Ok(out_file)
     }
 
@@ -249,6 +175,23 @@ impl Executor {
         }
         Ok(())
     }
+
+    fn get_renderer(render_type: &str, option: &ExecOptions) -> GdeResult<Box<dyn GRender>> {
+        Ok(match render_type {
+            "marp" => Box::new(marp::MarpRenderer),
+            "mediawiki" => {
+                if option.test { Box::new(mediawiki::PreviewRenderer)} 
+                else { Box::new(mediawiki::MWRenderer) }
+            },
+            "gdlouge" => Box::new(gdlogue::GDLogueRenderer),
+            "pandoc" => Box::new(pandoc::PandocRenderer),
+            "webuibts" => Box::new(webuibts::WBTSRenderer),
+            "flowchartjs" => Box::new(flowchartjs::FJSRenderer),
+            "flowchartgvz" => Box::new(flowchartgvz::FGVZRenderer),
+            "plotters" => Box::new(plot::PlotRenderer),
+            _ => return Err(GdeError::InvalidCommand(format!("Renderer \"{}\" is not a viable renderer", render_type))),
+        })
+    }
 }
 
 pub struct ExecOptions {
@@ -261,9 +204,9 @@ pub struct ExecOptions {
     // Used by post process
     copy: Option<PathBuf>,
     // Used by renderer
-    preserve: bool,
-    format: Option<String>,
-    out_file: Option<PathBuf>,
+    pub(crate) preserve: bool,
+    pub(crate) format: Option<String>,
+    pub(crate) out_file: Option<PathBuf>,
 }
 
 impl ExecOptions {
@@ -297,53 +240,3 @@ impl ExecOptions {
         })
     }
 }
-
-pub enum RenderType {
-    Marp,
-    MediaWiki,
-    MWPreview,
-    Pandoc,
-    Gdlogue,
-    FlowchartJs,
-    FlowchartGvz,
-    Webuibts,
-    Plotter,
-}
-
-impl RenderType {
-    pub fn from(render_type : &str) -> GdeResult<Self> {
-        let render_type = match render_type.to_lowercase().as_str() {
-            "marp" => Self::Marp,
-            "mediawiki" => Self::MediaWiki,
-            "pandoc" => Self::Pandoc,
-            "gdlogue" => Self::Gdlogue,
-            "flowchartjs" => Self::FlowchartJs,
-            "flowchartgvz" => Self::FlowchartGvz,
-            "webuibts" => Self::Webuibts,
-            "plotter" => Self::Plotter,
-            _ => return Err(GdeError::InvalidCommand(format!("{} is not valid render type",render_type))),
-        };
-        Ok(render_type)
-    }
-}
-
-use std::fmt;
-
-impl fmt::Display for RenderType {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        let string = match self {
-            &RenderType::Marp => "marp",
-            &RenderType::MediaWiki => "mediawiki",
-            &RenderType::MWPreview => "mediawiki_preview",
-            &RenderType::Gdlogue => "gdlogue",
-            &RenderType::Webuibts => "webuibts",
-            &RenderType::Pandoc => "pandoc",
-            &RenderType::FlowchartGvz => "flowchartgvz",
-            &RenderType::FlowchartJs => "flowchartjs",
-            &RenderType::Plotter => "plotter",
-        };
-        fmt.write_str(string)?;
-        Ok(())
-    }
-}
-

@@ -5,213 +5,215 @@
 /// various chart types are not so easy and doesn't worth the hassle.
 
 use crate::{models::GdeResult, error::GdeError};
+use crate::executor::ExecOptions;
 use rad::{Processor, RadStorage, StorageResult, StorageOutput};
 use plotters::prelude::*;
 use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 
-pub(crate) fn rad_setup(processor : &mut Processor) -> GdeResult<()> {
-    processor.set_storage(Box::new(PlotModel::default()));
-    Ok(())
-}
+use super::models::GRender;
 
-pub fn render(out_file: &Option<PathBuf>, plot_model: PlotModel) -> GdeResult<Option<PathBuf>> {
-    let out_file = if let Some(file) = out_file{
-        file.to_owned()
-    } else { PathBuf::from("out.png") };
+pub struct PlotRenderer;
 
-    let plot_type = plot_model.plot_type;
-
-    match plot_type {
-        PlotType::BarV => {
-            bar_chart_vertical(out_file, plot_model)?;
-        }
-        PlotType::BarH => {
-            bar_chart_horizontal(out_file, plot_model)?;
-        }
-        PlotType::Line => {
-            line_chart(out_file, plot_model, false)?;
-        }
-        PlotType::Area => {
-            line_chart(out_file, plot_model, true)?;
-        }
-        _ => (),
+impl GRender for PlotRenderer {
+    fn rad_setup(&self, processor : &mut Processor) -> GdeResult<()> {
+        processor.set_storage(Box::new(PlotModel::default()));
+        Ok(())
     }
 
-    Ok(None)
+    fn render(&self, processor: &mut Processor, option: &ExecOptions) -> GdeResult<Option<PathBuf>> {
+        // Extract storage method should always return Some
+        // unless, it is a logic error
+        let plot_model = if let Ok(Some(output)) = processor.extract_storage(true) {
+            if let StorageOutput::Binary(bytes) = output {
+                PlotModel::from_bytes(&bytes)?
+            } else {
+                return Err(GdeError::RendererError("Plotmodel cannot be constructed from StorageOutput::Text"));
+            }
+        } else { 
+            return Err(GdeError::RendererError("Plot needs porper macro setup to work. Failed to created plot map"));
+        };
+        let out_file = if let Some(file) = &option.out_file {
+            file.to_owned()
+        } else { PathBuf::from("out.png") };
+
+        let plot_type = plot_model.plot_type;
+
+        match plot_type {
+            PlotType::BarV => {
+                self.bar_chart_vertical(out_file, plot_model)?;
+            }
+            PlotType::BarH => {
+                self.bar_chart_horizontal(out_file, plot_model)?;
+            }
+            PlotType::Line => {
+                self.line_chart(out_file, plot_model, false)?;
+            }
+            PlotType::Area => {
+                self.line_chart(out_file, plot_model, true)?;
+            }
+            _ => (),
+        }
+
+        Ok(None)
+    }
 }
 
-fn line_chart(out_file: PathBuf, plot_model: PlotModel, fill: bool) -> GdeResult<()> {
-    let root_area = BitMapBackend::new(&out_file, plot_model.img_size).into_drawing_area();
-    root_area.fill(&WHITE).unwrap();
+impl PlotRenderer {
+    fn line_chart(&self, out_file: PathBuf, plot_model: PlotModel, fill: bool) -> GdeResult<()> {
+        let root_area = BitMapBackend::new(&out_file, plot_model.img_size).into_drawing_area();
+        root_area.fill(&WHITE).unwrap();
 
-    let (caption_font, caption_size) = plot_model.caption_style;
-    let (desc_font, desc_size) = plot_model.desc_style;
+        let (caption_font, caption_size) = plot_model.caption_style;
+        let (desc_font, desc_size) = plot_model.desc_style;
 
-    if plot_model.data.len() == 0 {
-        return Err(GdeError::RendererError("Plot data is empty"));
+        if plot_model.data.len() == 0 {
+            return Err(GdeError::RendererError("Plot data is empty"));
+        }
+
+        let max = plot_model.data
+            .iter()
+            .max_by(|&x, &y| x.partial_cmp(&y).unwrap())
+            .unwrap_or(&0f64);
+
+        let row_line_end = plot_model.row_offset as f64 + max.ceil() as f64;
+        let column_count = plot_model.column_offset as usize + plot_model.data.len();
+
+        let mut ctx = ChartBuilder::on(&root_area)
+            .x_label_area_size(plot_model.x_label_size)
+            .y_label_area_size(plot_model.y_label_size)
+            .margin(plot_model.margin)
+            .caption(&plot_model.caption, (caption_font.as_str(), caption_size))
+            .build_cartesian_2d(0..column_count, 0f64..row_line_end ).map_err(|_| GdeError::PlotError(format!("Failed to create chart")))?;
+
+        // Mesh configuration
+        ctx.configure_mesh()
+            // Remove x lines
+            .disable_x_mesh()
+            // Remove y lines
+            .disable_y_mesh()
+            .bold_line_style(&WHITE.mix(0.3))
+            .y_desc(plot_model.y_desc)
+            .x_desc(plot_model.x_desc)
+            .axis_desc_style((desc_font.as_str(), desc_size))
+            .draw().map_err(|_| GdeError::PlotError(format!("Failed to configure mesh for chart")))?;
+
+        // Area series
+        if fill {
+            ctx.draw_series(AreaSeries::new(
+                    (0usize..).zip(plot_model.data.iter()).map(|(x,y)| (x,*y)), 
+                    0.0,
+                    &RED.mix(0.2))
+                .border_style(&RED)
+            ).map_err(|_| GdeError::PlotError(format!("Failed to embed data into a chart")))?;
+        } 
+        // Line series
+        else { 
+            // TODO, Ok this works at least
+            ctx.draw_series(LineSeries::new(
+                    (0..).zip(plot_model.data.iter()).map(|(x,y)| { (x,*y) }),
+                    &RED,
+            )).map_err(|_| GdeError::PlotError(format!("Failed to embed data into a chart")))?;
+        }
+
+        Ok(())
     }
 
-    let max = plot_model.data
-        .iter()
-        .max_by(|&x, &y| x.partial_cmp(&y).unwrap())
-        .unwrap_or(&0f64);
+    fn bar_chart_vertical(&self, out_file: PathBuf, plot_model: PlotModel) -> GdeResult<()>{
+        let root_area = BitMapBackend::new(&out_file, plot_model.img_size).into_drawing_area();
+        root_area.fill(&WHITE).unwrap();
 
-    let row_line_end = plot_model.row_offset as f64 + max.ceil() as f64;
-    let column_count = plot_model.column_offset as usize + plot_model.data.len();
+        let (caption_font, caption_size) = plot_model.caption_style;
+        let (desc_font, desc_size) = plot_model.desc_style;
 
-    let mut ctx = ChartBuilder::on(&root_area)
-        .x_label_area_size(plot_model.x_label_size)
-        .y_label_area_size(plot_model.y_label_size)
-        .margin(plot_model.margin)
-        .caption(&plot_model.caption, (caption_font.as_str(), caption_size))
-        .build_cartesian_2d(0..column_count, 0f64..row_line_end ).map_err(|_| GdeError::PlotError(format!("Failed to create chart")))?;
+        let max = plot_model.data
+            .iter()
+            .max_by(|&x, &y| x.partial_cmp(&y).unwrap())
+            .unwrap();
 
-    // Mesh configuration
-    ctx.configure_mesh()
-        // Remove x lines
-        .disable_x_mesh()
-        // Remove y lines
-        .disable_y_mesh()
-        .bold_line_style(&WHITE.mix(0.3))
-        .y_desc(plot_model.y_desc)
-        .x_desc(plot_model.x_desc)
-        .axis_desc_style((desc_font.as_str(), desc_size))
-        .draw().map_err(|_| GdeError::PlotError(format!("Failed to configure mesh for chart")))?;
+        let row_count = plot_model.row_offset as u32 + max.ceil() as u32;
+        let column_count = plot_model.column_offset as u32 + plot_model.data.len() as u32;
 
-    // Area series
-    if fill {
-        ctx.draw_series(AreaSeries::new(
-                (0usize..).zip(plot_model.data.iter()).map(|(x,y)| (x,*y)), 
-                0.0,
-                &RED.mix(0.2))
-            .border_style(&RED)
-        ).map_err(|_| GdeError::PlotError(format!("Failed to embed data into a chart")))?;
-    } 
-    // Line series
-    else { 
-        // TODO, Ok this works at least
-        ctx.draw_series(LineSeries::new(
-                (0..).zip(plot_model.data.iter()).map(|(x,y)| { (x,*y) }),
-                &RED,
-        )).map_err(|_| GdeError::PlotError(format!("Failed to embed data into a chart")))?;
+        let mut chart = ChartBuilder::on(&root_area)
+            .x_label_area_size(plot_model.x_label_size)
+            .y_label_area_size(plot_model.y_label_size)
+            .margin(plot_model.margin)
+            .caption(&plot_model.caption, (caption_font.as_str(), caption_size))
+            // Into_segmented makes number match column's center position
+            .build_cartesian_2d(
+                (0..column_count).into_segmented(), 
+                0u32..row_count
+            ).map_err(|_| GdeError::PlotError(format!("Failed to create chart")))?; 
+
+        // Mesh configuration
+        chart.configure_mesh()
+            // Remove x lines
+            .disable_x_mesh()
+            // Remove y lines
+            .disable_y_mesh()
+            .bold_line_style(&WHITE.mix(0.3))
+            .y_desc(plot_model.y_desc)
+            .x_desc(plot_model.x_desc)
+            .axis_desc_style((desc_font.as_str(), desc_size))
+            .draw().map_err(|_| GdeError::PlotError(format!("Failed to configure mesh for chart")))?;
+
+        let data = plot_model.data.iter().map(|f| *f as u32).collect::<Vec<u32>>();
+        chart.draw_series((0..).zip(data.iter()).map(draw_bar_v)).unwrap();
+
+        // To avoid the IO failure being ignored silently, we manually call the present function
+        root_area.present().expect("Unable to write result to file");
+
+        Ok(())
     }
 
-    Ok(())
-}
+    fn bar_chart_horizontal(&self, out_file: PathBuf, plot_model: PlotModel) -> GdeResult<()>{
+        let root_area = BitMapBackend::new(&out_file, plot_model.img_size).into_drawing_area();
+        root_area.fill(&WHITE).unwrap();
 
-fn bar_chart_vertical(out_file: PathBuf, plot_model: PlotModel) -> GdeResult<()>{
-    let root_area = BitMapBackend::new(&out_file, plot_model.img_size).into_drawing_area();
-    root_area.fill(&WHITE).unwrap();
+        let (caption_font, caption_size) = plot_model.caption_style;
+        let (desc_font, desc_size) = plot_model.desc_style;
 
-    let (caption_font, caption_size) = plot_model.caption_style;
-    let (desc_font, desc_size) = plot_model.desc_style;
+        let max = plot_model.data
+            .iter()
+            .max_by(|&x, &y| x.partial_cmp(&y).unwrap())
+            .unwrap();
 
-    let max = plot_model.data
-        .iter()
-        .max_by(|&x, &y| x.partial_cmp(&y).unwrap())
-        .unwrap();
+        let row_count = plot_model.row_offset as u32 + max.ceil() as u32;
+        let column_count = plot_model.column_offset as u32 + plot_model.data.len() as u32;
 
-    let row_count = plot_model.row_offset as u32 + max.ceil() as u32;
-    let column_count = plot_model.column_offset as u32 + plot_model.data.len() as u32;
+        let mut chart = ChartBuilder::on(&root_area)
+            .x_label_area_size(plot_model.x_label_size)
+            .y_label_area_size(plot_model.y_label_size)
+            .margin(plot_model.margin)
+            .caption(&plot_model.caption, (caption_font.as_str(), caption_size))
+            // Into_segmented makes number match column's center position
+            .build_cartesian_2d(
+                0u32..row_count,
+                (0..column_count).into_segmented()
+            ).map_err(|_| GdeError::PlotError(format!("Failed to create chart")))?; 
 
-    let mut chart = ChartBuilder::on(&root_area)
-        .x_label_area_size(plot_model.x_label_size)
-        .y_label_area_size(plot_model.y_label_size)
-        .margin(plot_model.margin)
-        .caption(&plot_model.caption, (caption_font.as_str(), caption_size))
-        // Into_segmented makes number match column's center position
-        .build_cartesian_2d(
-            (0..column_count).into_segmented(), 
-            0u32..row_count
-        ).map_err(|_| GdeError::PlotError(format!("Failed to create chart")))?; 
+        // Mesh configuration
+        chart.configure_mesh()
+            // Remove x lines
+            .disable_x_mesh()
+            // Remove y lines
+            .disable_y_mesh()
+            .bold_line_style(&WHITE.mix(0.3))
+            .y_desc(plot_model.y_desc)
+            .x_desc(plot_model.x_desc)
+            .axis_desc_style((desc_font.as_str(), desc_size))
+            .draw().map_err(|_| GdeError::PlotError(format!("Failed to configure mesh for chart")))?;
 
-    // Mesh configuration
-    chart.configure_mesh()
-        // Remove x lines
-        .disable_x_mesh()
-        // Remove y lines
-        .disable_y_mesh()
-        .bold_line_style(&WHITE.mix(0.3))
-        .y_desc(plot_model.y_desc)
-        .x_desc(plot_model.x_desc)
-        .axis_desc_style((desc_font.as_str(), desc_size))
-        .draw().map_err(|_| GdeError::PlotError(format!("Failed to configure mesh for chart")))?;
+        let data = plot_model.data.iter().map(|f| *f as u32).collect::<Vec<u32>>();
 
-    let data = plot_model.data.iter().map(|f| *f as u32).collect::<Vec<u32>>();
-    chart.draw_series((0..).zip(data.iter()).map(draw_bar_v)).unwrap();
+        chart.draw_series((0..).zip(data.iter()).map(draw_bar_h)).unwrap();
 
-    // To avoid the IO failure being ignored silently, we manually call the present function
-    root_area.present().expect("Unable to write result to file");
+        // To avoid the IO failure being ignored silently, we manually call the present function
+        root_area.present().expect("Unable to write result to file");
 
-    Ok(())
-}
+        Ok(())
+    }
 
-fn bar_chart_horizontal(out_file: PathBuf, plot_model: PlotModel) -> GdeResult<()>{
-    let root_area = BitMapBackend::new(&out_file, plot_model.img_size).into_drawing_area();
-    root_area.fill(&WHITE).unwrap();
-
-    let (caption_font, caption_size) = plot_model.caption_style;
-    let (desc_font, desc_size) = plot_model.desc_style;
-
-    let max = plot_model.data
-        .iter()
-        .max_by(|&x, &y| x.partial_cmp(&y).unwrap())
-        .unwrap();
-
-    let row_count = plot_model.row_offset as u32 + max.ceil() as u32;
-    let column_count = plot_model.column_offset as u32 + plot_model.data.len() as u32;
-
-    let mut chart = ChartBuilder::on(&root_area)
-        .x_label_area_size(plot_model.x_label_size)
-        .y_label_area_size(plot_model.y_label_size)
-        .margin(plot_model.margin)
-        .caption(&plot_model.caption, (caption_font.as_str(), caption_size))
-        // Into_segmented makes number match column's center position
-        .build_cartesian_2d(
-            0u32..row_count,
-            (0..column_count).into_segmented()
-        ).map_err(|_| GdeError::PlotError(format!("Failed to create chart")))?; 
-
-    // Mesh configuration
-    chart.configure_mesh()
-        // Remove x lines
-        .disable_x_mesh()
-        // Remove y lines
-        .disable_y_mesh()
-        .bold_line_style(&WHITE.mix(0.3))
-        .y_desc(plot_model.y_desc)
-        .x_desc(plot_model.x_desc)
-        .axis_desc_style((desc_font.as_str(), desc_size))
-        .draw().map_err(|_| GdeError::PlotError(format!("Failed to configure mesh for chart")))?;
-
-    let data = plot_model.data.iter().map(|f| *f as u32).collect::<Vec<u32>>();
-
-    chart.draw_series((0..).zip(data.iter()).map(draw_bar_h)).unwrap();
-
-    // To avoid the IO failure being ignored silently, we manually call the present function
-    root_area.present().expect("Unable to write result to file");
-
-    Ok(())
-}
-
-fn draw_bar_v(tup : (u32, &u32)) -> Rectangle<(plotters::prelude::SegmentValue<u32>, u32)> {
-    let (x,y) = tup;
-    let x0 = SegmentValue::Exact(x);
-    let x1 = SegmentValue::Exact(x + 1);
-    let mut bar = Rectangle::new([(x0, 0), (x1, *y)], RED.filled());
-    bar.set_margin(0, 0, 5, 5);
-    bar
-}
-
-fn draw_bar_h(tup: (u32, &u32)) -> Rectangle<(u32, plotters::prelude::SegmentValue<u32>)> {
-    let (y,x) = tup;
-    let mut bar = Rectangle::new([
-        (0, SegmentValue::Exact(y)), 
-        (*x, SegmentValue::Exact(y + 1))
-    ], RED.filled());
-    bar.set_margin(5, 5, 0, 0);
-    bar
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -388,4 +390,24 @@ impl From<&str> for PlotType {
             _       => Self::None,
         }
     }
+}
+
+// Dry methods
+fn draw_bar_v(tup : (u32, &u32)) -> Rectangle<(plotters::prelude::SegmentValue<u32>, u32)> {
+    let (x,y) = tup;
+    let x0 = SegmentValue::Exact(x);
+    let x1 = SegmentValue::Exact(x + 1);
+    let mut bar = Rectangle::new([(x0, 0), (x1, *y)], RED.filled());
+    bar.set_margin(0, 0, 5, 5);
+    bar
+}
+
+fn draw_bar_h(tup: (u32, &u32)) -> Rectangle<(u32, plotters::prelude::SegmentValue<u32>)> {
+    let (y,x) = tup;
+    let mut bar = Rectangle::new([
+        (0, SegmentValue::Exact(y)), 
+        (*x, SegmentValue::Exact(y + 1))
+    ], RED.filled());
+    bar.set_margin(5, 5, 0, 0);
+    bar
 }
