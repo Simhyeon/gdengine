@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use crate::utils;
 use crate::models::GdeResult;
-use crate::executor::ExecOptions;
+use crate::executor::ExecOption;
 use rad::{Processor, RadResult, WriteOption};
 use super::models::GRender;
 
@@ -12,7 +12,7 @@ impl GRender for FJSRenderer {
         Ok(())
     }
 
-    fn render(&self, p: &mut Processor, option: &ExecOptions) -> GdeResult<Option<PathBuf>> {
+    fn render(&self, p: &mut Processor, option: &ExecOption) -> GdeResult<Option<PathBuf>> {
         // Set default outfile
         let out_file = if let Some(name) = &option.out_file {
             name.to_owned()

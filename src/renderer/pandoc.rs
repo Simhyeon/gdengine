@@ -4,7 +4,7 @@ use rad::Processor;
 use crate::utils;
 use crate::models::GdeResult;
 use super::models::GRender;
-use crate::executor::ExecOptions;
+use crate::executor::ExecOption;
 
 pub struct PandocRenderer;
 
@@ -13,7 +13,7 @@ impl GRender for PandocRenderer {
         Ok(())
     }
 
-    fn render(&self, _: &mut Processor, option: &ExecOptions) -> GdeResult<Option<PathBuf>> {
+    fn render(&self, _: &mut Processor, option: &ExecOption) -> GdeResult<Option<PathBuf>> {
         // Set default outfile
         let out_file = if let Some(name) = &option.out_file {
             name.to_owned()

@@ -1,5 +1,5 @@
 use std::path::{PathBuf, Path};
-use crate::executor::ExecOptions;
+use crate::executor::ExecOption;
 use crate::error::GdeError;
 use crate::models::GdeResult;
 use crate::utils;
@@ -17,7 +17,7 @@ impl GRender for MWRenderer {
     }
 
     /// MediaWiki's target is not a file but server loaded page
-    fn render(&self, processor: &mut Processor, _: &ExecOptions) -> GdeResult<Option<PathBuf>> {
+    fn render(&self, processor: &mut Processor, _: &ExecOption) -> GdeResult<Option<PathBuf>> {
         let image_list: ImageList = self.get_image_list(processor)?;
         let source_file = utils::middle_file_path()?;
         self.compress_file(&source_file)?;
@@ -64,7 +64,7 @@ impl GRender for PreviewRenderer {
         Ok(())
     }
 
-    fn render(&self, p: &mut Processor, _: &ExecOptions) -> GdeResult<Option<PathBuf>> {
+    fn render(&self, p: &mut Processor, _: &ExecOption) -> GdeResult<Option<PathBuf>> {
         let source_file = utils::middle_file_path()?;
         chomp_file(&source_file)?;
 

@@ -2,7 +2,7 @@ use std::path::PathBuf;
 use rad::{RadStorage,Processor, StorageOutput};
 use crate::error::GdeError;
 
-use crate::executor::ExecOptions;
+use crate::executor::ExecOption;
 use crate::utils;
 use crate::models::GdeResult;
 use std::ffi::OsStr;
@@ -17,7 +17,7 @@ impl GRender for FGVZRenderer {
         Ok(())
     }
 
-    fn render(&self, processor : &mut Processor, option: &ExecOptions) -> GdeResult<Option<PathBuf>> {
+    fn render(&self, processor : &mut Processor, option: &ExecOption) -> GdeResult<Option<PathBuf>> {
         let output = processor.extract_storage(false).unwrap().unwrap();
         let dot_src: String;
         if let StorageOutput::Text(texts) = output {

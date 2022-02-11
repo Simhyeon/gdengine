@@ -3,7 +3,7 @@ use crate::models::GdeResult;
 use crate::error::GdeError;
 use crate::utils;
 use rad::{Processor, RadResult, WriteOption};
-use crate::executor::ExecOptions;
+use crate::executor::ExecOption;
 use gdlogue::*;
 use super::models::GRender;
 
@@ -14,7 +14,7 @@ impl GRender for GDLogueRenderer {
         Ok(())
     }
 
-    fn render(&self, p: &mut Processor, option: &ExecOptions) -> GdeResult<Option<PathBuf>> {
+    fn render(&self, p: &mut Processor, option: &ExecOption) -> GdeResult<Option<PathBuf>> {
         // Source file
         let source_file = utils::CACHE_PATH.join("out.json");
 

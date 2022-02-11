@@ -5,7 +5,7 @@
 /// various chart types are not so easy and doesn't worth the hassle.
 
 use crate::{models::GdeResult, error::GdeError};
-use crate::executor::ExecOptions;
+use crate::executor::ExecOption;
 use rad::{Processor, RadStorage, StorageResult, StorageOutput};
 use plotters::prelude::*;
 use std::path::PathBuf;
@@ -21,7 +21,7 @@ impl GRender for PlotRenderer {
         Ok(())
     }
 
-    fn render(&self, processor: &mut Processor, option: &ExecOptions) -> GdeResult<Option<PathBuf>> {
+    fn render(&self, processor: &mut Processor, option: &ExecOption) -> GdeResult<Option<PathBuf>> {
         // Extract storage method should always return Some
         // unless, it is a logic error
         let plot_model = if let Ok(Some(output)) = processor.extract_storage(true) {

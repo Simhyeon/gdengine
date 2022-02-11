@@ -1,5 +1,5 @@
 use std::path::{PathBuf, Path};
-use crate::executor::ExecOptions;
+use crate::executor::ExecOption;
 use crate::utils;
 use crate::models::GdeResult;
 use std::ffi::OsStr;
@@ -15,7 +15,8 @@ impl GRender for MarpRenderer {
 
         Ok(())
     }
-    fn render(&self, _: &mut Processor, option: &ExecOptions) -> GdeResult<Option<PathBuf>> {
+
+    fn render(&self, _: &mut Processor, option: &ExecOption) -> GdeResult<Option<PathBuf>> {
         // Marp expects markdown file so, source file should be markdown
         let source_file = Path::new("out.md");
         // Copy file to root directory

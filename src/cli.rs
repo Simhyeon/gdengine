@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use crate::init::Init;
 use crate::utils::{self, BUILD_PATH};
 use crate::config::Config;
-use crate::executor::{Executor, ExecOptions};
+use crate::executor::{Executor, ExecOption};
 
 pub enum Variant {
     Test,
@@ -67,7 +67,7 @@ impl Cli {
 
                     if let Some(module) = args.value_of("module") {
                         // Set module
-                        let render_option = self.parse_exec_options(args)?;
+                        let render_option = self.parse_exec_options(args);
 
                         // Execute 
                         Executor::new(
@@ -192,6 +192,9 @@ impl Cli {
             .arg(Arg::new("diff")
                 .help("Show diff result")
                 .long("diff"))
+            .arg(Arg::new("toc")
+                .help("Return for table of contents feature")
+                .long("toc"))
             .arg(Arg::new("target")
                 .help("Script target to execute")
                 .short('t')
@@ -217,25 +220,24 @@ impl Cli {
                 .takes_value(true))
     }
 
-    fn parse_exec_options(&self,matches: &clap::ArgMatches) -> GdeResult<ExecOptions> {
-        Ok(ExecOptions::new(
-                matches.is_present("preserve"),
-                matches.is_present("strict"),
-                matches.is_present("test"),
-                matches.is_present("diff"),
-                matches.is_present("log"),
-                matches.value_of("copy").map(|s| PathBuf::from(s)),
-                matches.value_of("format").map(|s| s.to_owned()),
-                matches.value_of("input").map(|s| PathBuf::from(s) ),
-                matches
-                    .value_of("output")
-                    .map(|s| {
-                        if let Variant::Test = self.variant { 
-                            BUILD_PATH.join(&format!("test_{}",s))
-                        } else { 
-                            PathBuf::from(s) 
-                        }
-                    }),
-        )?)
+    fn parse_exec_options(&self,matches: &clap::ArgMatches) -> ExecOption {
+        ExecOption::new(matches.value_of("input").map(|s| PathBuf::from(s)))
+            .preserve(matches.is_present("preserve"))
+            .strict(matches.is_present("strict"))
+            .test(matches.is_present("test"))
+            .diff(matches.is_present("diff"))
+            .log(matches.is_present("log"))
+            .toc(matches.is_present("toc"))
+            .copy(matches.value_of("copy").map(|s| PathBuf::from(s)))
+            .format(matches.value_of("format").map(|s| s.to_owned()))
+            .out_file(matches
+                .value_of("output")
+                .map(|s| {
+                    if let Variant::Test = self.variant { 
+                        BUILD_PATH.join(&format!("test_{}",s))
+                    } else { 
+                        PathBuf::from(s) 
+                    }
+                }))
     }
 }

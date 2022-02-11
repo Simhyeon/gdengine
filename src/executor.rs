@@ -4,18 +4,18 @@ use crate::models::GdeResult;
 use crate::utils;
 use crate::renderer::*;
 use rad::CommentType;
-use rad::{Processor, AuthType, DiffOption, RadError};
+use rad::{Processor, AuthType, DiffOption};
 use crate::renderer::models::GRender;
 
 pub struct Executor {
     render_type: String,
     renderer: Box<dyn GRender>,
-    options : ExecOptions,
+    options : ExecOption,
     variable_list: Option<Vec<(String,String)>>
 }
 
 impl Executor {
-    pub fn new(render_type: &str, options: ExecOptions, variable_list: Option<Vec<(String,String)>>) -> GdeResult<Self> {
+    pub fn new(render_type: &str, options: ExecOption, variable_list: Option<Vec<(String,String)>>) -> GdeResult<Self> {
         Ok(Self { 
             render_type: render_type.to_string(),
             renderer: Self::get_renderer(render_type,&options)?,
@@ -84,6 +84,17 @@ impl Executor {
 
     fn preprocess(&self, processor : &mut Processor) -> GdeResult<()> {
         self.renderer.rad_setup(processor)?;
+
+        // Use toc macro variant
+        if self.options.toc {
+            processor.from_string(
+                "$ifdef(USE_TOC,
+                    $append(h1,$append(toc_h1,$a_content(),))
+                    $append(h2,$append(toc_h2,$a_content(),))
+                )"
+            )?;
+        }
+
         Ok(())
     }
 
@@ -114,21 +125,29 @@ impl Executor {
     }
 
     /// Expand macros from target source file
-    fn macro_expansion(&self,processor : &mut Processor) -> Result<(), RadError> {
+    fn macro_expansion(&self,processor : &mut Processor) -> GdeResult<()> {
         // Add optional test mod
         if self.options.test {
             processor.add_static_rules(vec![("mod_test","")])?
         }
 
+        // Process user custom file if exists
+        // though this is not mandatory
         if utils::INDEX_RAD.exists() {
             // TODO
             processor.from_file(&*utils::INDEX_RAD)?;
-        }
+        } 
 
         processor.from_file(Path::new(&self.options.input))?;
 
         if self.options.test | self.options.diff {
              processor.print_result()?;
+        }
+
+        // Process one more time if toc option was given
+        if self.options.toc {
+            processor.from_string("$define(toc_inclue=$)")?;
+            processor.from_file(Path::new(&self.options.input))?;
         }
 
         Ok(())
@@ -176,7 +195,7 @@ impl Executor {
         Ok(())
     }
 
-    fn get_renderer(render_type: &str, option: &ExecOptions) -> GdeResult<Box<dyn GRender>> {
+    fn get_renderer(render_type: &str, option: &ExecOption) -> GdeResult<Box<dyn GRender>> {
         Ok(match render_type {
             "marp" => Box::new(marp::MarpRenderer),
             "mediawiki" => {
@@ -194,13 +213,16 @@ impl Executor {
     }
 }
 
-pub struct ExecOptions {
+// Executor Option
+#[derive(Default)]
+pub struct ExecOption {
     // Option used by rad
-    strict: bool,
     input: String,
+    strict: bool,
     test: bool,
     diff: bool,
     log: bool,
+    toc: bool,
     // Used by post process
     copy: Option<PathBuf>,
     // Used by renderer
@@ -209,34 +231,53 @@ pub struct ExecOptions {
     pub(crate) out_file: Option<PathBuf>,
 }
 
-impl ExecOptions {
-    pub fn new(
-        preserve:bool,
-        strict:bool,
-        test:bool,
-        diff:bool,
-        log:bool,
-        copy: Option<PathBuf>,
-        format: Option<String>,
-        input: Option<PathBuf>,
-        output: Option<PathBuf>
-    ) -> GdeResult<Self> {
+impl ExecOption {
+    pub fn new(input: Option<PathBuf>) -> Self {
+        let mut obj = Self::default();
         let input = if let Some(content) = input {
             content
         } else {
             utils::DEFAULT_ENTRY_PATH.to_owned()
         };
+        obj.input = input.to_str().unwrap().to_owned();
 
-        Ok(Self { 
-            preserve,
-            strict,
-            test,
-            diff,
-            log,
-            copy,
-            format,
-            input : input.to_str().unwrap().to_owned(),
-            out_file: output,
-        })
+        obj
+    }
+
+    pub fn strict(mut self, tv: bool) -> Self {
+        self.strict = tv;
+        self
+    }
+    pub fn test(mut self, tv: bool) -> Self {
+        self.test = tv;
+        self
+    }
+    pub fn diff(mut self, tv: bool) -> Self {
+        self.diff = tv;
+        self
+    }
+    pub fn log(mut self, tv: bool) -> Self {
+        self.log = tv;
+        self
+    }
+    pub fn toc(mut self, tv: bool) -> Self {
+        self.toc = tv;
+        self
+    }
+    pub fn copy(mut self, path: Option<PathBuf>) -> Self {
+        self.copy = path;
+        self
+    }
+    pub fn preserve(mut self, tv: bool) -> Self {
+        self.preserve = tv;
+        self
+    }
+    pub fn format(mut self, format: Option<String>) -> Self {
+        self.format = format;
+        self
+    }
+    pub fn out_file(mut self, path: Option<PathBuf>) -> Self {
+        self.out_file = path;
+        self
     }
 }
