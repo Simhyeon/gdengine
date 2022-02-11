@@ -201,19 +201,24 @@ $define(title,a_title a_subtitle=$m_class(title)
 % MACRO >>> Set any class of given arguments
 $define(class,a_class=$m_class($regex($a_class*(),\*,*\, )))
 
+% -----
 % Split screen related macros
+
 % MACRO >>> Start left pane
 $define(left=
 $ifdef(split_content,$repl(split_content,))
 $relay(macro,split_content)
 <div class="ldiv">
 )
+
 % MACRO >>> Start right pane
 $define(right=
 </div>
 <div class="rdiv">
 )
+
 % MACRO >>> End split screen
+% This ends relaying
 $define(end=
 </div>
 $halt()

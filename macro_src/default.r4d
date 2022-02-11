@@ -19,3 +19,6 @@ $static(COLOR_YELLOW,#ffff00)
 $static(COLOR_MAGENTA,#ff00ff)
 $static(COLOR_CYAN,#00ffff)
 $static(COLOR_WHITE,#ffffff)
+
+% TOC macro
+$define(toc,=$hookon(macro,h1,))
