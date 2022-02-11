@@ -22,18 +22,6 @@
 * [ ] Gcalc integration
 * [ ] Make sure marp indentation works
 
-* [ ] Documentation
-	* [x] Make full usage
-	* [ ] At least include schmeas for each renderer module
-		- Everything except webuibts and flowchart
-	* [ ] Korean version
-
-* [ ] Project organization
-	* [ ] Add demos in master branch
-	* [ ] Make cargo branch for cargo push
-	* [ ] Make build branch for building
-	* [ ] Make dev branch for developing
-
 * [ ] New global macro
 	* [ ] TOC macro
 	- This reads information into a chunk and creates
@@ -56,6 +44,7 @@
 1. Github readme renderer
 - This would be really cool
 1. Graph renderer
+	* [ ] Battle test it
 	* [x] Make new error type rather than box new error hassle
 	* [x] Plot rendering
 		* [x] Bar chart
@@ -89,6 +78,20 @@
 	html preview doesn't
 	- To solve this, line element macro should invoke hook trigger of surplus
 	newline attachment when encountered newline.
+
+**Project visibility**
+
+* [ ] Documentation
+	* [x] Make full usage
+	* [ ] At least include schmeas for each renderer module
+		- Everything except webuibts and flowchart
+	* [ ] Korean version
+
+* [ ] Project organization
+	* [ ] Add demos in master branch
+	* [ ] Make cargo branch for cargo push
+	* [ ] Make build branch for building
+	* [ ] Make dev branch for developing
 
 ---
 
