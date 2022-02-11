@@ -3,7 +3,7 @@ use crate::executor::ExecOptions;
 use crate::error::GdeError;
 use crate::models::GdeResult;
 use crate::utils;
-use rad::{Processor,AuthType, RadStorage, StorageResult, StorageOutput};
+use rad::{Processor,RadStorage, StorageResult, StorageOutput, WriteOption};
 use reqwest::blocking::{Client, multipart};
 use serde::{Serialize, Deserialize};
 use super::models::GRender;
@@ -64,18 +64,17 @@ impl GRender for PreviewRenderer {
         Ok(())
     }
 
-    fn render(&self, _: &mut Processor, _: &ExecOptions) -> GdeResult<Option<PathBuf>> {
+    fn render(&self, p: &mut Processor, _: &ExecOptions) -> GdeResult<Option<PathBuf>> {
         let source_file = utils::middle_file_path()?;
         chomp_file(&source_file)?;
 
-        // TODO
-        // This is not so good?
-        // You cannot reuse processor
-        Processor::new()
-            .greedy(true)
-            .allow(Some(vec!(AuthType::FIN, AuthType::ENV)))
-            .write_to_file(Some(utils::BUILD_PATH.join("out.html")))?
-            .from_file(&utils::renderer_path("mediawiki")?.join("preview.html"))?;
+        let new_file = std::fs::OpenOptions::new()
+            .create(true)
+            .write(true)
+            .open(utils::BUILD_PATH.join("out.html"))?;
+
+        p.set_write_option(WriteOption::File(new_file));
+        p.from_file(&utils::renderer_path("mediawiki")?.join("preview.html"))?;
 
         Ok(Some(source_file))
     }

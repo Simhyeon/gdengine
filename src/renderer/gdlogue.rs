@@ -2,7 +2,7 @@ use std::path::{PathBuf, Path};
 use crate::models::GdeResult;
 use crate::error::GdeError;
 use crate::utils;
-use rad::{Processor, RadResult, AuthType};
+use rad::{Processor, RadResult, WriteOption};
 use crate::executor::ExecOptions;
 use gdlogue::*;
 use super::models::GRender;
@@ -14,7 +14,7 @@ impl GRender for GDLogueRenderer {
         Ok(())
     }
 
-    fn render(&self, _: &mut Processor, option: &ExecOptions) -> GdeResult<Option<PathBuf>> {
+    fn render(&self, p: &mut Processor, option: &ExecOptions) -> GdeResult<Option<PathBuf>> {
         // Source file
         let source_file = utils::CACHE_PATH.join("out.json");
 
@@ -36,7 +36,7 @@ impl GRender for GDLogueRenderer {
             "html" => {
                 // This evaluates index.html template
                 // And creates app.js with necessary data
-                if let Err(err) = self.html_dialogue(&out_file) {
+                if let Err(err) = self.html_dialogue(p,&out_file) {
                     eprintln!("{}", err);
                 }
             }
@@ -62,17 +62,18 @@ impl GRender for GDLogueRenderer {
 }
 
 impl GDLogueRenderer {
-    fn html_dialogue(&self, out_file : &PathBuf) -> RadResult<()> {
+    fn html_dialogue(&self,p: &mut Processor, out_file : &PathBuf) -> RadResult<()> {
         if let Err(err) = self.dot_file(&utils::CACHE_PATH.join("out.json")) {
             eprintln!("Err : {}", err);
         }
 
-        Processor::new()
-            .greedy(true)
-            .write_to_file(Some(out_file.to_owned()))?
-            .unix_new_line(true)
-            .allow(Some(vec!(AuthType::FIN, AuthType::ENV)))
-            .from_file(&utils::renderer_path("gdlogue").expect("Failed to get renderer path").join("index.html"))?;
+        let new_file = std::fs::OpenOptions::new()
+            .create(true)
+            .write(true)
+            .open(out_file)?;
+
+        p.set_write_option(WriteOption::File(new_file));
+        p.from_file(&utils::renderer_path("gdlogue").expect("Failed to get renderer path").join("index.html"))?;
 
         Ok(())
     }
