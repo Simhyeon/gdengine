@@ -29,7 +29,7 @@ impl GRender for FJSRenderer {
 }
 
 impl FJSRenderer {
-    fn rad(&self, p: &mut Processor ,out_file : &PathBuf) -> RadResult<()> {
+    fn rad(&self, out_file : &PathBuf) -> RadResult<()> {
         Processor::new()
             .greedy(true)
             .allow(Some(vec!(AuthType::FIN, AuthType::ENV)))
