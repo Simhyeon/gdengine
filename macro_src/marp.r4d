@@ -88,7 +88,7 @@ $class($a_classes())
 % Split page
 % Marp only split page macro
 $define(splitpage=
----
+$newpage()
 )
 
 % MACRO >>> Get style files' name and paste the content
@@ -115,22 +115,22 @@ $relay(macro,TABLE_CONTENT)
 % Set table font size
 $define(tfont,a_header_size a_body_size=
 <style scoped>
-	thead > tr > td { 
-	    $ifelse(
-			$a_header_size() == 0,
-			$pipe($v_thead_default()),
-			$pipe($a_header_size())
-		) 
-		font-size : $-()px;
-	}
-	:not(thead) > tr > td { 
-	    $ifelse(
-			$a_body_size() == 0,
-			$pipe($v_tbody_default()),
-			$pipe($a_body_size())
-		) 
-		font-size : $-()px;
-	}
+    thead > tr > td { 
+        $ifelse(
+            $a_header_size() == 0,
+            $pipe($v_thead_default()),
+            $pipe($a_header_size())
+        ) 
+        font-size : $-()px;
+    }
+    :not(thead) > tr > td { 
+        $ifelse(
+            $a_body_size() == 0,
+            $pipe($v_tbody_default()),
+            $pipe($a_body_size())
+        ) 
+        font-size : $-()px;
+    }
 </style>)
 
 % Set table header
@@ -190,7 +190,7 @@ $trim($m_sanitize($a_content()))
 % Class related macros
 
 % Macro >>> set table of contents
-$define(toc,a_text a_goto=<ol><a href="#$a_goto()">$a_text()</a></ol>)
+$define(toc,a_level a_text=$ol($a_level()) $a_text())
 
 % MACRO >>> Set title class into slide and type title, author text at the same time
 $define(title,a_title a_subtitle=$m_class(title)
