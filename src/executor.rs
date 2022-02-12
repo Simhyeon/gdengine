@@ -4,7 +4,8 @@ use crate::models::GdeResult;
 use crate::utils;
 use crate::renderer::*;
 use rad::CommentType;
-use rad::{Processor, AuthType, DiffOption};
+use rad::RadResult;
+use rad::{Processor, AuthType, DiffOption, WriteOption};
 use crate::renderer::models::GRender;
 
 pub struct Executor {
@@ -88,11 +89,12 @@ impl Executor {
         // Use toc macro variant
         if self.options.toc {
             processor.from_string(
-                "$ifdef(USE_TOC,
-                    $append(h1,$append(toc_h1,$a_content(),))
-                    $append(h2,$append(toc_h2,$a_content(),))
-                )"
-            )?;
+                r#"$declare(toc_h1,toc_h2)
+$append(h1,\* $append(TOC_LIST,1,$a_content()$nl()) *\ )
+$append(h2,\* $append(TOC_LIST,2,$a_content()$nl()) *\ )
+$append(h3,\* $append(TOC_LIST,3,$a_content()$nl()) *\ )
+$append(h4,\* $append(TOC_LIST,4,$a_content()$nl()) *\ )
+$append(h5,\* $append(TOC_LIST,5,$a_content()$nl()) *\ )"#)?;
         }
 
         Ok(())
@@ -125,7 +127,7 @@ impl Executor {
     }
 
     /// Expand macros from target source file
-    fn macro_expansion(&self,processor : &mut Processor) -> GdeResult<()> {
+    fn macro_expansion(&self,processor : &mut Processor) -> RadResult<()> {
         // Add optional test mod
         if self.options.test {
             processor.add_static_rules(vec![("mod_test","")])?
@@ -134,7 +136,6 @@ impl Executor {
         // Process user custom file if exists
         // though this is not mandatory
         if utils::INDEX_RAD.exists() {
-            // TODO
             processor.from_file(&*utils::INDEX_RAD)?;
         } 
 
@@ -146,8 +147,19 @@ impl Executor {
 
         // Process one more time if toc option was given
         if self.options.toc {
-            processor.from_string("$define(toc_inclue=$)")?;
-            processor.from_file(Path::new(&self.options.input))?;
+            let previous = utils::middle_file_path().expect("Failed to get path");
+            let after = utils::middle_file_path_with_toc().expect("Failed to get path");
+            std::fs::copy(&previous, &after)?;
+
+            // Drop file handle from processor
+            // This might not do anything, but it is letting the operating system or compiler to do
+            // a graceful end of file handler opertion.
+            processor.set_write_option(WriteOption::Discard);
+
+            // Regain a file handle from middle file
+            let file = std::fs::OpenOptions::new().truncate(true).write(true).open(previous)?;
+            processor.set_write_option(WriteOption::File(file));
+            processor.from_file(&after)?;
         }
 
         Ok(())
