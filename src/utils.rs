@@ -100,6 +100,11 @@ pub fn middle_file_path() -> GdeResult<PathBuf> {
     Ok(CACHE_PATH.join("out.gddt"))
 }
 
+/// out.gddt
+pub fn middle_file_path_with_toc() -> GdeResult<PathBuf> {
+    Ok(CACHE_PATH.join("out_with_toc.gddt"))
+}
+
 // Chomp file save contents into memory in a belief that file sizes would not be that big...
 // I mean come on, every file is a human readable text file. It should not be gigabytes
 // sized
