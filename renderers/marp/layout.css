@@ -38,37 +38,6 @@ section.title h2 {
   font-size: 0.9rem;
 }
 
-/* Original source : https://github.com/marp-team/marpit/issues/137#issuecomment-524175560 */
-section.split {
-    /*overflow: visible;*/
-    display: grid;
-    grid-template-columns: $v_basis_height()px $v_basis_height()px;
-    grid-template-rows: 100px $v_basis_height();
-    grid-template-areas: 
-        "slideheading slideheading"
-        "leftpanel rightpanel";
-}
-/* debug */
-section.split h1 {
-    grid-area: slideheading;
-}
-section.split .ldiv { 
-	grid-area: leftpanel; 
-	display: flex; 
-	flex-direction: column; 
-	padding-right: 25px;
-	overflow: visible;
-  height: $v_basis_height()px;
-}
-section.split .rdiv { 
-	grid-area: rightpanel; 
-	display: flex; 
-	flex-direction: column; 
-	padding-left: 25px;
-	overflow: visible;
-  height: $v_basis_height()px;
-}
-
 section.tnc {
 	--title-height: 130px;
 
@@ -124,4 +93,15 @@ ol, ul {
 	min-height: 0;
 	justify-content: center;
 	display: flex;
+}
+
+.hcontainer {
+	flex: 1;
+	display: flex;
+	justify-content: space-evenly;
+	flex-direction: row;
+}
+
+.hcont-item {
+	flex: 1;
 }

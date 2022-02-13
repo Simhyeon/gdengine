@@ -99,3 +99,24 @@ h1, h2, h3, h4, h5, h6 {
 	margin-bottom: 0px;
 	overflow: hidden;
 }
+
+#toc {
+	display: table;
+	border: 1px solid #a2a9b1;
+	background-color: #f8f9fa;
+	padding: 5px;
+	font-size: 95%;
+}
+
+#toc h2 {
+	display: inline;
+	border-bottom: 0;
+}
+
+span.toctogglelabel {
+	font-size: 95%;
+}
+
+span.tocnumber {
+	padding-right: 0.5em;
+}
