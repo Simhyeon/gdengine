@@ -19,7 +19,7 @@ impl Executor {
     pub fn new(render_type: &str, options: ExecOption, variable_list: Option<Vec<(String,String)>>) -> GdeResult<Self> {
         Ok(Self { 
             render_type: render_type.to_string(),
-            renderer: Self::get_renderer(render_type,&options)?,
+            renderer: Self::get_renderer(render_type)?,
             options,
             variable_list,
         })
@@ -80,6 +80,12 @@ impl Executor {
     /// Setup necessary information
     fn setup(&mut self) -> GdeResult<()> {
         std::env::set_var("GDE_MODULE", utils::renderer_path(self.render_type.to_string())?);
+
+        // Set toc automatically for mediawiki preview
+        if self.render_type.as_str() == "mediawiki_preview"{
+            self.options.toc = true; 
+        }
+
         Ok(())
     }
 
@@ -87,14 +93,12 @@ impl Executor {
         self.renderer.rad_setup(processor)?;
 
         // Use toc macro variant
+        // Only add h1 and h2
         if self.options.toc {
             processor.from_string(
                 r#"$declare(toc_h1,toc_h2)
 $append(h1,\* $append(TOC_LIST,1,$a_content()$nl()) *\ )
-$append(h2,\* $append(TOC_LIST,2,$a_content()$nl()) *\ )
-$append(h3,\* $append(TOC_LIST,3,$a_content()$nl()) *\ )
-$append(h4,\* $append(TOC_LIST,4,$a_content()$nl()) *\ )
-$append(h5,\* $append(TOC_LIST,5,$a_content()$nl()) *\ )"#)?;
+$append(h2,\* $append(TOC_LIST,2,$a_content()$nl()) *\ )"#)?;
         }
 
         Ok(())
@@ -160,6 +164,8 @@ $append(h5,\* $append(TOC_LIST,5,$a_content()$nl()) *\ )"#)?;
             let file = std::fs::OpenOptions::new().truncate(true).write(true).open(previous)?;
             processor.set_write_option(WriteOption::File(file));
             processor.from_file(&after)?;
+            // Because toc sets 
+            processor.reset_flow_control();
         }
 
         Ok(())
@@ -207,13 +213,11 @@ $append(h5,\* $append(TOC_LIST,5,$a_content()$nl()) *\ )"#)?;
         Ok(())
     }
 
-    fn get_renderer(render_type: &str, option: &ExecOption) -> GdeResult<Box<dyn GRender>> {
+    fn get_renderer(render_type: &str) -> GdeResult<Box<dyn GRender>> {
         Ok(match render_type {
             "marp" => Box::new(marp::MarpRenderer),
-            "mediawiki" => {
-                if option.test { Box::new(mediawiki::PreviewRenderer)} 
-                else { Box::new(mediawiki::MWRenderer) }
-            },
+            "mediawiki" => Box::new(mediawiki::MWRenderer),
+            "mediawiki_preview" => Box::new(mediawiki::PreviewRenderer),
             "gdlouge" => Box::new(gdlogue::GDLogueRenderer),
             "pandoc" => Box::new(pandoc::PandocRenderer),
             "webuibts" => Box::new(webuibts::WBTSRenderer),

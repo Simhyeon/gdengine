@@ -1,5 +1,5 @@
 use std::path::{PathBuf, Path};
-use crate::executor::ExecOption;
+use crate::{executor::ExecOption, utils::BUILD_PATH};
 use crate::error::GdeError;
 use crate::models::GdeResult;
 use crate::utils;
@@ -18,7 +18,7 @@ impl GRender for MWRenderer {
 
     /// MediaWiki's target is not a file but server loaded page
     fn render(&self, processor: &mut Processor, _: &ExecOption) -> GdeResult<Option<PathBuf>> {
-        let image_list: ImageList = self.get_image_list(processor)?;
+        let image_list: ImageList = get_image_list(processor)?;
         let source_file = utils::middle_file_path()?;
         self.compress_file(&source_file)?;
         self.check_prerequisites()?;
@@ -32,14 +32,6 @@ impl GRender for MWRenderer {
 }
 
 impl MWRenderer {
-    fn get_image_list(&self, processor: &mut Processor) -> GdeResult<ImageList> {
-        let output = processor.extract_storage(false).unwrap().unwrap();
-        if let StorageOutput::Text(texts) = output {
-            return Ok(ImageList::from_text(texts));
-        } else {
-            return Err(GdeError::RendererError("Image list cannot be constructed from StorageOutput::Text"));
-        }
-    }
     fn compress_file(&self,source_file: &Path) -> GdeResult<()> {
         utils::chomp_file(source_file)?;
         Ok(())
@@ -60,23 +52,39 @@ impl MWRenderer {
 pub struct PreviewRenderer;
 
 impl GRender for PreviewRenderer {
-    fn rad_setup(&self, _ : &mut Processor) -> GdeResult<()> {
+    fn rad_setup(&self, processor : &mut Processor) -> GdeResult<()> {
+        processor.set_storage(Box::new(ImageList{ images: Vec::new() }));
         Ok(())
     }
 
-    fn render(&self, p: &mut Processor, _: &ExecOption) -> GdeResult<Option<PathBuf>> {
+    fn render(&self, processor: &mut Processor, _: &ExecOption) -> GdeResult<Option<PathBuf>> {
+        let image_list: ImageList = get_image_list(processor)?;
         let source_file = utils::middle_file_path()?;
         chomp_file(&source_file)?;
 
         let new_file = std::fs::OpenOptions::new()
             .create(true)
             .write(true)
+            .truncate(true)
             .open(utils::BUILD_PATH.join("out.html"))?;
 
-        p.set_write_option(WriteOption::File(new_file));
-        p.from_file(&utils::renderer_path("mediawiki")?.join("preview.html"))?;
+        processor.set_write_option(WriteOption::File(new_file));
+        processor.from_file(&utils::renderer_path("mediawiki")?.join("preview.html"))?;
+
+        // Copy images only after processing was succesful
+        self.copy_images(&image_list)?;
 
         Ok(Some(source_file))
+    }
+
+}
+
+impl PreviewRenderer {
+    fn copy_images(&self, image_list: &ImageList) -> GdeResult<()> {
+        for img in &image_list.images {
+            std::fs::copy(img, &*BUILD_PATH.join(img))?;
+        }
+        Ok(())
     }
 }
 
@@ -189,58 +197,58 @@ impl<'a> MediaWikiRequest<'a> {
 {}"#, json);
         }
 
-Ok(())
+        Ok(())
     }
 
-// Should receive Jsonvalue[error][code]
-fn upload_error_fallback(&self, error: &serde_json::Value, target: &Path) -> GdeResult<()> {
-    match error.as_str().unwrap() {
-        "fileexists-no-change" => {
-            println!("No upload for duplicate files {}", target.display())
+    // Should receive Jsonvalue[error][code]
+    fn upload_error_fallback(&self, error: &serde_json::Value, target: &Path) -> GdeResult<()> {
+        match error.as_str().unwrap() {
+            "fileexists-no-change" => {
+                println!("No upload for duplicate files {}", target.display())
+            }
+            _ => eprintln!("Failed to upload image"),
         }
-        _ => eprintln!("Failed to upload image"),
-    }
-    Ok(())
-}
-
-fn upload_images(&self, csrf_token: &str, image_list: ImageList) -> GdeResult<()> {
-    for line in image_list.images.iter() {
-        let path_buf = PathBuf::from(line);
-
-        if !path_buf.exists() {
-            eprintln!("Given image file  \"{}\" doesn't exit and cannot be sent.", path_buf.display());
-            return Err(GdeError::RendererError("Failed to send images to mediawiki server"));
-        }
-
-        let form_params = [
-            ("action".to_owned(), "upload".to_owned()),
-            ("ignorewarnings".to_owned(), "1".to_owned()),
-            ("filename".to_owned(),path_buf.file_name().unwrap().to_str().unwrap().to_string()),
-            ("format".to_owned(), "json".to_owned())
-        ];
-        let file_part = multipart::Form::new()
-            .text("token", csrf_token.to_owned())
-            .file("file", &path_buf)?;
-
-        let request = self.client.post(&self.url)
-            .header(reqwest::header::CONTENT_DISPOSITION, line.to_owned())
-            .query(&form_params)
-            .multipart(file_part)
-            .build()?;
-
-        let response = self.client.execute(request)?.text()?;
-
-        let json: serde_json::Value = serde_json::from_str(&response)?;
-        if let serde_json::Value::String(content) = &json["upload"]["result"] {
-            println!("Upload image \"{}\" : {}", path_buf.display(), content)
-        } else {
-            self.upload_error_fallback(&json["error"]["code"], &path_buf)?;
-        }
+        Ok(())
     }
 
-    Ok(())
-}
-}
+    fn upload_images(&self, csrf_token: &str, image_list: ImageList) -> GdeResult<()> {
+        for line in image_list.images.iter() {
+            let path_buf = PathBuf::from(line);
+    
+            if !path_buf.exists() {
+                eprintln!("Given image file  \"{}\" doesn't exit and cannot be sent.", path_buf.display());
+                return Err(GdeError::RendererError("Failed to send images to mediawiki server"));
+            }
+    
+            let form_params = [
+                ("action".to_owned(), "upload".to_owned()),
+                ("ignorewarnings".to_owned(), "1".to_owned()),
+                ("filename".to_owned(),path_buf.file_name().unwrap().to_str().unwrap().to_string()),
+                ("format".to_owned(), "json".to_owned())
+            ];
+            let file_part = multipart::Form::new()
+                .text("token", csrf_token.to_owned())
+                .file("file", &path_buf)?;
+    
+            let request = self.client.post(&self.url)
+                .header(reqwest::header::CONTENT_DISPOSITION, line.to_owned())
+                .query(&form_params)
+                .multipart(file_part)
+                .build()?;
+    
+            let response = self.client.execute(request)?.text()?;
+    
+            let json: serde_json::Value = serde_json::from_str(&response)?;
+            if let serde_json::Value::String(content) = &json["upload"]["result"] {
+                println!("Upload image \"{}\" : {}", path_buf.display(), content)
+            } else {
+                self.upload_error_fallback(&json["error"]["code"], &path_buf)?;
+            }
+        }
+    
+        Ok(())
+    }
+} // End impl
 
 #[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct ImageList {
@@ -277,4 +285,12 @@ impl ImageList {
 fn chomp_file(path: impl AsRef<Path>) -> GdeResult<()> {
     utils::chomp_file(path.as_ref())?;
     Ok(())
+}
+fn get_image_list(processor: &mut Processor) -> GdeResult<ImageList> {
+    let output = processor.extract_storage(false).unwrap().unwrap();
+    if let StorageOutput::Text(texts) = output {
+        return Ok(ImageList::from_text(texts));
+    } else {
+        return Err(GdeError::RendererError("Image list cannot be constructed from StorageOutput::Text"));
+    }
 }
