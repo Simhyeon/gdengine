@@ -34,6 +34,7 @@ impl WBTSRenderer {
         let new_file = std::fs::OpenOptions::new()
             .create(true)
             .write(true)
+            .truncate(true)
             .open(out_file)?;
 
         p.set_write_option(WriteOption::File(new_file));
