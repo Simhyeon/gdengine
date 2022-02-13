@@ -155,7 +155,7 @@ $:
 % end table
 % Newline is needed because <table> tag should start from the first character
 $define(tend=
-</table>
+$append(TABLE_CONTENT,</table>)
 $halt()
 $triml($TABLE_CONTENT()))
 
@@ -205,25 +205,39 @@ $define(class,a_class=$m_class($regex($a_class*(),\*,*\, )))
 % Split screen related macros
 
 % MACRO >>> Start left pane
-$define(left=
-$ifdef(split_content,$repl(split_content,))
-$relay(macro,split_content)
-<div class="ldiv">
-)
+$define(left=$define(SPLIT_CONTENT=)
+$relay(macro,SPLIT_CONTENT)
+<div class="hcontainer">
+<div class="hcont-item">)
 
 % MACRO >>> Start right pane
 $define(right=
 </div>
-<div class="rdiv">
+<div class="hcont-item">
 )
 
 % MACRO >>> End split screen
 % This ends relaying
 $define(end=
-</div>
+$append(SPLIT_CONTENT,</div>$nl()
+</div>)
 $halt()
-$triml($split_content())
-)
+$triml($SPLIT_CONTENT()))
+
+$define(start_horizontal=$enl()
+$define(HOR_CONTENT=)
+$relay(macro,HOR_CONTENT)
+<div class="hcontainer">)
+
+$define(end_horizontal=$enl()
+$append(HOR_CONTENT,$nl()</div>)
+$halt()
+$triml($HOR_CONTENT()))
+
+$define(horizontal_item,a_content=
+<div class="hcont-item">
+$a_content()
+</div>)
 
 % Center macro
 $define(center,a_content=<div style="text-align:center; display:block; margin: 0 auto;">
@@ -243,7 +257,19 @@ $define(magenta,a_content=$text_color($COLOR_MAGENTA(),$a_content*()))
 $define(cyan,a_content=$text_color($COLOR_CYAN(),$a_content*()))
 $define(white,a_content=$text_color($COLOR_WHITE(),$a_content*()))
 
-% TODO
-% This is still experimental
-% Container macro
-$define(container,a_content=<div class="marp-container">$a_content()</div>)
+% TOC macro
+% This simply declares macro
+% toc macro should not be nested because it should print literal toc_include
+% This behaviour might change according to rad update though
+$define(make_toc=
+$declare(TOC_LIST)
+$pause(true)
+$toc_include()
+$pause(false)
+)
+
+% Escape because everything was processed before
+$define(toc_include=
+$forline^($TOC_LIST(),$toc($:)
+)
+$escape())

@@ -20,21 +20,3 @@ $static(COLOR_MAGENTA,#ff00ff)
 $static(COLOR_CYAN,#00ffff)
 $static(COLOR_WHITE,#ffffff)
 
-% TOC macro
-% This simply declares macro
-% toc macro should not be nested because it should print literal toc_include
-$define(make_toc=
-$repl(TOC_LIST,)
-$pause(true)
-$toc_include()
-$pause(false)
-)
-
-$declare(TOC_LIST)
-
-% Construct toc defined in each renderer macro
-% Don't have to process anything from now on
-$define(toc_include=
-$forline^($TOC_LIST(),$toc($:)
-)
-$escape())

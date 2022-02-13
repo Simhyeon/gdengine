@@ -1,18 +1,7 @@
 % mod
-$define(mod_mediawiki=)
+$define(mod_mediawiki_preview=)
 
 % Macros 
-
-% Set font family
-$define(font,a_font_names=<style>
-section {
-  font-family: $a_font_names();
-}
-</style>)
-
-% Substitue class name with marp compatible class form 
-% white space between _class: and $1 is necessary 
-$define(m_class,a_class=<!-- _class: $a_class() -->)
 
 % Subsitue with markdown compatible image form 
 % Convert contents into single lined html
@@ -24,13 +13,16 @@ $define(m_newline_to_br,a_scell=$regex($a_scell(),$nl(),<br>))
 % ==========
 % User interface macros 
 
+% TOC
+$define(toc,a_count a_text=<span class="tocnumber">$a_count()</span><span><a href="#$a_text()">$a_text()</a></span>)
+
 % Basic syntax macros
 % Headers
-$define(h1,a_content=# $a_content())
-$define(h2,a_content=## $a_content())
-$define(h3,a_content=### $a_content())
-$define(h4,a_content=#### $a_content())
-$define(h5,a_content=##### $a_content())
+$define(h1,a_content=<h1 id="$a_content()">$a_content()</h1>)
+$define(h2,a_content=<h2 id="$a_content()">$a_content()</h2>)
+$define(h3,a_content=<h3 id="$a_content()">$a_content()</h3>)
+$define(h4,a_content=<h4 id="$a_content()">$a_content()</h4>)
+$define(h5,a_content=<h5 id="$a_content()">$a_content()</h5>)
 
 % Bold 
 $define(b,a_content=**$a_content()**)
@@ -67,7 +59,8 @@ $define(p,a_content=<p>$a_content()</p>)
 $define(url,a_src a_text=[$a_text()]($a_src())) 
 
 % Image substitue macros
-$define(image,a_src=<img src="$a_src()" style="object-fit: scale-down; max-height: 100%;"/>)
+$define(image,a_src=<img src="$a_src()" style="object-fit: scale-down; max-height: 100%;"/>
+$ifenv(MW_UPLOAD,$update($a_src())))
 
 % MACRO >>> Text macro that also sets font size for the text
 $define(text,a_font_size a_content=<div style="font-size : $a_font_size();">$a_content()</div>)
@@ -83,3 +76,29 @@ $define(yellow,a_content=$text_color($COLOR_YELLOW(),$a_content*()))
 $define(magenta,a_content=$text_color($COLOR_MAGENTA(),$a_content*()))
 $define(cyan,a_content=$text_color($COLOR_CYAN(),$a_content*()))
 $define(white,a_content=$text_color($COLOR_WHITE(),$a_content*()))
+
+% TOC macro
+% This simply declares macro
+% toc macro should not be nested because it should print literal toc_include
+% This behaviour might change according to rad update though
+$define(make_toc=
+$declare(TOC_LIST)
+$pause(true)
+$toc_include()
+$pause(false)
+)
+
+% Escape because everything was processed before
+$define(toc_include=
+<div id="toc" class="toc" role="navigation">
+	<div class="toctitle" dir="ltr" lang="en">
+	<h2 id="mw-toc-heading">Contents</h2>
+		<span class="toctogglespan">
+			<label class="toctogglelabel" for="toctogglecheckbox">
+			[hide]
+			</label>
+		</span>
+	</div>
+	$forline^($TOC_LIST(),$toc($a_LN(),$index(1,$:)))
+</div>
+$escape())
