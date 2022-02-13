@@ -12,7 +12,6 @@ pub struct MarpRenderer;
 impl GRender for MarpRenderer {
     fn rad_setup(&self, processor : &mut Processor) -> GdeResult<()> {
         processor.add_basic_rules(vec![("mdtohtml",md_to_html as MacroType)]);
-
         Ok(())
     }
 

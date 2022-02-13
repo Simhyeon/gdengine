@@ -49,9 +49,7 @@ lazy_static! {
     };
 
     pub static ref DEFAULT_ENTRY_PATH: PathBuf = std::env::current_dir().expect("Failed to get path").join("index.gddt");
-
     pub static ref CONFIG_PATH: PathBuf = std::env::current_dir().expect("Failed to get path").join("gde_config.json");
-
     pub static ref INDEX_RAD: PathBuf = std::env::current_dir().expect("Failed to get path").join("index.r4d");
 }
 
