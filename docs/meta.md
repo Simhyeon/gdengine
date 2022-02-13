@@ -9,75 +9,42 @@
 	* [x] Add table and query in single macro
 	* [x] $npc macro ( new page with class support  )
 
+* [x] Create generic renderer for future
+* [x] Support split images macro
+* [x] TOC macro
+
+Marp : 
+* [x] Refactored split class
+* [x] Make proper horizontal layout
+
+Mediawiki-Preview
+* [x] Should copy images to build directory
+* [x] Create table of contents (Use toc macro)
+* [x] Custom style file support
+
 ### Todos
 
 **Others**
 
-* [ ] Create generic renderer for future
-
+* [ ] Enable autocomplete
 * [-] Copy worked strange in my experience
 - But I cannot reproduce... hell..
-* [ ] Support split images macro
 
 * [ ] Gcalc integration
 * [ ] Make sure marp indentation works
 
-* [ ] New global macro
-	* [ ] TOC macro
-	- This reads information into a chunk and creates
-	- Necessary information as another macro
-	for example
-	```
-	When given --toc option gdengine registers macro hook for specific macro that
-	creates toc, such as h1 for marp and h2 for wikipage
-	
-	This yields text into some macro such as GDE_TOC_LIST
-	
-	And re-evalutes the same file.
-	
-	This should also come with END macro of r4d which is not implemented yet to
-	evade extra operational cost.
-	```
-
 **Renderers**
 
-1. Github readme renderer
-- This would be really cool
-1. Graph renderer
-	* [ ] Battle test it
-	* [x] Make new error type rather than box new error hassle
-	* [x] Plot rendering
-		* [x] Bar chart
-		* [x] Line chart
-		* [x] Area chart
-	* [x] Make plotters builder macros 
-2. Flowchart 
-	* [ ] Better flowchart implementation
-	- Maybe with flou-cli ?
-3. Docx renderer
-	* [ ] Complete docx renderer
-4. MISC
-	* [-] Port ul and ol to contained macro e.g. -> $ul(2,Content goes here) 
-	* [ ] Rather than porting, add enumerate and itemize for concrete listing macros
-5. Improve marp renderer
-	* [x] Make split macro set as builder pattern
-	* [ ] Fix split class
-		- Split class changes total slide behaviour
-		- Make this as some split container
-	* [ ] Make proper horizontal layout ( other than split )
-		- This should be recoverable
-		- Make it as an builder pattern
-6. mediawiki test option
-    * [ ] Custom style file support
-    * [ ] Should copy images to build directory
-	* [ ] Create table of contents (Use toc macro)
-	* [ ] Apply proper css
-	  * [ ] TOC style
+* [ ] Test renderers
+	- Graph renderer
+* [ ] 1. Github readme renderer
+* [ ] 2. Mediawiki preview
 	* [ ] Hook is necessary for simulated list elements
 	- This is because wikitext parser respects newline after list element while
 	html preview doesn't
 	- To solve this, line element macro should invoke hook trigger of surplus
 	newline attachment when encountered newline.
+* [ ] 3. Docx renderer
 
 **Project visibility**
 
@@ -93,9 +60,10 @@
 	* [ ] Make build branch for building
 	* [ ] Make dev branch for developing
 
----
+### Others
 
-* [ ] Use flou-cli for flowchart generation because graphviz is hard to distribute
+**Better Flowchart**
+* [ ] Possibly use flou-cli for flowchart generation because graphviz is hard to distribute
 - I don't hate graphviz but it has so much dependencies and features that I
 don't need. Thus there are rarely contained binary for general usage which
 sucks
@@ -123,12 +91,14 @@ sucks
     * [ ] PPTX + dms
 	* [ ] Graphviz alternative
 
-* [ ] Basic utilies
-    * [ ] Flowchart
-      * [ ] flowchart-js -> Not fully tested
-        * [ ] Interactive flowchart with given json chunk functionality
+* [ ] Flowchart
+  * [ ] flowchart-js -> Not fully tested
+    * [ ] Interactive flowchart with given json chunk functionality
 
 ## DONE
+
+* [-] Custom css style integration: I mean... include it with $include macro
+
 * [x] Utilize r4d storage feature
 	* [x] Remove ImageList file logics
 	* [x] Remove graphviz source file logics

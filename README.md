@@ -42,7 +42,7 @@ processes**. This is the reason why I made a Gdengine.
 Gdengine is a tool for game design documents creation. Gdengine does two jobs.
 
 1. Process macros in index file. 
-2. Render the index file into a target format.
+2. Render the index file into a target format(platform).
 
 There are various predefined macros built in gdengine for easier documents
 creation. These macros let user to create multiple formats without modifying
@@ -50,12 +50,16 @@ index file. You can also define your macros or add style files for
 deeper representational customizations too, though you need to make macros
 fallable if you target multiple formats at the same time.
 
+## Quick start
+
+[quick\_start](docs/quick_start.md)
+
 ## Install
 
 Refer [release page](https://github.com/Simhyeon/gdengine/releases/new) for installation.
 
 You can build the project by yourself but you need to install following
-binaries.
+binaries so that gdengine can find such binary from environment path.
 ```
 # Build binary youself.
 cargo install gdengine
@@ -64,6 +68,7 @@ cargo install gdengine
 # - Marp
 # - Chrome or chromium
 # - Pandoc
+# - Graphviz
 ```
 
 ## Dependencies
@@ -85,6 +90,7 @@ Caveat: Chrome has higher priority over chromium
 **Document renderer**
 - marp (slide as html,pdf,pptx)
 - mediawiki (web served wiki page)
+- mediawiki\_preview (for preview)
 - pandoc (docx, or say ooxml compatible file)
 
 **Component renderer**
@@ -95,15 +101,18 @@ Caveat: Chrome has higher priority over chromium
 
 **To be updated**
 - plotter ( Plot chart )
+- [gcalc](https://github.com/simhyeon/gcalc) (prbability calculation)
 
 ## Basic usage
 
 ```bash
+# Init
+gde init
 # Init project with extra git flag
 gde init --git
 
 # Render with given renderer module
-gde render -M <MODULE_NAME>
+gde render -m <MODULE_NAME>
 
 # e.g. render with marp backend 
 gde render -m marp
@@ -125,8 +134,8 @@ supported. You can utilize every r4d macros inside gdengine project.
 Basic rad configuations are,
 
 - All auths are open by default
-- All macros are greedy be default
-- Macro expansion is lenient by default
+- All macros are greedy by default
+- Macro expansion is lenient + purge by default
 - Use comment option of start. Comment character is ```%```.
 - Macro character is ```$```.
 
@@ -139,7 +148,7 @@ Basic rad configuations are,
 
 ## Goal
 
-- Easy documentation
+- Easy documentation ( Though I found it is very hard )
 - Cross platform without hassel and (possibly) without nodejs
 - Intuitive macro definitions
 - Useful document forms (pdf,pptx,html,docx)

@@ -28,6 +28,11 @@ impl Init {
         Ok(())
     }
 
+    pub fn new_var_file() -> GdeResult<()> {
+        fs::write(Path::new("varfile.env"), "")?;
+        Ok(())
+    }
+
     // Create new macro file
     pub fn new_macro_file() -> GdeResult<()> {
         Init::macro_file()?;

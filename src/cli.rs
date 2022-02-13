@@ -42,6 +42,7 @@ impl Cli {
                     Init::new_rad_file()?;
                     Init::new_config_file()?;
                     Init::new_env_file()?;
+                    Init::new_var_file()?;
                     Init::new_macro_file()?;
                     Init::new_directories()?;
                     // Git option
@@ -141,7 +142,7 @@ impl Cli {
 
     fn args_builder() -> clap::App<'static> {
         App::new("gde")
-            .version("0.5.0-rc.1")
+            .version("0.5.0")
             .author("Simon creek <simoncreek@tutanota.com>")
             .about("Gdengine is a document automation program.")
             .setting(clap::AppSettings::ArgRequiredElseHelp)
@@ -203,6 +204,9 @@ impl Cli {
             .arg(Arg::new("log")
                 .help("Log macro invocations")
                 .long("log"))
+            .arg(Arg::new("git")
+                .help("Init with git")
+                .long("git"))
             .arg(Arg::new("env")
                 .help("Set environment variables")
                 .short('e')

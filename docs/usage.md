@@ -38,6 +38,7 @@ gde render -m marp
 -p, --preserve         # Preserve cache file
     --test             # Yield multiple informations for test
 	--log              # Log macro invocations
+	--toc              # Run table of contents flow.
 
 # You can run multiple render process with run command
 gde run              // run first process in gde_config.json's run field
