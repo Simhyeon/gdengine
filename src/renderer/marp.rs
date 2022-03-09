@@ -3,7 +3,7 @@ use crate::executor::ExecOption;
 use crate::utils;
 use crate::models::GdeResult;
 use std::ffi::OsStr;
-use rad::{Processor, RadResult, MacroType};
+use rad::{Processor, RadResult, ExtMacroBuilder};
 use comrak::{markdown_to_html, ComrakOptions};
 use crate::renderer::models::GRender;
 
@@ -11,7 +11,7 @@ pub struct MarpRenderer;
 
 impl GRender for MarpRenderer {
     fn rad_setup(&self, processor : &mut Processor) -> GdeResult<()> {
-        processor.add_basic_rules(vec![("mdtohtml",md_to_html as MacroType)]);
+        processor.add_ext_macro(ExtMacroBuilder::new("mdtohtml").args(&vec!["a_content"]).function(md_to_html));
         Ok(())
     }
 
@@ -71,7 +71,7 @@ impl GRender for MarpRenderer {
 
 /// Additional basic macro for md conversion
 // Always greedy for consistency No need to utilzile processor
-fn md_to_html(args: &str, _: bool, _ : &mut Processor) -> RadResult<Option<String>> {
+fn md_to_html(args: &str,_ : &mut Processor) -> RadResult<Option<String>> {
     let mut comrak_option = ComrakOptions::default();
     // Enable raw html rendering
     comrak_option.render.unsafe_ = true;

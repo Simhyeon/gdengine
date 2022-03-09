@@ -109,7 +109,6 @@ $append(h2,\* $append(TOC_LIST,2,$a_content()$nl()) *\ )"#)?;
         let diff_option = if self.options.diff { DiffOption::Change } else { DiffOption::None };
         let mut processor = Processor::new()
             .purge(true)
-            .greedy(true)
             .set_comment_type(CommentType::Start)
             .lenient(!self.options.strict)
             .log(self.options.log)
