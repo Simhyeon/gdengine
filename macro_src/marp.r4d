@@ -7,6 +7,8 @@ $static(v_font_default,24)
 $static(v_thead_default,18)
 $static(v_tbody_default,14)
 $static(v_font_family,sans-serif)
+$static(v_table_header_bg,#006DCC)
+$static(v_table_header_fg,white)
 
 % Macros 
 
@@ -157,7 +159,7 @@ $:
 $define(tend=
 $append(TABLE_CONTENT,</table>)
 $halt()
-$triml($TABLE_CONTENT()))
+$que($triml($TABLE_CONTENT())))
 
 % URL
 $define(url,a_src a_text=[$a_text()]($a_src())) # $2 is alternate text, $1 is image url
@@ -222,7 +224,7 @@ $define(end=
 $append(SPLIT_CONTENT,</div>$nl()
 </div>)
 $halt()
-$triml($SPLIT_CONTENT()))
+$que($triml($SPLIT_CONTENT())))
 
 $define(start_horizontal=$enl()
 $define(HOR_CONTENT=)
@@ -232,7 +234,7 @@ $relay(macro,HOR_CONTENT)
 $define(end_horizontal=$enl()
 $append(HOR_CONTENT,$nl()</div>)
 $halt()
-$triml($HOR_CONTENT()))
+$que($triml($HOR_CONTENT())))
 
 $define(horizontal_item,a_content=
 <div class="hcont-item">
@@ -240,7 +242,7 @@ $a_content()
 </div>)
 
 % Center macro
-$define(center,a_content=<div style="text-align:center; display:block; margin: 0 auto;">
+$define(center,a_content=<div class="center-div">
 $a_content()
 </div>)
 

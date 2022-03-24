@@ -4,8 +4,10 @@ use crate::models::GdeResult;
 use crate::utils;
 use crate::renderer::*;
 use rad::CommentType;
+use rad::ExtMacroBuilder;
 use rad::RadResult;
-use rad::{Processor, AuthType, DiffOption, WriteOption};
+use rad::rad_ext_template::*;
+use rad::{Processor, AuthType, DiffOption, WriteOption, MacroType};
 use crate::renderer::models::GRender;
 
 pub struct Executor {
@@ -108,17 +110,18 @@ $append(h2,\* $append(TOC_LIST,2,$a_content()$nl()) *\ )"#)?;
     fn build_processor(&self) -> GdeResult<Processor> {
         let diff_option = if self.options.diff { DiffOption::Change } else { DiffOption::None };
         let mut processor = Processor::new()
-            .purge(true)
             .set_comment_type(CommentType::Start)
+            // TODO How to handle lenient mode?
             .lenient(!self.options.strict)
+            .purge(true)
             .log(self.options.log)
             .unix_new_line(true)
             .allow(Some(vec!(AuthType::ENV, AuthType::FIN, AuthType::FOUT, AuthType::CMD)))
             .write_to_file(Some(utils::middle_file_path().expect("Failed to get path")))?
-            .rule_files(Some(vec![
+            .melt_files(vec![
                     utils::STD_MACRO_PATH.to_owned(),
                     utils::module_path(self.render_type.to_string()).expect("Failed to get path")
-            ]))?
+            ])?
             .diff(diff_option)?;
 
         // Add variables
@@ -126,7 +129,45 @@ $append(h2,\* $append(TOC_LIST,2,$a_content()$nl()) *\ )"#)?;
             self.variable_list.clone().unwrap_or(vec![])
         )?;
 
+        // Add extension macros
+        self.add_extension(&mut processor)?;
+
         Ok(processor)
+    }
+
+    fn add_extension(&self,processor : &mut Processor) -> RadResult<()> {
+        // Add if mod variant
+        processor.add_ext_macro(
+            ExtMacroBuilder::new("ifmod")
+            .args(&vec!["a_mod","a_content"])
+            .deterred(deterred_template!(
+                let args = split_args!(2)?;
+                let target_mod = format!("mod_{}", &args[0]);
+
+                let result: Option<String> = if processor.contains_macro(&target_mod,MacroType::Any) {
+                    Some(expand!(&args[1])?)
+                } else { None };
+
+                Ok(result)
+            ))
+        );
+        processor.add_ext_macro(
+            ExtMacroBuilder::new("ifmodel")
+            .args(&vec!["a_mod","a_content","a_content_else"])
+            .deterred(deterred_template!(
+                let args = split_args!(3)?;
+                let target_mod = format!("mod_{}", &args[0]);
+
+                let result: Option<String> = if processor.contains_macro(&target_mod,MacroType::Any) {
+                    Some(expand!(&args[1])?)
+                } else { 
+                    Some(expand!(&args[2])?)
+                };
+
+                Ok(result)
+            ))
+        );
+        Ok(())
     }
 
     /// Expand macros from target source file

@@ -24,6 +24,9 @@ Mediawiki-Preview
 
 ### Todos
 
+* [ ] Currently purge mode is not properly applied
+* [ ] Only expand macros option
+
 **Others**
 
 * [ ] Enable autocomplete

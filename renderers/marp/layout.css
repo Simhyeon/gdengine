@@ -1,79 +1,48 @@
 /* Original source: https://github.com/marp-team/marpit/issues/137#issuecomment-522006274 */
 
+:root {
+	--root-width: 1280px;
+	--root-height: 720px;
+	--title-height: 130px;
+	--subtitle-height: 70px;
+}
+
 section {
 	font-family: $v_font_family(), sans-serif;
 	font-size: $v_font_default(); /* Default font size */
 }
 
 section.title {
-  --title-height: 130px;
-  --subtitle-height: 70px;
+	overflow: visible;
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-rows: 1fr var(--title-height) var(--subtitle-height) 1fr;
+	grid-template-areas: "." "title" "subtitle" ".";
+}
 
-  overflow: visible;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 1fr var(--title-height) var(--subtitle-height) 1fr;
-  grid-template-areas: "." "title" "subtitle" ".";
+section.title h1 {
+	grid-area: title;
+	--area-height: var(--title-height);
+	font-size: 2em !important;
+}
+
+section.title h2 {
+	grid-area: subtitle;
+	--area-height: var(--subtitle-height);
+	font-size: 0.9em !important;
 }
 
 section.title h1,
 section.title h2 {
-  margin: 0;
-  padding: 0;
-  text-align: center;
-  height: var(--area-height);
-  line-height: var(--area-height);
-  /*font-size: calc(var(--area-height) * 0.7);*/
-}
-
-section.title h1 {
-  grid-area: title;
-  --area-height: var(--title-height);
-  font-size: 2rem;
-}
-
-section.title h2 {
-  grid-area: subtitle;
-  --area-height: var(--subtitle-height);
-  font-size: 0.9rem;
-}
-
-section.tnc {
-	--title-height: 130px;
-
-	display: grid;
-	grid-template-columns: 1fr;
-    grid-template-rows: var(--title-height) auto;
-	grid-template-areas: "heading" "content";
-}
-
-section.tnc h1 {
-	--area-height: 130px;
-
 	margin: 0;
 	padding: 0;
-	grid-area: heading;
+	text-align: center;
 	height: var(--area-height);
 	line-height: var(--area-height);
 }
 
-section.tnc .marp-container {
-	/* This was hard-coded and I don't know what it is specifically 435px, kekw*/
-	/* Maybe utilize v_basis_height? */
-	--area-height: 435px;
-
-	display: flex;
-	margin: 0;
-	padding: 0;
-	max-width: 100%;
-	max-height: var(--area-height);
-	grid-area: content;
-	height: var(--area-height);
-	/* Flex-grow doesn't affect container,
-	 * but it is useful when container is nested */
-	flex-grow : 1; 
-	flex-direction: row;
-	justify-content: space-evenly;
+section.tnc {
+	justify-content: flex-start;
 }
 
 img {
@@ -100,8 +69,23 @@ ol, ul {
 	display: flex;
 	justify-content: space-evenly;
 	flex-direction: row;
+	max-height: calc(var(--root-height) - var(--title-height));
 }
 
 .hcont-item {
 	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+/* Add margin right for non last element */
+.hcont-item:not(:last-child) {
+	margin-right: 1em;
+}
+
+.center-div {
+	text-align: center; 
+	display: block;
+	margin: 0 auto;
+	max-height: calc(var(--root-height) - var(--title-height));
 }

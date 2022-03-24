@@ -3,33 +3,52 @@ table {
 	display: table;
 }
 
+/* Does it work?*/
 table tr.even {
     background: #f2f2f2;
 }
+
 table tr.odd {
     background: #eeeeee;
 }
 
-thead {
+section:not(.hheader):not(.noheader) table thead th {
+	background: $v_table_header_bg() !important;
+	color: $v_table_header_fg() !important;
 	text-align: center;
 	font-weight: bold;
 }
 
-thead tr {
-	background: #006DCC !important;
-	color: white !important;
+section.center-table-contents table th, 
+section.center-table-contents table td {
+	text-align: center !important;
+}
+
+section.hheader:not(.noheader) thead th {
+	text-align: left;
+	font-weight: normal;
+}
+
+section.hheader:not(.noheader) table td:first-child, section.hheader table th:first-child {
+	background: $v_table_header_bg() !important;
+	color: $v_table_header_fg() !important;
+	text-align: center;
+	font-weight: bold;
 }
 
 /*section.gdtable table td{*/
 	/*white-space: nowrap;*/
 /*}*/
 
-section.gdtable table td:last-child{
+section.gdtable:not(.hheader) table td:last-child{
 	width:80%;
 }
 
+section.gdtable:not(.hheader) table td:first-child{
+	text-align: center;
+}
+
 td {
-  text-align: center;
   vertical-align: middle;
 }
 
