@@ -48,6 +48,7 @@ section.tnc {
 img {
 	min-width: 0;
 	min-height: 0;
+	align-self: center;
 }
 
 /* Remove indentation of list items */
