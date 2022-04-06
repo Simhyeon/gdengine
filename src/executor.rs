@@ -4,10 +4,8 @@ use crate::models::GdeResult;
 use crate::utils;
 use crate::renderer::*;
 use rad::CommentType;
-use rad::ExtMacroBuilder;
 use rad::RadResult;
-use rad::rad_ext_template::*;
-use rad::{Processor, AuthType, DiffOption, WriteOption, MacroType};
+use rad::{Processor, AuthType, DiffOption, WriteOption};
 use crate::renderer::models::GRender;
 
 pub struct Executor {
@@ -135,38 +133,9 @@ $append(h2,\* $append(TOC_LIST,2,$a_content()$nl()) *\ )"#)?;
         Ok(processor)
     }
 
+    // Add default extension macros
     fn add_extension(&self,processor : &mut Processor) -> RadResult<()> {
-        // Add if mod variant
-        processor.add_ext_macro(
-            ExtMacroBuilder::new("ifmod")
-            .args(&vec!["a_mod","a_content"])
-            .deterred(deterred_template!(
-                let args = split_args!(2)?;
-                let target_mod = format!("mod_{}", &args[0]);
-
-                let result: Option<String> = if processor.contains_macro(&target_mod,MacroType::Any) {
-                    Some(expand!(&args[1])?)
-                } else { None };
-
-                Ok(result)
-            ))
-        );
-        processor.add_ext_macro(
-            ExtMacroBuilder::new("ifmodel")
-            .args(&vec!["a_mod","a_content","a_content_else"])
-            .deterred(deterred_template!(
-                let args = split_args!(3)?;
-                let target_mod = format!("mod_{}", &args[0]);
-
-                let result: Option<String> = if processor.contains_macro(&target_mod,MacroType::Any) {
-                    Some(expand!(&args[1])?)
-                } else { 
-                    Some(expand!(&args[2])?)
-                };
-
-                Ok(result)
-            ))
-        );
+        crate::macro_extension::Extension::extend_all(processor);
         Ok(())
     }
 

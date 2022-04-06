@@ -2,6 +2,7 @@ mod cli;
 mod config;
 mod error;
 mod executor;
+mod macro_extension;
 mod init;
 mod models;
 mod orchestrator;
