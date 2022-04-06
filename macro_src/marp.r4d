@@ -166,28 +166,33 @@ $define(url,a_src a_text=[$a_text()]($a_src())) # $2 is alternate text, $1 is im
 
 % Image substitue macros
 $define(image,a_src=
-<img src="$a_src()" style="object-fit: scale-down; max-height: 100%;"/>)
+<img src="$a_src()" style="object-fit: scale-down; max-height: 100%;"/>
+)
 
 % Make Set img's size with given arguments 
-$define(simage,a_src a_max_size=<img src="$a_src()" style="max-width: $a_max_size(); max-height: $a_max_size()%;"/>)
+$define(simage,a_src a_max_size=<img src="$a_src()" style="height: $a_max_size(); max-height: 100%; width: auto"/>
+)
 
 % MACRO >>> Text macro that also sets font size for the text
 % Example :
 % text(26, yatti yatta)
 $define(text,a_font_size a_content=<div style="font-size : $ifelse($eval($a_font_size() != 0),$a_font_size(),$a_font_size())px;">
 $trim($a_content())
-</div>)
+</div>
+)
 
 % MACRO >>> Flex box macro that makes div a flex display
 % Intended for usage with split screen
 $define(fbox,a_content=<div class="fbox">
 $trim($m_sanitize($a_content()))
-</div>)
+</div>
+)
 
 % MACRO >>> Flex box with given font size
 $define(ffbox,a_font_size a_content=<div class="fbox" style="font-size: $a_font_size()px;">
 $trim($m_sanitize($a_content()))
-</div>)
+</div>
+)
 
 % Class related macros
 
@@ -222,29 +227,34 @@ $define(right=
 % This ends relaying
 $define(end=
 $append(SPLIT_CONTENT,</div>$nl()
-</div>)
+</div>
+)
 $halt()
 $que($triml($SPLIT_CONTENT())))
 
 $define(start_horizontal=$enl()
 $define(HOR_CONTENT=)
 $relay(macro,HOR_CONTENT)
-<div class="hcontainer">)
+<div class="hcontainer">
+)
 
 $define(end_horizontal=$enl()
-$append(HOR_CONTENT,$nl()</div>)
+$append(HOR_CONTENT,$nl()</div>
+)
 $halt()
 $que($triml($HOR_CONTENT())))
 
 $define(horizontal_item,a_content=
 <div class="hcont-item">
 $a_content()
-</div>)
+</div>
+)
 
 % Center macro
 $define(center,a_content=<div class="center-div">
 $a_content()
-</div>)
+</div>
+)
 
 % Colored texts
 $define(text_color,a_color a_content=<span style="color:$a_color()">$a_content()</span>)
