@@ -167,8 +167,7 @@ dependencies = [
 [[package]]
 name = "cindex"
 version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6440806fe3a03c5f2754cef371b04462fbebfe3c36a31bd1a064180b111ef7e0"
+source = "git+https://github.com/simhyeon/cindex#a8ebaca2b658585428d0eec78d40dfb7e0e07b27"
 dependencies = [
  "bitflags",
  "indexmap",
@@ -701,6 +700,7 @@ dependencies = [
  "dotenv",
  "gcalc",
  "gdlogue",
+ "imagesize",
  "lazy_static",
  "plotters",
  "r4d",
@@ -887,6 +887,12 @@ dependencies = [
  "num-traits",
  "png",
 ]
+
+[[package]]
+name = "imagesize"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "00b3b62f4e783e38afa07b51eaaa789be2fba03dbe29a05a1a906eb64feb987d"
 
 [[package]]
 name = "indexmap"
@@ -1405,7 +1411,7 @@ dependencies = [
 [[package]]
 name = "r4d"
 version = "2.1.0"
-source = "git+https://github.com/simhyeon/r4d?branch=master#64052913e7b77e858c7196af87f644305e339151"
+source = "git+https://github.com/simhyeon/r4d?branch=dev#3b2abd368c72c35f7fa150ed1d7f8794d6fe6cea"
 dependencies = [
  "bincode",
  "chrono",
