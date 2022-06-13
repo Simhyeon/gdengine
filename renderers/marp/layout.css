@@ -12,6 +12,13 @@ section {
 	font-size: $v_font_default(); /* Default font size */
 }
 
+section.toc > ol {
+	display: flex;
+	flex-direction: column;
+	max-height: 100%;
+	flex-wrap: wrap;
+}
+
 section.title {
 	overflow: visible;
 	display: grid;
@@ -61,8 +68,9 @@ ol, ul {
 	flex: 1;
 	min-width: 0;
 	min-height: 0;
-	justify-content: center;
+	justify-content: space-evenly;
 	display: flex;
+	flex-direction: column;
 }
 
 .hcontainer {
