@@ -166,13 +166,11 @@ dependencies = [
 
 [[package]]
 name = "cindex"
-version = "0.4.0"
-source = "git+https://github.com/simhyeon/cindex#a8ebaca2b658585428d0eec78d40dfb7e0e07b27"
+version = "0.5.0"
+source = "git+https://github.com/simhyeon/cindex?branch=dev#cc736ffe37c952295e0abec03aae67d814386863"
 dependencies = [
- "bitflags",
- "indexmap",
+ "dcsv",
  "regex",
- "thiserror",
 ]
 
 [[package]]
@@ -388,6 +386,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2b2466559f260f48ad25fe6317b3c8dac77b5bdb5763ac7d9d6103530663bc90"
 dependencies = [
  "memchr",
+]
+
+[[package]]
+name = "dcsv"
+version = "0.2.0"
+source = "git+https://github.com/simhyeon/dcsv?branch=dev#93bb7d620ecec51e8c84163b70985686eaa04400"
+dependencies = [
+ "regex",
 ]
 
 [[package]]
@@ -974,16 +980,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7fb9b38af92608140b86b693604b9ffcc5824240a484d1ecd4795bacb2fe88f3"
 
 [[package]]
-name = "lipsum"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "42ee7271c76a89032dcc7e595c0a739a9c5514eab483deb0e82981fe2098c56a"
-dependencies = [
- "rand",
- "rand_chacha",
-]
-
-[[package]]
 name = "lock_api"
 version = "0.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1363,12 +1359,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ppv-lite86"
-version = "0.2.16"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb9f9e6e233e5c4a35559a617bf40a4ec447db2e84c20b55a6f83167b7e57872"
-
-[[package]]
 name = "proc-macro-hack"
 version = "0.5.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1410,24 +1400,21 @@ dependencies = [
 
 [[package]]
 name = "r4d"
-version = "2.1.0"
-source = "git+https://github.com/simhyeon/r4d?branch=dev#3b2abd368c72c35f7fa150ed1d7f8794d6fe6cea"
+version = "3.0.0-rc.0"
 dependencies = [
  "bincode",
  "chrono",
  "cindex",
  "colored",
  "crossterm",
- "csv",
+ "dcsv",
  "evalexpr",
  "lazy_static",
- "lipsum",
  "rad_ext_template",
  "regex",
  "serde",
  "similar",
  "textwrap 0.14.2",
- "thiserror",
 ]
 
 [[package]]
@@ -1435,46 +1422,6 @@ name = "rad_ext_template"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "814bdc9a363e7ac1fab7e3cf7876afa273f8b21ad20137819104bbeaf8cc6432"
-
-[[package]]
-name = "rand"
-version = "0.8.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2e7573632e6454cf6b99d7aac4ccca54be06da05aca2ef7423d22d27d4d4bcd8"
-dependencies = [
- "libc",
- "rand_chacha",
- "rand_core",
- "rand_hc",
-]
-
-[[package]]
-name = "rand_chacha"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6c10a63a0fa32252be49d21e7709d4d4baf8d231c2dbce1eaa8141b9b127d88"
-dependencies = [
- "ppv-lite86",
- "rand_core",
-]
-
-[[package]]
-name = "rand_core"
-version = "0.6.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d34f1408f55294453790c48b2f1ebbb1c5b4b7563eb1f418bcfcfdbb06ebb4e7"
-dependencies = [
- "getrandom",
-]
-
-[[package]]
-name = "rand_hc"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d51e9f596de227fda2ea6c84607f5558e196eeaf43c986b724ba4fb8fdf497e7"
-dependencies = [
- "rand_core",
-]
 
 [[package]]
 name = "redox_syscall"
