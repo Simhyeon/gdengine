@@ -1,7 +1,7 @@
 use std::fs::canonicalize;
 
-use rad::{Processor, MacroType, ExtMacroBuilder, RadResult, RadError};
-use rad::rad_ext_template::*;
+use r4d::rad_ext_template::*;
+use r4d::{ExtMacroBuilder, MacroType, Processor, RadError, RadResult};
 
 pub struct Extension;
 
@@ -15,7 +15,7 @@ impl Extension {
         // Add if mod variant
         processor.add_ext_macro(
             ExtMacroBuilder::new("ifmod")
-            .args(&vec!["a_mod","a_content"])
+            .args(&["a_mod","a_content"])
             .deterred(deterred_template!(
                     let args = split_args!(2)?;
                     let target_mod = format!("mod_{}", &args[0]);
@@ -29,14 +29,14 @@ impl Extension {
         );
         processor.add_ext_macro(
             ExtMacroBuilder::new("ifmodel")
-            .args(&vec!["a_mod","a_content","a_content_else"])
+            .args(&["a_mod","a_content","a_content_else"])
             .deterred(deterred_template!(
                     let args = split_args!(3)?;
                     let target_mod = format!("mod_{}", &args[0]);
 
                     let result: Option<String> = if processor.contains_macro(&target_mod,MacroType::Any) {
                         Some(expand!(&args[1])?)
-                    } else { 
+                    } else {
                         Some(expand!(&args[2])?)
                     };
 
@@ -48,7 +48,7 @@ impl Extension {
     fn extend_image_size(processor: &mut Processor) {
         processor.add_ext_macro(
             ExtMacroBuilder::new("image_dim")
-            .args(&vec!["a_path"])
+            .args(&["a_path"])
             .function(function_template!(
                     let args = split_args!(1)?;
                     let path = canonicalize(processor.get_current_dir()?.join(&args[0]))?;
@@ -64,7 +64,7 @@ impl Extension {
 
         processor.add_ext_macro(
             ExtMacroBuilder::new("image_height")
-            .args(&vec!["a_path"])
+            .args(&["a_path"])
             .function(function_template!(
                     let args = split_args!(1)?;
                     let path = canonicalize(processor.get_current_dir()?.join(&args[0]))?;
@@ -77,7 +77,7 @@ impl Extension {
 
         processor.add_ext_macro(
             ExtMacroBuilder::new("image_width")
-            .args(&vec!["a_path"])
+            .args(&["a_path"])
             .function(function_template!(
                     let args = split_args!(1)?;
                     let path = canonicalize(processor.get_current_dir()?.join(&args[0]))?;

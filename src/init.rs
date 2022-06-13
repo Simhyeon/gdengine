@@ -1,11 +1,11 @@
-use std::fs;
-use std::path::Path;
 use crate::config::Config;
 use crate::models::GdeResult;
 use crate::utils;
 use std::ffi::OsStr;
+use std::fs;
+use std::path::Path;
 
-const DIRS: [&str; 4] = [ "inc", "build", "cache", "res" ];
+const DIRS: [&str; 4] = ["inc", "build", "cache", "res"];
 
 pub struct Init;
 
@@ -48,7 +48,7 @@ impl Init {
 
     pub fn git_init() -> GdeResult<()> {
         // Git init
-        utils::command("git",vec![OsStr::new("init")])?;
+        utils::command("git", vec![OsStr::new("init")])?;
 
         // Crate gitignore file
         fs::write(Path::new(".gitignore"), "build\ncache\nres\n.env")?;
@@ -61,4 +61,4 @@ impl Init {
         }
         Ok(())
     }
-} 
+}

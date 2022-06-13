@@ -1,5 +1,5 @@
+use r4d::RadError;
 use thiserror::Error;
-use rad::RadError;
 
 #[derive(Debug, Error)]
 pub enum GdeError {
@@ -28,25 +28,25 @@ pub enum GdeError {
 }
 
 impl From<std::io::Error> for GdeError {
-    fn from(err : std::io::Error) -> Self {
+    fn from(err: std::io::Error) -> Self {
         Self::IoError(err)
     }
 }
 
 impl From<serde_json::Error> for GdeError {
-    fn from(err : serde_json::Error) -> Self {
+    fn from(err: serde_json::Error) -> Self {
         Self::JsonError(err)
     }
 }
 
 impl From<RadError> for GdeError {
-    fn from(err : RadError) -> Self {
+    fn from(err: RadError) -> Self {
         Self::Raderror(err)
     }
 }
 
 impl From<reqwest::Error> for GdeError {
-    fn from(err : reqwest::Error) -> Self {
+    fn from(err: reqwest::Error) -> Self {
         Self::ReqError(err)
     }
 }

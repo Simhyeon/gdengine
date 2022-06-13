@@ -1,23 +1,27 @@
-use std::path::{PathBuf, Path};
 use crate::error::GdeError;
 use crate::models::GdeResult;
-use crate::utils;
-use crate::renderer::*;
-use rad::CommentType;
-use rad::RadResult;
-use rad::{Processor, AuthType, DiffOption, WriteOption};
 use crate::renderer::models::GRender;
+use crate::renderer::*;
+use crate::utils;
+use r4d::CommentType;
+use r4d::RadResult;
+use r4d::{AuthType, DiffOption, Processor, WriteOption};
+use std::path::{Path, PathBuf};
 
 pub struct Executor {
     render_type: String,
     renderer: Box<dyn GRender>,
-    options : ExecOption,
-    variable_list: Option<Vec<(String,String)>>
+    options: ExecOption,
+    variable_list: Option<Vec<(String, String)>>,
 }
 
 impl Executor {
-    pub fn new(render_type: &str, options: ExecOption, variable_list: Option<Vec<(String,String)>>) -> GdeResult<Self> {
-        Ok(Self { 
+    pub fn new(
+        render_type: &str,
+        options: ExecOption,
+        variable_list: Option<Vec<(String, String)>>,
+    ) -> GdeResult<Self> {
+        Ok(Self {
             render_type: render_type.to_string(),
             renderer: Self::get_renderer(render_type)?,
             options,
@@ -49,7 +53,7 @@ impl Executor {
         let out_file = match self.render(&mut processor) {
             Result::Ok(value) => value,
             Err(err) => {
-                // On test environment, it is fine to fail 
+                // On test environment, it is fine to fail
                 if self.options.test {
                     eprintln!("{}", err);
                     return Ok(());
@@ -79,26 +83,27 @@ impl Executor {
 
     /// Setup necessary information
     fn setup(&mut self) -> GdeResult<()> {
-        std::env::set_var("GDE_MODULE", utils::renderer_path(self.render_type.to_string())?);
+        std::env::set_var("GDE_MODULE", utils::renderer_path(&self.render_type)?);
 
         // Set toc automatically for mediawiki preview
-        if self.render_type.as_str() == "mediawiki_preview"{
-            self.options.toc = true; 
+        if self.render_type.as_str() == "mediawiki_preview" {
+            self.options.toc = true;
         }
 
         Ok(())
     }
 
-    fn preprocess(&self, processor : &mut Processor) -> GdeResult<()> {
+    fn preprocess(&self, processor: &mut Processor) -> GdeResult<()> {
         self.renderer.rad_setup(processor)?;
 
         // Use toc macro variant
         // Only add h1 and h2
         if self.options.toc {
-            processor.from_string(
+            processor.process_string(
                 r#"$declare(toc_h1,toc_h2)
 $append(h1,\* $append(TOC_LIST,1,$a_content()$nl()) *\ )
-$append(h2,\* $append(TOC_LIST,2,$a_content()$nl()) *\ )"#)?;
+$append(h2,\* $append(TOC_LIST,2,$a_content()$nl()) *\ )"#,
+            )?;
         }
 
         Ok(())
@@ -106,7 +111,11 @@ $append(h2,\* $append(TOC_LIST,2,$a_content()$nl()) *\ )"#)?;
 
     /// Build rad processor with options
     fn build_processor(&self) -> GdeResult<Processor> {
-        let diff_option = if self.options.diff { DiffOption::Change } else { DiffOption::None };
+        let diff_option = if self.options.diff {
+            DiffOption::Change
+        } else {
+            DiffOption::None
+        };
         let mut processor = Processor::new()
             .set_comment_type(CommentType::Start)
             // TODO How to handle lenient mode?
@@ -114,18 +123,21 @@ $append(h2,\* $append(TOC_LIST,2,$a_content()$nl()) *\ )"#)?;
             .purge(true)
             .log(self.options.log)
             .unix_new_line(true)
-            .allow(Some(vec!(AuthType::ENV, AuthType::FIN, AuthType::FOUT, AuthType::CMD)))
+            .allow(Some(vec![
+                AuthType::ENV,
+                AuthType::FIN,
+                AuthType::FOUT,
+                AuthType::CMD,
+            ]))
             .write_to_file(Some(utils::middle_file_path().expect("Failed to get path")))?
             .melt_files(vec![
-                    utils::STD_MACRO_PATH.to_owned(),
-                    utils::module_path(self.render_type.to_string()).expect("Failed to get path")
+                utils::STD_MACRO_PATH.to_owned(),
+                utils::module_path(&self.render_type).expect("Failed to get path"),
             ])?
             .diff(diff_option)?;
 
         // Add variables
-        processor.add_static_rules(
-            self.variable_list.clone().unwrap_or(vec![])
-        )?;
+        processor.add_static_rules(self.variable_list.clone().unwrap_or_default())?;
 
         // Add extension macros
         self.add_extension(&mut processor)?;
@@ -134,28 +146,28 @@ $append(h2,\* $append(TOC_LIST,2,$a_content()$nl()) *\ )"#)?;
     }
 
     // Add default extension macros
-    fn add_extension(&self,processor : &mut Processor) -> RadResult<()> {
+    fn add_extension(&self, processor: &mut Processor) -> RadResult<()> {
         crate::macro_extension::Extension::extend_all(processor);
         Ok(())
     }
 
     /// Expand macros from target source file
-    fn macro_expansion(&self,processor : &mut Processor) -> RadResult<()> {
+    fn macro_expansion(&self, processor: &mut Processor) -> RadResult<()> {
         // Add optional test mod
         if self.options.test {
-            processor.add_static_rules(vec![("mod_test","")])?
+            processor.add_static_rules(vec![("mod_test", "")])?
         }
 
         // Process user custom file if exists
         // though this is not mandatory
         if utils::INDEX_RAD.exists() {
-            processor.from_file(&*utils::INDEX_RAD)?;
-        } 
+            processor.process_file(&*utils::INDEX_RAD)?;
+        }
 
-        processor.from_file(Path::new(&self.options.input))?;
+        processor.process_file(Path::new(&self.options.input))?;
 
         if self.options.test | self.options.diff {
-             processor.print_result()?;
+            processor.print_result()?;
         }
 
         // Process one more time if toc option was given
@@ -170,10 +182,13 @@ $append(h2,\* $append(TOC_LIST,2,$a_content()$nl()) *\ )"#)?;
             processor.set_write_option(WriteOption::Discard);
 
             // Regain a file handle from middle file
-            let file = std::fs::OpenOptions::new().truncate(true).write(true).open(previous)?;
+            let file = std::fs::OpenOptions::new()
+                .truncate(true)
+                .write(true)
+                .open(previous)?;
             processor.set_write_option(WriteOption::File(file));
-            processor.from_file(&after)?;
-            // Because toc sets 
+            processor.process_file(&after)?;
+            // Because toc sets
             processor.reset_flow_control();
         }
 
@@ -190,14 +205,13 @@ $append(h2,\* $append(TOC_LIST,2,$a_content()$nl()) *\ )"#)?;
     // Remove cached file
     fn postprocess(&self, final_file: Option<PathBuf>) -> GdeResult<()> {
         if let Some(final_file) = final_file {
-
             // Change middle name to Test_out.gddt
-            if self.options.test{
+            if self.options.test {
                 std::fs::rename(
-                    utils::middle_file_path()?, 
-                    utils::CACHE_PATH.join("test_out.gddt")
+                    utils::middle_file_path()?,
+                    utils::CACHE_PATH.join("test_out.gddt"),
                 )?;
-            } 
+            }
 
             // Copy option
             if let Some(path) = &self.options.copy {
@@ -209,10 +223,11 @@ $append(h2,\* $append(TOC_LIST,2,$a_content()$nl()) *\ )"#)?;
             }
         }
 
+        // TODO
         // Renderer specific files
-        match self.render_type {
-            _ => ()
-        }
+        //match self.render_type {
+        //_ => (),
+        //}
 
         // Cache preservation
         if !self.options.preserve {
@@ -233,7 +248,12 @@ $append(h2,\* $append(TOC_LIST,2,$a_content()$nl()) *\ )"#)?;
             "flowchartjs" => Box::new(flowchartjs::FJSRenderer),
             "flowchartgvz" => Box::new(flowchartgvz::FGVZRenderer),
             "plotters" => Box::new(plot::PlotRenderer),
-            _ => return Err(GdeError::InvalidCommand(format!("Renderer \"{}\" is not a viable renderer", render_type))),
+            _ => {
+                return Err(GdeError::InvalidCommand(format!(
+                    "Renderer \"{}\" is not a viable renderer",
+                    render_type
+                )))
+            }
         })
     }
 }
