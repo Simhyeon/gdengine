@@ -88,3 +88,34 @@ $define(trow,a_content=$append(TABLE_CONTENT,$m_newline_to_br($a_content())$nl()
 
 % end table
 $define(tend=$table(wikitext,$TABLE_CONTENT()))
+
+% Split compatible macro
+
+% MACRO >>> Start left pane
+$define(start_pane=
+	$static(pane_count,1)
+	$static(div_count,1)
+)
+
+% MACRO >>> Start next pane
+$define(next_pane=
+	$static(pane_count,$eval($pane_count() + 1))
+	$static(div_count,1)
+)
+
+% First flush out pipe content if exisiting
+$define(sdiv,a_content=
+	$let(pipe_target,split_$div_count())
+	Content : $a_content()
+	$pipeto($pipe_target(),$a_content())
+	$static(div_count,$eval($div_count() + 1))
+)
+
+% MACRO >>> End pane
+% This ends relaying
+% Print out all the things
+$define(end_pane=
+	$for(1,$pane_count(),
+		$for(1,$div_count(),pane : $split_$:())
+	)
+)

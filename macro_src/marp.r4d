@@ -67,7 +67,7 @@ $define(ul,a_count=$forloop(2,$a_count(),    )*)
 $define(ol,a_count=$forloop(2,$a_count(),    )1.)
 
 % Paragraph
-$define(p,a_content=<p>$a_content()</p>)
+$define(p,a_content=<p>$mdtohtml($a_content())</p>)
 
 % New page
 % Compatible macros
@@ -181,15 +181,15 @@ $trim($a_content())
 </div>
 )
 
-% MACRO >>> Flex box macro that makes div a flex display
+% MACRO >>> sdiv macro that makes div a flex display
 % Intended for usage with split screen
-$define(fbox,a_content=<div class="fbox">
+$define(sdiv,a_content=<div class="fbox">
 $trim($m_sanitize($a_content()))
 </div>
 )
 
-% MACRO >>> Flex box with given font size
-$define(ffbox,a_font_size a_content=<div class="fbox" style="font-size: $a_font_size()px;">
+% MACRO >>> sdiv with given font size
+$define(fsdiv,a_font_size a_content=<div class="fbox" style="font-size: $a_font_size()px;">
 $trim($m_sanitize($a_content()))
 </div>
 )
@@ -212,25 +212,25 @@ $define(class,a_class=$m_class($regex($a_class*(),\*,*\, )))
 % Split screen related macros
 
 % MACRO >>> Start left pane
-$define(left=$define(SPLIT_CONTENT=)
+$define(start_pane=$define(SPLIT_CONTENT=)
 $relay(macro,SPLIT_CONTENT)
 <div class="hcontainer">
 <div class="hcont-item">)
 
-% MACRO >>> Start right pane
-$define(right=
+% MACRO >>> Start next pane
+$define(next_pane=
 </div>
 <div class="hcont-item">
 )
 
-% MACRO >>> End split screen
+% MACRO >>> End pane
 % This ends relaying
-$define(end=
+$define(end_pane=
 $append(SPLIT_CONTENT,</div>$nl()
 </div>
 )
 $halt()
-$que($triml($SPLIT_CONTENT())))
+$que($SPLIT_CONTENT()))
 
 $define(start_horizontal=$enl()
 $define(HOR_CONTENT=)
