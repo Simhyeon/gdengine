@@ -1,42 +1,24 @@
-### Changed
-
-* [x] Marp font macro is broken, fix it
-* [x] Add independent font macro variant
-- I made table macro as relay 
-- THus I don't need to make new one
-
-* [x] Add new global macros
-	* [x] Add table and query in single macro
-	* [x] $npc macro ( new page with class support  )
-
-* [x] Create generic renderer for future
-* [x] Support split images macro
-* [x] TOC macro
-
-Marp : 
-* [x] Refactored split class
-* [x] Make proper horizontal layout
-
-Mediawiki-Preview
-* [x] Should copy images to build directory
-* [x] Create table of contents (Use toc macro)
-* [x] Custom style file support
-
 ### Todos
+$todo_start()
+* [ ] Reduce external dependencies
+* [ ] Error: TOC\_LIST doesn't exist but it somehow works anyway? Wut?
+* [ ] Don't create build or cache if index.gddt is not present.
+* [ ] Only expand macros option : Um... what was the intent? For testing? I don't remember
+* [ ] Github renderer
+* [ ] Split macro should work differently in other platforms
+* [ ] Maybe todo macro?
+	- THe problem is that todo will always invoke, but is it necessary? or intended?
 
-* [ ] Currently purge mode is not properly applied
-* [ ] Only expand macros option
-
-**Others**
+- Others
 
 * [ ] Enable autocomplete
 * [-] Copy worked strange in my experience
-- But I cannot reproduce... hell..
+	- But I cannot reproduce... hell..
 
 * [ ] Gcalc integration
 * [ ] Make sure marp indentation works
 
-**Renderers**
+- Renderers
 
 * [ ] Test renderers
 	- Graph renderer
@@ -49,7 +31,7 @@ Mediawiki-Preview
 	newline attachment when encountered newline.
 * [ ] 3. Docx renderer
 
-**Project visibility**
+- Project visibility
 
 * [ ] Documentation
 	* [x] Make full usage
@@ -62,6 +44,7 @@ Mediawiki-Preview
 	* [ ] Make cargo branch for cargo push
 	* [ ] Make build branch for building
 	* [ ] Make dev branch for developing
+$todo_end()
 
 ### Others
 
@@ -97,6 +80,31 @@ sucks
 * [ ] Flowchart
   * [ ] flowchart-js -> Not fully tested
     * [ ] Interactive flowchart with given json chunk functionality
+
+### Changed
+
+* [x] Marp font macro is broken, fix it
+* [x] Add independent font macro variant
+- I made table macro as relay 
+- THus I don't need to make new one
+
+* [x] Add new global macros
+	* [x] Add table and query in single macro
+	* [x] $npc macro ( new page with class support  )
+
+* [x] Create generic renderer for future
+* [x] Support split images macro
+* [x] TOC macro
+
+Marp : 
+* [x] Refactored split class
+* [x] Make proper horizontal layout
+
+Mediawiki-Preview
+* [x] Should copy images to build directory
+* [x] Create table of contents (Use toc macro)
+* [x] Custom style file support
+
 
 ## DONE
 

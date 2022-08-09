@@ -16,12 +16,13 @@ impl Extension {
         processor.add_ext_macro(
             ExtMacroBuilder::new("ifmod")
             .args(&["a_mod","a_content"])
+            .desc("If current mode is given value then execute expression")
             .deterred(deterred_template!(
-                    let args = split_args!(2)?;
+                    let args = split_args!(2, true)?;
                     let target_mod = format!("mod_{}", &args[0]);
 
                     let result: Option<String> = if processor.contains_macro(&target_mod,MacroType::Any) {
-                        Some(expand!(&args[1])?)
+                        Some(expand_args!(&args[1])?)
                     } else { None };
 
                     Ok(result)
@@ -30,14 +31,15 @@ impl Extension {
         processor.add_ext_macro(
             ExtMacroBuilder::new("ifmodel")
             .args(&["a_mod","a_content","a_content_else"])
+            .desc("If current mode is given value then execute expression else the other")
             .deterred(deterred_template!(
-                    let args = split_args!(3)?;
+                    let args = split_args!(3,true)?;
                     let target_mod = format!("mod_{}", &args[0]);
 
                     let result: Option<String> = if processor.contains_macro(&target_mod,MacroType::Any) {
-                        Some(expand!(&args[1])?)
+                        Some(expand_args!(&args[1])?)
                     } else {
-                        Some(expand!(&args[2])?)
+                        Some(expand_args!(&args[2])?)
                     };
 
                     Ok(result)
@@ -45,13 +47,16 @@ impl Extension {
         );
     }
 
+    // TODO
+    // std::env::current_dir() might not work.
     fn extend_image_size(processor: &mut Processor) {
         processor.add_ext_macro(
             ExtMacroBuilder::new("image_dim")
             .args(&["a_path"])
+            .desc("Get image size from a given path")
             .function(function_template!(
-                    let args = split_args!(1)?;
-                    let path = canonicalize(processor.get_current_dir()?.join(&args[0]))?;
+                    let args = split_args!(1,false)?;
+                    let path = canonicalize(std::env::current_dir().expect("Failed to get current directory").join(&args[0]))?;
 
                     let dim = imagesize::size(&path).map_err(|err| {
                         RadError::InvalidExecution(format!("Failed to get image size of \"{}\" with error of \"{}\"",path.display(),err))
@@ -65,9 +70,10 @@ impl Extension {
         processor.add_ext_macro(
             ExtMacroBuilder::new("image_height")
             .args(&["a_path"])
+            .desc("Get image height from a given path")
             .function(function_template!(
-                    let args = split_args!(1)?;
-                    let path = canonicalize(processor.get_current_dir()?.join(&args[0]))?;
+                    let args = split_args!(1, false)?;
+                    let path = canonicalize(std::env::current_dir().expect("Failed to get current directory").join(&args[0]))?;
                     let dim = imagesize::size(&path).map_err(|err| {
                         RadError::InvalidExecution(format!("Failed to get image size of \"{}\" with error of \"{}\"",path.display(),err))
                     })?;
@@ -78,9 +84,10 @@ impl Extension {
         processor.add_ext_macro(
             ExtMacroBuilder::new("image_width")
             .args(&["a_path"])
+            .desc("Get image width from a given path")
             .function(function_template!(
-                    let args = split_args!(1)?;
-                    let path = canonicalize(processor.get_current_dir()?.join(&args[0]))?;
+                    let args = split_args!(1, false)?;
+                    let path = canonicalize(std::env::current_dir().expect("Failed to get current directory").join(&args[0]))?;
                     let dim = imagesize::size(&path).map_err(|err| {
                         RadError::InvalidExecution(format!("Failed to get image size of \"{}\" with error of \"{}\"",path.display(),err))
                     })?;

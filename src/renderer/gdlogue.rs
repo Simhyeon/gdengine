@@ -64,18 +64,20 @@ impl GRender for GDLogueRenderer {
 }
 
 impl GDLogueRenderer {
-    fn html_dialogue(&self, p: &mut Processor, out_file: &PathBuf) -> RadResult<()> {
+    fn html_dialogue(&self, p: &mut Processor, out_file: &Path) -> RadResult<()> {
         if let Err(err) = self.dot_file(&utils::CACHE_PATH.join("out.json")) {
             eprintln!("Err : {}", err);
         }
 
-        let new_file = std::fs::OpenOptions::new()
-            .create(true)
-            .write(true)
-            .truncate(true)
-            .open(out_file)?;
-
-        p.set_write_option(WriteOption::File(new_file));
+        let target = WriteOption::file(
+            out_file,
+            std::fs::OpenOptions::new()
+                .create(true)
+                .write(true)
+                .truncate(true)
+                .clone(),
+        )?;
+        p.set_write_option(target);
         p.process_file(
             &utils::renderer_path("gdlogue")
                 .expect("Failed to get renderer path")

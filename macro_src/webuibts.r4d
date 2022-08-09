@@ -181,7 +181,7 @@ $m_radio|(name,id)
 # Radio select
 $define(radio,a_id a_radio_ids=
 <div id="$a_id()" class="radioGroup">
-$foreach($a_radio_ids(),$m_radio($a_id(),$:))
+$foreach($a_radio_ids(),$m_radio($a_id(),$:()))
 </div>)
 
 $radio|(1,a,b,c)
@@ -196,7 +196,7 @@ $m_sel_item|(1)
 # Selection(Dropdown)
 $define(sel,a_id a_sel_ids=
 <select id="$a_id()" class="form-select" aria-label="Default select example">
-$foreach($a_sel_ids(),$m_sel_item($:))
+$foreach($a_sel_ids(),$m_sel_item($:()))
 </select>)
 
 $sel|(1,a,b,c,d)
@@ -327,7 +327,7 @@ $m_swap_button|(name,id)
 
 # Swap button radio group
 $define(swap_button_group,a_id a_swap_buttons=<div id="$a_id()" class="btn-group" role="group">
-$foreach($a_swap_buttons(),$m_swap_button($a_id(), $:))
+$foreach($a_swap_buttons(),$m_swap_button($a_id(), $:()))
 </div>)
 $swap_button_group|(id,Hello World,John doe)
 
@@ -495,7 +495,7 @@ $sidebar_right|(id,content)
 # Style modifier
 # Css tyle and js script can use this modifier html tag to modify
 # element that comes next to the modifier
-$define(style_next,a_mdf_classes=<modifier class="$foreach(a_mdf_classes(),mdf-$:)"></modifier>)
+$define(style_next,a_mdf_classes=<modifier class="$foreach(a_mdf_classes(),mdf-$:())"></modifier>)
 
 $style_next|(1,2,4,5,6)
 

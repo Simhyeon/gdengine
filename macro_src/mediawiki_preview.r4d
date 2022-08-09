@@ -99,6 +99,6 @@ $define(toc_include=
 			</label>
 		</span>
 	</div>
-	$forline^($TOC_LIST(),$toc($a_LN(),$index(1,$:)))
+	$forline^($TOC_LIST(),$toc($a_LN(),$index(1,$:())))
 </div>
 $escape())

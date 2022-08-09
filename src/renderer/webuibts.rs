@@ -2,7 +2,7 @@ use crate::executor::ExecOption;
 use crate::models::GdeResult;
 use crate::utils;
 use r4d::{Processor, RadResult, WriteOption};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use super::models::GRender;
 
@@ -30,14 +30,16 @@ impl GRender for WBTSRenderer {
 }
 
 impl WBTSRenderer {
-    fn rad(&self, p: &mut Processor, out_file: &PathBuf) -> RadResult<()> {
-        let new_file = std::fs::OpenOptions::new()
-            .create(true)
-            .write(true)
-            .truncate(true)
-            .open(out_file)?;
-
-        p.set_write_option(WriteOption::File(new_file));
+    fn rad(&self, p: &mut Processor, out_file: &Path) -> RadResult<()> {
+        let target = WriteOption::file(
+            out_file,
+            std::fs::OpenOptions::new()
+                .create(true)
+                .write(true)
+                .truncate(true)
+                .clone(),
+        )?;
+        p.set_write_option(target);
         p.process_file(
             &utils::renderer_path("webuibts")
                 .expect("Failed to get renderer path")

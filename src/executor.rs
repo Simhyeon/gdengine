@@ -123,21 +123,16 @@ $append(h2,\* $append(TOC_LIST,2,$a_content()$nl()) *\ )"#,
             .purge(true)
             .log(self.options.log)
             .unix_new_line(true)
-            .allow(Some(vec![
-                AuthType::ENV,
-                AuthType::FIN,
-                AuthType::FOUT,
-                AuthType::CMD,
-            ]))
-            .write_to_file(Some(utils::middle_file_path().expect("Failed to get path")))?
-            .melt_files(vec![
+            .allow(&[AuthType::ENV, AuthType::FIN, AuthType::FOUT, AuthType::CMD])
+            .write_to_file(utils::middle_file_path().expect("Failed to get path"))?
+            .melt_files(&[
                 utils::STD_MACRO_PATH.to_owned(),
                 utils::module_path(&self.render_type).expect("Failed to get path"),
             ])?
             .diff(diff_option)?;
 
         // Add variables
-        processor.add_static_rules(self.variable_list.clone().unwrap_or_default())?;
+        processor.add_static_rules(&self.variable_list.clone().unwrap_or_default())?;
 
         // Add extension macros
         self.add_extension(&mut processor)?;
@@ -155,7 +150,7 @@ $append(h2,\* $append(TOC_LIST,2,$a_content()$nl()) *\ )"#,
     fn macro_expansion(&self, processor: &mut Processor) -> RadResult<()> {
         // Add optional test mod
         if self.options.test {
-            processor.add_static_rules(vec![("mod_test", "")])?
+            processor.add_static_rules(&[("mod_test", "")])?
         }
 
         // Process user custom file if exists
@@ -182,11 +177,14 @@ $append(h2,\* $append(TOC_LIST,2,$a_content()$nl()) *\ )"#,
             processor.set_write_option(WriteOption::Discard);
 
             // Regain a file handle from middle file
-            let file = std::fs::OpenOptions::new()
-                .truncate(true)
-                .write(true)
-                .open(previous)?;
-            processor.set_write_option(WriteOption::File(file));
+            let target = WriteOption::file(
+                &previous,
+                std::fs::OpenOptions::new()
+                    .truncate(true)
+                    .write(true)
+                    .clone(),
+            )?;
+            processor.set_write_option(target);
             processor.process_file(&after)?;
             // Because toc sets
             processor.reset_flow_control();

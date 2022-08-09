@@ -77,13 +77,15 @@ impl GRender for PreviewRenderer {
         let source_file = utils::middle_file_path()?;
         chomp_file(&source_file)?;
 
-        let new_file = std::fs::OpenOptions::new()
-            .create(true)
-            .write(true)
-            .truncate(true)
-            .open(utils::BUILD_PATH.join("out.html"))?;
-
-        processor.set_write_option(WriteOption::File(new_file));
+        let target = WriteOption::file(
+            &utils::BUILD_PATH.join("out.html"),
+            std::fs::OpenOptions::new()
+                .create(true)
+                .write(true)
+                .truncate(true)
+                .clone(),
+        )?;
+        processor.set_write_option(target);
         processor.process_file(&utils::renderer_path("mediawiki")?.join("preview.html"))?;
 
         // Copy images only after processing was succesful

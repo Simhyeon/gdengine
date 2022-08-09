@@ -98,7 +98,7 @@ $newpage()
 % styles(image,layout)
 $define(styles,a_styles=<style>
 $foreach($a_styles(),
-$include($path($env(GDE_MODULE),$:.css)))
+$include($path($env(GDE_MODULE),$:().css)))
 </style>
 )
 
@@ -138,7 +138,7 @@ $define(tfont,a_header_size a_body_size=
 % Set table header
 $define(theader,a_content=
 <thead>
-$foreach($a_content(),    <td>$:</td>)
+$foreach($a_content(),    <td>$:()</td>)
 </thead>
 )
 
@@ -149,7 +149,7 @@ $define(trow,a_content=
 <tr>
 $foreach($a_content(),$m_sanitize(<td>
 
-$:
+$:()
 </td>
 ))
 </tr>)
@@ -282,6 +282,6 @@ $pause(false)
 
 % Escape because everything was processed before
 $define(toc_include=
-$forline^($TOC_LIST(),$toc($:)
+$forline^($TOC_LIST(),$toc($:())
 )
 $escape())
