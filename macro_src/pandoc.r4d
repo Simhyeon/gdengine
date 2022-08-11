@@ -27,15 +27,15 @@ $define(ud,a_content=__$a_content()__)
 # Indentation
 # WARNING : Single spaces between if else bracket end and macro define bracket end
 # is necessary, do not erase it.
-$define(idt,a_count=$forloop(2,$a_count(),    ))
+$define(idt,a_count=$forloop(    ,2,$a_count()))
 
 # Lists
 # Unordered List
 # Emtpry ul is same with level 1 
-$define(ul,a_count=$forloop(2,$a_count(),    )*)
+$define(ul,a_count=$forloop(    ,2,$a_count())*)
 
 % Ordered list
-$define(ol,a_count=$forloop(2,$a_count(),    )1.)
+$define(ol,a_count=$forloop(    ,2,$a_count())1.)
 
 % URL
 $define(url,a_src=[Image not found]($a_src())) 

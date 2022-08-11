@@ -36,13 +36,13 @@ $define(wiki_page,a_url=[[$a_url()]])
 $define(wiki_page_alt,a_url a_alt=wikipage($a_url()|$a_alt())) # Wikipage link with alternative text
 
 % Unordered List
-$define(ul,a_count=$forloop(1,$a_count(),*))
+$define(ul,a_count=$forloop(*,1,$a_count()))
 
 % Ordered list
-$define(ol,a_count=$forloop(1,$a_count(),#))
+$define(ol,a_count=$forloop(#,1,$a_count()))
 
 % Indentation
-$define(idt,a_count=$forloop(1,$a_count(),:))
+$define(idt,a_count=$forloop(:,1,$a_count()))
 
 % URL Link (Same functionality wit markdown link)
 $define(url,a_src=[$a_src() Url_not_found])
@@ -115,7 +115,9 @@ $define(sdiv,a_content=
 % This ends relaying
 % Print out all the things
 $define(end_pane=
-	$for(1,$pane_count(),
-		$for(1,$div_count(),pane : $split_$:())
-	)
+	$forloop(
+        $forloop(
+            pane : $split_$:(),1,$div_count()
+        ),1,$pane_count()
+    )
 )

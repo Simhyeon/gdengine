@@ -1,5 +1,5 @@
 % mod
-$define(mod_marp=)
+$static(mod_marp,$empty())
 
 % Environment variables 
 $static(v_basis_height,500)
@@ -21,7 +21,7 @@ $define(m_class,a_class=<!-- _class: $a_class() -->)
 % Check src/renderer/marp.rs for implementation
 $define(m_sanitize,a_content=$mdtohtml($a_content()))
 
-% Subsitue with markdown compatible image form 
+% Subsitute with markdown compatible image form 
 % Convert contents into single lined html
 % This was intended for multi line support in csv table
 % I thought this macro was necessry but is it now?
@@ -56,15 +56,15 @@ $define(ud,a_content=<span style="text-decoration:underline;">$a_content()</span
 % Indentation
 % WARNING : Single spaces between if else bracket end and macro define bracket end
 % is necessary, do not erase it.
-$define(idt,a_count=$forloop(2,$a_count(),    ))
+$define(idt,a_count=$forloop($space(4),2,$a_count()))
 
 % Lists
 % Unordered List
 % Emtpry ul is same with level 1 
-$define(ul,a_count=$forloop(2,$a_count(),    )*)
+$define(ul,a_count=$forloop($space(4),2,$a_count())*)
 
 % Ordered list
-$define(ol,a_count=$forloop(2,$a_count(),    )1.)
+$define(ol,a_count=$forloop($space(4),2,$a_count())1.)
 
 % Paragraph
 $define(p,a_content=<p>$mdtohtml($a_content())</p>)
@@ -81,7 +81,7 @@ $define(np=
 =newpage()
 )
 
-% New page wich classes
+% New page with classes
 $define(npc,a_classes=
 newpage()
 $class($a_classes())
@@ -97,8 +97,9 @@ $newpage()
 % Usage :
 % styles(image,layout)
 $define(styles,a_styles=<style>
-$foreach($a_styles(),
-$include($path($env(GDE_MODULE),$:().css)))
+$foreach($include($path($env(GDE_MODULE),$:().css)),
+$a_styles()
+)
 </style>
 )
 
@@ -138,7 +139,7 @@ $define(tfont,a_header_size a_body_size=
 % Set table header
 $define(theader,a_content=
 <thead>
-$foreach($a_content(),    <td>$:()</td>)
+$foreach($space(4)<td>$:()</td>,$a_content())
 </thead>
 )
 
@@ -147,11 +148,11 @@ $foreach($a_content(),    <td>$:()</td>)
 % inline list
 $define(trow,a_content=
 <tr>
-$foreach($a_content(),$m_sanitize(<td>
+$foreach($m_sanitize(<td>
 
 $:()
 </td>
-))
+,$a_content()))
 </tr>)
 
 % end table
@@ -270,6 +271,12 @@ $define(cyan,a_content=$text_color($COLOR_CYAN(),$a_content*()))
 $define(white,a_content=$text_color($COLOR_WHITE(),$a_content*()))
 
 % TOC macro
+
+% Escape because everything was processed before
+$define(toc_include=
+$forline^($toc($:())$nl(),$TOC_LIST())
+$escape())
+
 % This simply declares macro
 % toc macro should not be nested because it should print literal toc_include
 % This behaviour might change according to rad update though
@@ -279,9 +286,3 @@ $pause(true)
 $toc_include()
 $pause(false)
 )
-
-% Escape because everything was processed before
-$define(toc_include=
-$forline^($TOC_LIST(),$toc($:())
-)
-$escape())
